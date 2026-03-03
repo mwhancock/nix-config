@@ -103,7 +103,7 @@
     shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
-      kdePackages.kate
+
     ];
   };
 
