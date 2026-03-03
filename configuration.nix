@@ -87,6 +87,7 @@
   users.users.mark = {
     isNormalUser = true;
     description = "mark";
+    shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
       kdePackages.kate
@@ -94,8 +95,10 @@
     ];
   };
 
-  # Install firefox.
+  # Programs
   programs.firefox.enable = true;
+  programs.fish.enable = true;
+
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
