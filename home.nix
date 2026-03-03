@@ -44,18 +44,19 @@
       font-family = "JetBrainsMono Nerd Font";
 
       #appearance
-      background-opacity = 0.8;
-      background-blur = true;
+      background-opacity = 0.7;
+      background-blur = 15;
       window-theme = "dark";
       theme = "Gruvbox Dark Hard";
       window-decoration = false;
-      window-padding = 0;
+      window-padding-x = 10;
+      window-padding-y = 10;
 
       #shell integration
       shell-integration = "fish";
 
       #cursor
-      cursor-style = "block";
+      cursor-style = "bar";
       cursor-style-blink = true;
 
       #behavior
