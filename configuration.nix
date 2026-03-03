@@ -2,6 +2,7 @@
   config,
   pkgs,
   inputs,
+  lib,
   ...
 }:
 
@@ -18,17 +19,52 @@
     git
     wget
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ghostty
     zed-editor
     nil
     nixd
+    tree
   ];
 
   environment.shells = with pkgs; [ fish ];
+
   environment.variables = {
     EDITOR = "zed";
     VISUAL = "zed";
     TERMINAL = "ghostty";
+  };
+
+  environment.sessionVariables = {
+    XDG_DATA_DIRS = lib.mkAfter [
+      "/var/lib/flatpak/exports/share"
+      "$HOME/.local/share/flatpak/exports/share"
+    ];
+  };
+
+  #enable Flatpak support
+  services.flatpak = {
+    enable = true;
+
+    #add flathub remote
+    remotes = [
+      {
+        name = "flathub";
+        location = "https://flathub.org/repo/flathub.flatpakrepo";
+      }
+    ];
+
+    #define which Flatpaks to install
+    packages = [
+      "dev.aunetx.deezer"
+    ];
+
+    #auto-update Flatpaks
+    update = {
+      onActivation = false; # Set true to update on every rebuild
+      auto = {
+        enable = true;
+        onCalendar = "weekly"; # Update weekly
+      };
+    };
   };
 
   # Bootloader.
@@ -36,6 +72,7 @@
     limine.enable = true;
     timeout = 5;
   };
+
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "nixos"; # Define your hostname.
