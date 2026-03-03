@@ -91,7 +91,7 @@
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
       kdePackages.kate
-    #  thunderbird
+      inputs.ghostty.${pkgs.stdenv.hostPlatform.system}.default
     ];
   };
 
