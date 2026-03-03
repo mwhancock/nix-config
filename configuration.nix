@@ -15,7 +15,9 @@
       git
       wget
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ];
+      ghostty
+      zed-editor
+      ];
 
   # Bootloader.
   boot.loader.limine.enable = true;
@@ -91,7 +93,6 @@
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
       kdePackages.kate
-      inputs.ghostty.${pkgs.stdenv.hostPlatform.system}.default
     ];
   };
 
