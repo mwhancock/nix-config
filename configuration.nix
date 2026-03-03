@@ -28,7 +28,10 @@
 
 
   # Bootloader.
-  boot.loader.limine.enable = true;
+  boot.loader = {
+    limine.enable = true;
+    timeout = 5;
+  };
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "nixos"; # Define your hostname.
@@ -97,23 +100,12 @@
   users.users.mark = {
     isNormalUser = true;
     description = "mark";
-    shell = pkgs.bash;
-    #shell = pkgs.fish;
+    shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
       kdePackages.kate
     ];
   };
-
-  programs.bash = {
-  enable = true;
-  interactiveShellInit = ''
-    if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
-      then
-        exec ${pkgs.fish}/bin/fish
-      fi
-    '';
-    };
 
   # Programs
   programs.firefox.enable = true;
