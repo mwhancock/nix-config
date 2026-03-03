@@ -22,7 +22,6 @@
     zed-editor
     nil
     nixd
-    fastfetch
   ];
 
   environment.shells = with pkgs; [ fish ];
