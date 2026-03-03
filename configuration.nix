@@ -19,6 +19,14 @@
       zed-editor
       ];
 
+    environment.shells = with pkgs; [ fish ];
+    environment.variables = {
+      EDITOR = "zed";
+      VISUAL = "zed";
+      TERMINAL = "ghostty";
+    };
+
+
   # Bootloader.
   boot.loader.limine.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -89,12 +97,23 @@
   users.users.mark = {
     isNormalUser = true;
     description = "mark";
-    shell = pkgs.fish;
+    shell = pkgs.bash;
+    #shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" "mark"];
     packages = with pkgs; [
       kdePackages.kate
     ];
   };
+
+  programs.bash = {
+  enable = true;
+  interactiveShellInit = ''
+    if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
+      then
+        exec ${pkgs.fish}/bin/fish
+      fi
+    '';
+    };
 
   # Programs
   programs.firefox.enable = true;
@@ -115,7 +134,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+   services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
