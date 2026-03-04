@@ -83,7 +83,7 @@
       echo ""
       read -p "Enter backup number to restore: " $CHOICE
 
-      BACKUP_FILE=$(ls -1 "$BACKUP_DIR"/zen-profile-*.tar.gz | sed -n "$CHOICE")
+      BACKUP_FILE=$(ls -1 "$BACKUP_DIR"/zen-profile-*.tar.gz | sed -n "$CHOICE") --strip-components=1
 
       if [ -z "$BACKUP_FILE" ]; then
         echo "Invalid choice"
@@ -211,5 +211,10 @@
     enable = true;
     settings.user.name = "mark";
     settings.user.email = "mwhancock@proton.me";
+    extraConfig = {
+       safe = {
+         directory = "/home/mark/nixos-config";
+       };
+     };
   };
 }
