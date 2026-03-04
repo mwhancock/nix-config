@@ -14,7 +14,7 @@
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
-    (writeShellScriptBin "backup-zen" ''
+    (writeShellScriptBin "zen-backup" ''
       cd ~/Zen-Backup-Tool
       ./zen-backup.sh
       cp ~/Backups/ZenBrowser/*.tar.gz ~/Nextcloud/Documents
