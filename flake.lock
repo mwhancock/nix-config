@@ -57,7 +57,24 @@
         "home-manager": "home-manager",
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs",
+        "zen-backup": "zen-backup",
         "zen-browser": "zen-browser"
+      }
+    },
+    "zen-backup": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770288897,
+        "narHash": "sha256-wJQaMUixVmx+krPBC9K4dFg3RLyl0eO9wcbHLpm5vIM=",
+        "owner": "Ronin-CK",
+        "repo": "Zen-Backup-Tool",
+        "rev": "54fa9a0dcf94d359eefaa8507714f7ca8fd0286a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ronin-CK",
+        "repo": "Zen-Backup-Tool",
+        "type": "github"
       }
     },
     "zen-browser": {

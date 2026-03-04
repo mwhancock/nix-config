@@ -2,15 +2,19 @@
   description = "My NixOS flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    zen-browser = {
-      url = "github:youwen5/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.url = "github:nix-community/home-manager";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak/?ref=latest"; # or pin to a version
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    zen-backup = {
+      url = "github:Ronin-CK/Zen-Backup-Tool";
+      flake = false; # Important: this isn't a flake, just source code
+    };
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # dms = {
@@ -45,6 +49,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               users.mark = import ./home.nix;
+              extraSpecialArgs = { inherit inputs; };
             };
           }
         ];
