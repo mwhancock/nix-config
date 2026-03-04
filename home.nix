@@ -209,12 +209,10 @@
 
   programs.git = {
     enable = true;
-    settings.user.name = "mark";
-    settings.user.email = "mwhancock@proton.me";
-    extraConfig = {
-      safe = {
-        directory = "/home/mark/nixos-config";
-      };
+    settings = {
+      user.name = "mark";
+      user.email = "mwhancock@proton.me";
+      safe.directory = "/home/mark/nixos-config";
     };
   };
 }

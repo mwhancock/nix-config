@@ -19,13 +19,42 @@
   ];
   environment.systemPackages = with pkgs; [
     git
+    gcc
+    clang
+    cmake
+    jdk
+    python3
+    cargo
+    rustc
+    rustup
+    #android-studio
+    postman
+    nixpkgs-fmt
+    nh
+    nemo
+    foliate
+    pdfarranger
+    vesktop
+    steam
+    gamemode
+    virtualbox
+    wl-clipboard
+    grim
+    slurp
+    swappy
+    swaybg
+    swaylock
+    swayidle
+    xwayland-satellite
+    jetbrains-mono
     wget
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    #zed-editor
     nil
     nixd
     tree
     impression
+    alsa-tools
+    alsa-firmware
   ];
 
   environment.shells = with pkgs; [ fish ];
@@ -61,14 +90,15 @@
     packages = [
       "dev.aunetx.deezer"
       "dev.zed.Zed"
+      "com.calibre_ebook.calibre"
     ];
 
     #auto-update Flatpaks
     update = {
-      onActivation = false; # Set true to update on every rebuild
+      onActivation = true;
       auto = {
         enable = true;
-        onCalendar = "weekly"; # Update weekly
+        onCalendar = "weekly";
       };
     };
   };
@@ -80,13 +110,14 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelParams = [ "snd-hda-intel.model=alc245-fixup-bass-hp-dac" ];
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixos"; # Define hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
 
-  # Set your time zone.
+  # Set time zone.
   time.timeZone = "America/St_Johns";
 
   # Select internationalisation properties.
@@ -139,6 +170,7 @@
       "mark"
       "disk"
       "root"
+      "audio"
     ];
 
   };
@@ -151,13 +183,12 @@
     enable = true;
     libraries = with pkgs; [
       alsa-lib
-      wayland            # Core Wayland libraries
-      wayland-utils      # Wayland utilities
-      libxkbcommon       # Keyboard handling
-      vulkan-loader      # Vulkan support (Zed requires Vulkan) [citation:2]
-      mesa               # GPU drivers
+      wayland
+      wayland-utils
+      libxkbcommon
+      vulkan-loader
       mesa
-      # Add these if still having issues
+      mesa
       libGL
       libglvnd
       xkeyboard-config
@@ -166,34 +197,52 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List services that you want to enable:
+  # List services
   services.tailscale.enable = true;
+  services.auto-cpufreq.enable = true;
+  services.power-profiles-daemon.enable = false;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-   fileSystems."/" = lib.mkForce {
+  fileSystems."/" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
-    options = [ "subvol=@root" "compress=zstd" "noatime" ];
+    options = [
+      "subvol=@root"
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   fileSystems."/home" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
-    options = [ "subvol=@home" "compress=zstd" "noatime" ];
+    options = [
+      "subvol=@home"
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   fileSystems."/nix" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
-    options = [ "subvol=@nix" "compress=zstd" "noatime" ];
+    options = [
+      "subvol=@nix"
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   fileSystems."/var/log" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
-    options = [ "subvol=@log" "compress=zstd" "noatime" ];
+    options = [
+      "subvol=@log"
+      "compress=zstd"
+      "noatime"
+    ];
     neededForBoot = true;
   };
 
