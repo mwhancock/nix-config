@@ -42,6 +42,7 @@
       "/var/lib/flatpak/exports/share"
       "$HOME/.local/share/flatpak/exports/share"
     ];
+    XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
   };
 
   #enable Flatpak support
@@ -146,7 +147,22 @@
   programs.fish.enable = true;
   #programs.dank-material-shell.enable = true;
   programs.niri.enable = true;
-
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      alsa-lib
+      wayland            # Core Wayland libraries
+      wayland-utils      # Wayland utilities
+      libxkbcommon       # Keyboard handling
+      vulkan-loader      # Vulkan support (Zed requires Vulkan) [citation:2]
+      mesa               # GPU drivers
+      mesa
+      # Add these if still having issues
+      libGL
+      libglvnd
+      xkeyboard-config
+    ];
+  };
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -155,6 +171,42 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+   fileSystems."/" = lib.mkForce {
+    device = "/dev/nvme0n1p2";
+    fsType = "btrfs";
+    options = [ "subvol=@root" "compress=zstd" "noatime" ];
+  };
+
+  fileSystems."/home" = lib.mkForce {
+    device = "/dev/nvme0n1p2";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd" "noatime" ];
+  };
+
+  fileSystems."/nix" = lib.mkForce {
+    device = "/dev/nvme0n1p2";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" "compress=zstd" "noatime" ];
+  };
+
+  fileSystems."/var/log" = lib.mkForce {
+    device = "/dev/nvme0n1p2";
+    fsType = "btrfs";
+    options = [ "subvol=@log" "compress=zstd" "noatime" ];
+    neededForBoot = true;
+  };
+
+  fileSystems."/boot" = lib.mkForce {
+    device = "/dev/nvme0n1p1";
+    fsType = "vfat";
+  };
+
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "monthly";
+    fileSystems = [ "/" ];
+  };
 
   system.stateVersion = "25.11"; # Did you read the comment?
 
