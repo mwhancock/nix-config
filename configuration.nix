@@ -34,6 +34,7 @@
     EDITOR = "zed";
     VISUAL = "zed";
     TERMINAL = "ghostty";
+    ZEN_PROFILE_DIR = "~/.config/zen zen-backup";
   };
 
   environment.sessionVariables = {
