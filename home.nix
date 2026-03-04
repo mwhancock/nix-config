@@ -1,7 +1,7 @@
 {
   #config,
   pkgs,
-  inputs,
+  #inputs,
   ...
 }:
 
@@ -212,9 +212,9 @@
     settings.user.name = "mark";
     settings.user.email = "mwhancock@proton.me";
     extraConfig = {
-       safe = {
-         directory = "/home/mark/nixos-config";
-       };
-     };
+      safe = {
+        directory = "/home/mark/nixos-config";
+      };
+    };
   };
 }

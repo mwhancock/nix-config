@@ -17,6 +17,10 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # dms = {
     #   url = "github:AvengeMedia/DankMaterialShell/stable";
     #   inputs.nixpkgs.follows = "nixpkgs";
@@ -31,18 +35,28 @@
     {
       self,
       nixpkgs,
+      agenix,
       zen-browser,
       home-manager,
       nix-flatpak,
       ...
     }@inputs:
+    let
+      system = "x86_64-linux";
+      #pkgs = nixpkgs.legacyPackages.${system};
+    in
     {
+      packages.${system}.agenix = agenix.packages.${system}.default;
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
           ./configuration.nix
+          agenix.nixosModules.age
           nix-flatpak.nixosModules.nix-flatpak
+          {
+            age.identityPaths = [ "/home/mark/.ssh/id_ed25519" ];
+          }
           home-manager.nixosModules.home-manager
           {
             home-manager = {
