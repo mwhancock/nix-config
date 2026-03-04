@@ -1,5 +1,5 @@
 {
-  config,
+  #config,
   pkgs,
   inputs,
   lib,
@@ -9,6 +9,8 @@
 {
   imports = [
     ./hardware-configuration.nix
+    #inputs.dms.homeModules.dank-material-shell
+    #inputs.niri.homeModules.niri
   ];
 
   nix.settings.experimental-features = [
@@ -19,10 +21,11 @@
     git
     wget
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    zed-editor
+    #zed-editor
     nil
     nixd
     tree
+    impression
   ];
 
   environment.shells = with pkgs; [ fish ];
@@ -55,6 +58,7 @@
     #define which Flatpaks to install
     packages = [
       "dev.aunetx.deezer"
+      "dev.zed.Zed"
     ];
 
     #auto-update Flatpaks
@@ -122,6 +126,7 @@
       };
     };
   };
+
   users.users.mark = {
     isNormalUser = true;
     description = "mark";
@@ -136,11 +141,14 @@
 
   # Programs
   programs.fish.enable = true;
+  #programs.dank-material-shell.enable = true;
+  programs.niri.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # List services that you want to enable:
+  services.tailscale.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;

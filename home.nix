@@ -1,6 +1,12 @@
-{ config, pkgs, ... }:
+{
+  #config,
+  pkgs,
+  #inputs,
+  ...
+}:
 
 {
+
   home.enableNixpkgsReleaseCheck = false;
   home.username = "mark";
   home.homeDirectory = "/home/mark";
@@ -8,6 +14,12 @@
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
+    (writeShellScriptBin "backup-zen" ''
+      cd ~/Zen-Backup-Tool
+      ./zen-backup.sh
+      cp ~/Backups/ZenBrowser/*.tar.gz ~/Nextcloud/Documents
+      echo "Zen backup saved to Nextcloud!"
+    '')
 
     #archives
     zip
@@ -16,6 +28,7 @@
     p7zip
 
     fastfetch
+    nextcloud-client
 
     #networking tools
     nmap
@@ -79,6 +92,7 @@
       nix-rebuild = "sudo nixos-rebuild switch --flake ~/nixos-config";
       nix-diff = "sudo nixos-rebuild list-generations";
       nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
+      home-rebuild = "home-manager switch --flake ~/nixos-config";
     };
 
     # Abbreviations (expand after space - Fish-specific)
