@@ -136,6 +136,8 @@
       "networkmanager"
       "wheel"
       "mark"
+      "disk"
+      "root"
     ];
 
   };
