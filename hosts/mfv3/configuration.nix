@@ -37,7 +37,6 @@
     vesktop
     steam
     gamemode
-    virtualbox
     wl-clipboard
     grim
     slurp
@@ -91,6 +90,7 @@
       "dev.aunetx.deezer"
       "dev.zed.Zed"
       "com.calibre_ebook.calibre"
+      "app.grayjay.Grayjay"
     ];
 
     #auto-update Flatpaks
@@ -201,6 +201,7 @@
   services.tailscale.enable = true;
   services.auto-cpufreq.enable = true;
   services.power-profiles-daemon.enable = false;
+  virtualisation.virtualbox.host.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;

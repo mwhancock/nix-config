@@ -7,6 +7,8 @@
 
 {
 
+  imports = [ ../../homeManagerModules ];
+
   home.enableNixpkgsReleaseCheck = false;
   home.username = "mark";
   home.homeDirectory = "/home/mark";
