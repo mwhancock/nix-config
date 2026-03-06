@@ -51,7 +51,8 @@
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
-          ./configuration.nix
+          ./hosts/mfv3/configuration.nix
+          ./nixModules
           agenix.nixosModules.age
           nix-flatpak.nixosModules.nix-flatpak
           {
@@ -62,7 +63,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              users.mark = import ./home.nix;
+              users.mark = import ./hosts/mfv3/home.nix;
               extraSpecialArgs = { inherit inputs; };
             };
           }
