@@ -176,6 +176,7 @@
   };
 
   # Programs
+  programs.clang.enable = true;
   programs.fish.enable = true;
   #programs.dank-material-shell.enable = true;
   programs.niri.enable = true;

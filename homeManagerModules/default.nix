@@ -1,3 +1,1 @@
-{ config, pkgs, ... }:
-{
-}
+[ ./core/shell.nix ]
