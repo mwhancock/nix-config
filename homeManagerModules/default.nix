@@ -1,1 +1,8 @@
-[ ./core/shell.nix ]
+{ ... }:
+
+{
+
+  imports = [
+    ./core/shell.nix
+  ];
+}
