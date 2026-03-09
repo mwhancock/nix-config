@@ -1,7 +1,6 @@
 {
   #config,
   pkgs,
-  inputs,
   lib,
   ...
 }:
@@ -29,14 +28,10 @@
     rustc
     rustup
     #android-studio
-    postman
+
     nixpkgs-fmt
     nh
-    nemo
-    foliate
-    pdfarranger
-    vesktop
-    steam
+
     gamemode
     wl-clipboard
     grim
@@ -48,7 +43,6 @@
     xwayland-satellite
     jetbrains-mono
     wget
-    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     nil
     nixd
     tree
@@ -259,6 +253,6 @@
     fileSystems = [ "/" ];
   };
 
-  system.stateVersion = "25.11"; # Did you read the comment?
+  system.stateVersion = "25.11";
 
 }
