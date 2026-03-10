@@ -1,0 +1,35 @@
+{ pkgs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    git
+    gcc
+    clang
+    clang-tools
+    cmake
+    jdk
+    python3
+    cargo
+    rustc
+    rustup
+    #android-studio
+    nixpkgs-fmt
+    nh
+    gamemode
+    wl-clipboard
+    grim
+    slurp
+    swappy
+    swaybg
+    swaylock
+    swayidle
+    xwayland-satellite
+    jetbrains-mono
+    wget
+    nil
+    nixd
+    tree
+    impression
+    alsa-tools
+    alsa-firmware
+  ];
+}
