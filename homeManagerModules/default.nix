@@ -1,7 +1,5 @@
 { ... }:
-
 {
-
   imports = [
     ./core/shell.nix
     ./core/terminal.nix
