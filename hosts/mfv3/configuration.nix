@@ -197,6 +197,7 @@
   services.auto-cpufreq.enable = true;
   services.power-profiles-daemon.enable = false;
   virtualisation.virtualbox.host.enable = true;
+  services.logind.lidSwitch = "suspend-then-hibernate";
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
