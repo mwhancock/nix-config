@@ -30,6 +30,7 @@
     steam
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     postman
+    onlyoffice-desktopeditors
 
     #networking tools
     nmap
