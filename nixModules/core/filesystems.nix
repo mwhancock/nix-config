@@ -9,7 +9,6 @@
       "noatime"
     ];
   };
-
   fileSystems."/home" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
@@ -19,7 +18,6 @@
       "noatime"
     ];
   };
-
   fileSystems."/nix" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
@@ -29,7 +27,6 @@
       "noatime"
     ];
   };
-
   fileSystems."/var/log" = lib.mkForce {
     device = "/dev/nvme0n1p2";
     fsType = "btrfs";
@@ -40,12 +37,10 @@
     ];
     neededForBoot = true;
   };
-
   fileSystems."/boot" = lib.mkForce {
     device = "/dev/nvme0n1p1";
     fsType = "vfat";
   };
-
   services.btrfs.autoScrub = {
     enable = true;
     interval = "monthly";
