@@ -6,12 +6,12 @@
     home-manager.url = "github:nix-community/home-manager";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-flatpak = {
-      url = "github:gmodena/nix-flatpak/?ref=latest"; # or pin to a version
+      url = "github:gmodena/nix-flatpak/?ref=latest";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-backup = {
       url = "github:Ronin-CK/Zen-Backup-Tool";
-      flake = false; # Important: this isn't a flake, just source code
+      flake = false;
     };
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
@@ -36,7 +36,7 @@
       self,
       nixpkgs,
       agenix,
-      zen-browser,
+      #zen-browser,
       home-manager,
       nix-flatpak,
       ...
