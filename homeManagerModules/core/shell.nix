@@ -36,8 +36,6 @@
       set -gx EDITOR zed
       set -gx VISUAL zed
       set -gx TERMINAL ghostty
-
-      # Custom prompt
       set -g fish_greeting "Welcome back, mark! λ"
     '';
   };

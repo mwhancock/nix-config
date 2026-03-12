@@ -5,20 +5,20 @@
     ./core/boot.nix
     ./core/filesystems.nix
     ./core/networking.nix
-    ./hardware/bluetooth.nix
+    ./desktop/display-manager.nix
+    ./desktop/keymap.nix
+    ./desktop/niri.nix
+    ./desktop/plasma.nix
     ./hardware/audio.nix
+    ./hardware/bluetooth.nix
     ./hardware/power.nix
+    ./security/nix-ld.nix
+    ./services/flatpak.nix
     ./services/printing.nix
     ./services/ssh.nix
     ./services/tailscale.nix
-    ./services/flatpak.nix
     ./services/virtualbox.nix
-    ./desktop/display-manager.nix
-    ./desktop/plasma.nix
-    ./desktop/niri.nix
-    ./desktop/keymap.nix
-    ./security/nix-ld.nix
-    ./users/mark.nix
     ./packages/system-packages.nix
+    ./users/mark.nix
   ];
 }

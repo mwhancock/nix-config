@@ -1,6 +1,9 @@
-{ ... }:
+{ inputs, ... }:
 {
-  imports = [ ../../homeManagerModules/default.nix ];
+  imports = [
+    ../../homeManagerModules/default.nix
+    inputs.dms.homeModules.dank-material-shell
+  ];
   home.sessionVariables = {
     PATH = "$HOME/.local/bin:$PATH";
   };
