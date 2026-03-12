@@ -1,5 +1,5 @@
 {
-  pkgs, # inputs,
+  pkgs, inputs,
   ...
 }:
 {
@@ -10,7 +10,8 @@
     pdfarranger
     vesktop
     steam
-    #inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    #zed-editor
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     postman
     onlyoffice-desktopeditors
   ];
