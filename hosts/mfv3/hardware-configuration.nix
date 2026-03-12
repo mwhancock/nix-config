@@ -4,10 +4,10 @@
 {
   config,
   lib,
-  # pkgs,
   modulesPath,
   ...
 }:
+
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -18,8 +18,6 @@
     "xhci_pci"
     "thunderbolt"
     "usbhid"
-    "usb_storage"
-    "sd_mod"
     "rtsx_pci_sdmmc"
   ];
   boot.initrd.kernelModules = [ ];
@@ -27,16 +25,35 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/51e417c8-1ce4-4e21-b429-a43343c6b39d";
-    fsType = "ext4";
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@root" ];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" ];
+  };
+
+  fileSystems."/var/log" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@log" ];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@home" ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/7266-3F32";
+    device = "/dev/disk/by-uuid/57B4-E4CE";
     fsType = "vfat";
     options = [
-      "fmask=0077"
-      "dmask=0077"
+      "fmask=0022"
+      "dmask=0022"
     ];
   };
 

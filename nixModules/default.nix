@@ -3,7 +3,6 @@
   imports = [
     ./core/base.nix
     ./core/boot.nix
-    ./core/filesystems.nix
     ./core/networking.nix
     ./desktop/display-manager.nix
     ./desktop/keymap.nix

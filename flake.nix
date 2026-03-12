@@ -32,7 +32,7 @@
       self,
       nixpkgs,
       agenix,
-      #zen-browser,
+      zen-browser,
       home-manager,
       nix-flatpak,
       ...

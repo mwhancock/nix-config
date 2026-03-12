@@ -15,7 +15,6 @@
   environment.systemPackages = with pkgs; [
     kdePackages.plasma-workspace
   ];
-  programs.dank-material-shell.enable = true;
 
   environment.sessionVariables = {
     XDG_DATA_DIRS = lib.mkAfter [
