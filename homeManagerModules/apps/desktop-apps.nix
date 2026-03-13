@@ -1,18 +1,20 @@
 {
-  pkgs, inputs,
+  pkgs,
+  inputs,
   ...
 }:
 {
   home.packages = with pkgs; [
-    nextcloud-client
-    nemo
     foliate
-    pdfarranger
-    vesktop
-    steam
-    #zed-editor
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    postman
+    nemo
+    nextcloud-client
     onlyoffice-desktopeditors
+    pdfarranger
+    postman
+    steam
+    trayscale
+    vesktop
+    #zed-editor
   ];
 }
