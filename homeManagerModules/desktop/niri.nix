@@ -8,12 +8,13 @@
     enable = true;
 
     settings = {
+      prefer-no-csd = true;
       layout = {
         focus-ring = {
-          enable = false;
+          width = 0;
         };
         border = {
-          enable = false;
+          width = 0;
         };
       };
     };
