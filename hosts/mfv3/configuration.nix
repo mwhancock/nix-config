@@ -24,5 +24,17 @@
     XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
   };
 
+  nix.settings = {
+    download-buffer-size = 524288000;
+    substituters = [
+      "https://cache.nixos.org"
+      "https://niri.cachix.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzdYcQW5oNaIZQDx2K7m/7zTikB3Q4="
+    ];
+  };
+
   system.stateVersion = "25.11";
 }
