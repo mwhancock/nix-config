@@ -15,7 +15,7 @@
     strace
     ltrace
     pciutils
-    quickshell
+    #quickshell
     sysstat
     usbutils
   ];
