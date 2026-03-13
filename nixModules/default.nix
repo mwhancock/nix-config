@@ -5,9 +5,7 @@
     ./core/boot.nix
     ./core/networking.nix
     ./desktop/display-manager.nix
-    ./desktop/dms-config.nix
     ./desktop/keymap.nix
-    ./desktop/niri.nix
     ./desktop/plasma.nix
     ./hardware/audio.nix
     ./hardware/bluetooth.nix

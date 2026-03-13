@@ -8,6 +8,7 @@
     ./core/shell.nix
     ./core/session-vars.nix
     ./core/terminal.nix
+    ./desktop/niri.nix
     ./scripts/zenBackup.nix
   ];
 }
