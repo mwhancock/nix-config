@@ -21,6 +21,17 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dsearch = {
+      url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    matugen = {
+      url = "github:/InioX/Matugen";
+    };
   };
 
   outputs =
@@ -28,14 +39,12 @@
       self,
       nixpkgs,
       agenix,
-      zen-browser,
       home-manager,
       nix-flatpak,
       ...
     }@inputs:
     let
       system = "x86_64-linux";
-      #pkgs = nixpkgs.legacyPackages.${system};
     in
     {
       packages.${system}.agenix = agenix.packages.${system}.default;
