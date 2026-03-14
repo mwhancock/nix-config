@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  inputs,
   ...
 }:
 {
@@ -8,21 +9,36 @@
     ./hardware-configuration.nix
     ../../nixModules
   ];
+
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+
+  services.displayManager.sessionPackages = [ pkgs.niri ];
   environment.shells = with pkgs; [ fish ];
   programs.fish.enable = true;
   time.timeZone = "America/St_Johns";
   i18n.defaultLocale = "en_CA.UTF-8";
   environment.systemPackages = with pkgs; [
-    kdePackages.plasma-workspace
+    #kdePackages.plasma-workspace
+    niri-unstable
   ];
 
-  environment.sessionVariables = {
-    XDG_DATA_DIRS = lib.mkAfter [
+  environment.sessionVariables = lib.mkForce {
+    XDG_DATA_DIRS = [
       "/var/lib/flatpak/exports/share"
       "$HOME/.local/share/flatpak/exports/share"
+      "/nix/store/hq58p9cjbkrfzandg0fgrlj07jgi8wpv-xdg-desktop-portal-gtk-1.15.3/share"
+      "/run/current-system/sw/share"
+      "/etc/profiles/per-user/mark/share"
     ];
     XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
   };
+
+  environment.etc."xdg-desktop-portal/portals.conf".text = ''
+    [preferred]
+    default=gnome
+    org.freedesktop.impl.portal.FileChooser=gnome
+    org.freedesktop.impl.portal.OpenURI=gnome
+  '';
 
   nix.settings = {
     download-buffer-size = 524288000;
