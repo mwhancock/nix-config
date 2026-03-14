@@ -10,7 +10,7 @@
     ];
     packages = [
       "dev.aunetx.deezer"
-      "dev.zed.Zed"
+      #"dev.zed.Zed"
       "com.calibre_ebook.calibre"
       "app.grayjay.Grayjay"
     ];

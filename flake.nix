@@ -5,6 +5,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    zed.url = "github:zed-industries/zed";
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak/?ref=latest";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -40,6 +41,7 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
   };
 
   outputs =
@@ -49,15 +51,18 @@
       agenix,
       home-manager,
       nix-flatpak,
+      zed,
       ...
     }@inputs:
     let
       system = "x86_64-linux";
     in
     {
-      packages.${system}.agenix = agenix.packages.${system}.default;
+      packages.${system} = {
+        zed-latest = zed.packages.${system}.default;
+        agenix = agenix.packages.${system}.default;
+      };
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
           ./hosts/mfv3/configuration.nix
@@ -74,6 +79,7 @@
               useUserPackages = true;
               users.mark = import ./hosts/mfv3/home.nix;
               extraSpecialArgs = { inherit inputs; };
+              backupFileExtension = "bak";
             };
           }
         ];
