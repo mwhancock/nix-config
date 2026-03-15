@@ -3,6 +3,7 @@
   imports = [
     ./apps/cli-tools.nix
     ./apps/desktop-apps.nix
+    ./apps/neovim.nix
     ./apps/thunar.nix
     ./apps/zed.nix
     ./core/gtk.nix
