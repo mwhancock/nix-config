@@ -1,13 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   gtk = {
     enable = true;
-    iconTheme = {
-      name = "Adwaita";
+    iconTheme = lib.mkForce {
+      name = "Gruvbox-Plus-Dark";
       package = pkgs.adwaita-icon-theme;
     };
-    theme = {
-      name = "Adwaita";
+    theme = lib.mkForce {
+      name = "Gruvbox-Dark-BL";
       package = pkgs.gnome-themes-extra;
     };
     cursorTheme = {

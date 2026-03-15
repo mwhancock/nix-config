@@ -25,9 +25,4 @@
       "application/x-gnome-saved-search" = [ "nemo.desktop" ];
     };
   };
-  dconf.settings = {
-    "org/gnome/desktop/interface" = {
-      icon-theme = "Adwaita";
-    };
-  };
 }
