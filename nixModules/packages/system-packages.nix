@@ -17,6 +17,7 @@
     gamemode
     wl-clipboard
     grim
+    gvfs
     slurp
     swappy
     swaybg
