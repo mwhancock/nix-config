@@ -4,10 +4,10 @@
     settings = {
       #font setting
       font-size = 12;
-      font-family = "JetBrainsMono Nerd Font";
+      font-family = "JetBrains Mono";
 
       #appearance
-      background-opacity = 0.7;
+      background-opacity = 1;
       background-blur = 15;
       window-theme = "dark";
       theme = "Gruvbox Dark Hard";
@@ -24,6 +24,9 @@
 
       #behavior
       copy-on-select = true;
-    };
+      confirm-close-surface = false;
+      
+      font-feature = "+calt +liga +dlig";
+     };
   };
 }

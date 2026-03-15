@@ -9,13 +9,13 @@
     socat
     ipcalc
     traceroute
+    gemini-cli
     fastfetch
     btop
     iftop
     strace
     ltrace
     pciutils
-    #quickshell
     sysstat
     usbutils
   ];

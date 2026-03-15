@@ -2,6 +2,6 @@
 {
   services.ollama = {
     enable = true;
-    package = pkgs.ollama-rocm;
+    package = pkgs.ollama-vulkan;
   };
 }
