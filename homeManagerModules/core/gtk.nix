@@ -3,12 +3,12 @@
   gtk = {
     enable = true;
     iconTheme = lib.mkForce {
-      name = "Gruvbox-Plus-Dark";
-      package = pkgs.adwaita-icon-theme;
+      name = "oomox-gruvbox-dark";
+      package = pkgs.gruvbox-dark-icons-gtk;
     };
     theme = lib.mkForce {
-      name = "Gruvbox-Dark-BL";
-      package = pkgs.gnome-themes-extra;
+      name = "gruvbox-dark";
+      package = pkgs.gruvbox-dark-gtk;
     };
     cursorTheme = {
       name = "Adwaita";

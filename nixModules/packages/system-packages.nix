@@ -27,7 +27,6 @@
     wget
     nil
     nixd
-    nemo
     tree
     impression
     alsa-tools
