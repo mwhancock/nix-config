@@ -32,5 +32,8 @@
     impression
     alsa-tools
     alsa-firmware
+    adwaita-icon-theme
+    gnome-themes-extra
+    hicolor-icon-theme
   ];
 }

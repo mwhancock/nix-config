@@ -12,7 +12,7 @@
 
   nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
-  services.displayManager.sessionPackages = [ pkgs.niri ];
+  services.displayManager.sessionPackages = [ pkgs.niri-unstable ];
   environment.shells = with pkgs; [ fish ];
   programs.fish.enable = true;
   time.timeZone = "America/St_Johns";

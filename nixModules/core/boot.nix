@@ -1,7 +1,10 @@
 { ... }:
 {
   boot.loader = {
-    limine.enable = true;
+    limine = {
+      enable = true;
+      maxGenerations = 10;
+    };
     timeout = 5;
   };
   boot.loader.efi.canTouchEfiVariables = true;

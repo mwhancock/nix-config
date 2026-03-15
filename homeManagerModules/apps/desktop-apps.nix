@@ -6,6 +6,7 @@
 {
   home.packages = with pkgs; [
     foliate
+    inputs.claude-desktop.packages.${system}.claude-desktop
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     nextcloud-client
     onlyoffice-desktopeditors
