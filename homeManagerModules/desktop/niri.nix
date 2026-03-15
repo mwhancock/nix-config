@@ -9,6 +9,11 @@
     package = pkgs.niri-unstable;
     settings = {
       prefer-no-csd = true;
+      input = {
+        focus-follows-mouse = {
+          enable = true;
+        };
+      };
     };
   };
 }
