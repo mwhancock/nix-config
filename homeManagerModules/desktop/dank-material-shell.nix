@@ -8,6 +8,13 @@
   programs.dank-material-shell = {
     enable = true;
     systemd.enable = false;
-
+    niri.includes.filesToInclude = [
+      "alttab"
+      "binds"
+      "colors"
+      "layout"
+      "outputs"
+      "wpblur"
+    ];
   };
 }

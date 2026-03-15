@@ -7,7 +7,7 @@
     PATH = "$HOME/.local/bin:$PATH";
   };
   home.enableNixpkgsReleaseCheck = false;
-  nixGL.vulkan.enable = true;
+  #nixGL.vulkan.enable = true;
   home.username = "mark";
   home.homeDirectory = "/home/mark";
   home.stateVersion = "25.11";
