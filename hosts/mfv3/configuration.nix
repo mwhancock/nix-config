@@ -18,7 +18,6 @@
   time.timeZone = "America/St_Johns";
   i18n.defaultLocale = "en_CA.UTF-8";
   environment.systemPackages = with pkgs; [
-    #kdePackages.plasma-workspace
     niri-unstable
   ];
 
@@ -32,13 +31,6 @@
     ];
     XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
   };
-
-  environment.etc."xdg-desktop-portal/portals.conf".text = ''
-    [preferred]
-    default=gnome
-    org.freedesktop.impl.portal.FileChooser=gnome
-    org.freedesktop.impl.portal.OpenURI=gnome
-  '';
 
   nix.settings = {
     download-buffer-size = 524288000;

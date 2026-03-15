@@ -33,8 +33,8 @@
 
     # Additional shell initialization
     shellInit = ''
-      set -gx EDITOR zed
-      set -gx VISUAL zed
+      set -gx EDITOR nano
+      set -gx VISUAL zed-editor
       set -gx TERMINAL ghostty
       set -g fish_greeting "Welcome back, mark! λ"
     '';
