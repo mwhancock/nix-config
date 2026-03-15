@@ -11,7 +11,7 @@
       gp = "git push";
       gl = "git log --oneline --graph";
       gd = "git diff";
-      nix-rebuild = "find ~/.config -name '*.bak' -delete && find ~/ -maxdepth 1 -name '*.bak' -delete && sudo nixos-rebuild switch --flake ~/nixos-config";
+      nix-rebuild = "find ~/.config -name '*.bak' -exec rm -rf {} + 2>/dev/null; find ~/ -maxdepth 1 -name '*.bak' -exec rm -rf {} + 2>/dev/null; sudo nixos-rebuild switch --flake ~/nixos-config";
       nix-diff = "sudo nixos-rebuild list-generations";
       nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       home-rebuild = "home-manager switch --flake ~/nixos-config";

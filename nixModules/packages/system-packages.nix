@@ -18,6 +18,8 @@
     wl-clipboard
     grim
     gvfs
+    gnumake
+    rocmPackages.rpp
     slurp
     swappy
     swaybg
