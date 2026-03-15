@@ -33,8 +33,8 @@
 
     # Additional shell initialization
     shellInit = ''
-      set -gx EDITOR nano
-      set -gx VISUAL zed-editor
+      set -gx EDITOR nvim
+      set -gx VISUAL nvim
       set -gx TERMINAL ghostty
       set -g fish_greeting "Welcome back, mark! λ"
     '';

@@ -13,11 +13,12 @@
     fd
     fzf
 
-    jdt-language-server # Java
-    clang-tools # C (clangd)
-    pyright # Python
-    python3 # Python runtime
-
+    jdt-language-server
+    clang-tools 
+    pyright 
+    python3 
+     nodePackages.bash-language-server
+     nodejs
     # formatters
     stylua # lua (LazyVim configs are lua)
     prettierd # general
