@@ -8,14 +8,10 @@
     plugins.avante = {
       enable = true;
       settings = {
-        provider = "groq";
+        provider = "copilot";
         providers = {
-          groq = {
-            __inherited_from = "openai";
-            api_key_name = "GROQ_API_KEY";
-            endpoint = "https://api.groq.com/openai/v1";
-            model = "mixtral-8x7b-32768";
-            max_tokens = 4096;
+          copilot = {
+            model = "gpt-4o";
           };
           ollama = {
             __inherited_from = "openai";
