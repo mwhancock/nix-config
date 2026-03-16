@@ -8,14 +8,14 @@
     plugins.avante = {
       enable = true;
       settings = {
-        provider = "gemini";
+        provider = "groq";
         providers = {
-          gemini = {
-            api_key_name = "GEMINI_API_KEY";
-            model = "gemini-2.5-pro";
-            timeout = 30000;
-            temperature = 0;
-            max_tokens = 8096;
+          groq = {
+            __inherited_from = "openai";
+            api_key_name = "GROQ_API_KEY";
+            endpoint = "https://api.groq.com/openai/v1";
+            model = "llama-3.3-70b-versatile";
+            max_tokens = 4096;
           };
           ollama = {
             __inherited_from = "openai";
