@@ -18,8 +18,7 @@
       #shell integration
       shell-integration = "fish";
 
-      cursor-color = "#fe8019";
-      cursor-text = "#1d2021";
+      cursor-text = "#fe8019";
 
       #behavior
       copy-on-select = true;
