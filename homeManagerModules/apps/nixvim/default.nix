@@ -44,8 +44,7 @@
             end
             vim.opt.colorcolumn = tostring(math.floor(cols * percent))
           end,
-    }) 
-
+    })
 
     -- Open neo-tree on startup
     vim.api.nvim_create_autocmd("VimEnter", {
@@ -61,6 +60,19 @@
     -- Open minimap on startup
     vim.defer_fn(function()
       local map = require("mini.map")
+      map.setup ({
+                integrations = {
+                    map.gen_integration.builtin_search(),
+                    map.gen_integration.diagnostic(),
+                    map.gen_integration.gitsigns(),
+                    map.gen_integration.diff(),
+                },
+                window = {
+                    side = "right",
+                    width = 10,
+                    winblend = 0,
+                },
+            })
       map.open()
     end, 200)
   '';

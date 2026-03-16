@@ -1,7 +1,6 @@
-{
-  pkgs,
-  inputs,
-  ...
+{ pkgs
+, inputs
+, ...
 }:
 {
   home.packages = with pkgs; [
@@ -15,5 +14,6 @@
     steam
     trayscale
     vesktop
+    zathura
   ];
 }
