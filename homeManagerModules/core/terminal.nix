@@ -18,15 +18,14 @@
       #shell integration
       shell-integration = "fish";
 
-      #cursor
-      cursor-style = "bar";
-      cursor-style-blink = true;
+      cursor-color = "#fe8019";
+      cursor-text = "#1d2021";
 
       #behavior
       copy-on-select = true;
       confirm-close-surface = false;
-      
+
       font-feature = "+calt +liga +dlig";
-     };
+    };
   };
 }

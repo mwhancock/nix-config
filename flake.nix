@@ -5,7 +5,6 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    zed.url = "github:zed-industries/zed";
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak/?ref=latest";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,27 +45,24 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim = {
-        url = "github:nix-community/nixvim";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      agenix,
-      home-manager,
-      nix-flatpak,
-      zed,
-      ...
+    { self
+    , nixpkgs
+    , agenix
+    , home-manager
+    , nix-flatpak
+    , ...
     }@inputs:
     let
       system = "x86_64-linux";
     in
     {
       packages.${system} = {
-        zed-latest = zed.packages.${system}.default;
         agenix = agenix.packages.${system}.default;
       };
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
