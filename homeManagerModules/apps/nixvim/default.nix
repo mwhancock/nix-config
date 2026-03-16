@@ -24,6 +24,8 @@
   };
 
   programs.nixvim.extraConfigLua = ''
+        vim.api.nvim_set_hl(0, "Cursor", { fg = "#1d2021", bg = "#fe8019"})
+        vim.api.nvim_set_hl(0, "iCursor", { fg = "#1d2021", bg = "#b8bb26"})
     -- Set leader key
     vim.g.mapleader = " "
     vim.g.maplocalleader = " "

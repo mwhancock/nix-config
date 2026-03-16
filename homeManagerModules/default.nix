@@ -5,7 +5,6 @@
     ./apps/desktop-apps.nix
     ./apps/nixvim
     ./apps/thunar.nix
-    ./apps/zed.nix
     ./core/gtk.nix
     ./core/git-config.nix
     ./core/shell.nix
