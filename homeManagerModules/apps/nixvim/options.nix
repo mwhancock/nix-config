@@ -19,4 +19,18 @@
     mapleader = " ";
     maplocalleader = " ";
   };
+  programs.nixvim.autoCmd = [
+    {
+      event = [ "FocusLost" "BufLeave" ];
+      callback = {
+        __raw = ''
+          function()
+          if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
+              vim.cmd("silent! write")
+              end
+              end
+        '';
+      };
+    }
+  ];
 }
