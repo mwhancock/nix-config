@@ -31,6 +31,15 @@
       };
     };
 
+    #Copilot
+    copilot-lua = {
+      enable = true;
+      settings = {
+        suggestion.enabled = false;
+        panel.enabled = false;
+      };
+    };
+
     programs.nixvim.extraConfigLua = ''
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
