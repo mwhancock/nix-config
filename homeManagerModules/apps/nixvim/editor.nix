@@ -5,6 +5,10 @@
     neo-tree = {
       enable = true;
       settings = {
+        window =
+          {
+            width = 30;
+          };
         filesystem = {
           hijack_netrw_behavior = "open_current";
           use_libuv_file_watcher = true;

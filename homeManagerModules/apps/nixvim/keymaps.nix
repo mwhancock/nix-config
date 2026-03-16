@@ -37,6 +37,20 @@
       options.desc = "Toggle Minimap";
     }
 
+    #Harpoon
+    {
+      mode = "n";
+      key = "<leader>ha";
+      action.__raw = ''function() require("harpoon"):list():add() end'';
+      options.desc = "Harpoon Add File";
+    }
+    {
+      mode = "n";
+      key = "<leader>hh";
+      action.__raw = ''function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end'';
+      options.desc = "Harpoon Menu";
+    }
+
     # Terminal
     {
       mode = "n";
@@ -83,6 +97,27 @@
       options.desc = "Move to right window";
     }
 
+    {
+      mode = [ "n" "x" "o" ];
+      key = "<leader>s";
+      action.__raw = ''function() require("flash").jump() end'';
+      options.desc = "Flash Jump";
+    }
+
+    #BufferLine
+    {
+      mode = "n";
+      key = "<leader>bl";
+      action = "<cmd>BufferLineMoveNext<cr>";
+      options.desc = "Move Buffer Right";
+    }
+    {
+      mode = "n";
+      key = "<leader>bh";
+      action = "<cmd>BufferLineMovePrev<cr>";
+      options.desc = "Move Buffer Left";
+    }
+
     # Move lines
     {
       mode = "n";
@@ -108,5 +143,70 @@
       action = ":m '<-2<cr>gv=gv";
       options.desc = "Move selection up";
     }
+
+    #LSP
+    {
+      mode = "n";
+      key = "gd";
+      action = "<cmd>lua vim.lsp.buf.definition()<cr>";
+      options.desc = "Go to Definition";
+    }
+    {
+      mode = "n";
+      key = "gr";
+      action = "<cmd>lua vim.lsp.buf.references()<cr>";
+      options.desc = "References";
+    }
+    {
+      mode = "n";
+      key = "gi";
+      action = "<cmd>lua vim.lsp.buf.implementation()<cr>";
+      options.desc = "Go to Implementation";
+    }
+    {
+      mode = "n";
+      key = "K";
+      action = "<cmd>lua vim.lsp.buf.hover()<cr>";
+      options.desc = "Hover Docs";
+    }
+    {
+      mode = "n";
+      key = "<leader>ca";
+      action = "<cmd>lua vim.lsp.buf.code_action()<cr>";
+      options.desc = "Code Action";
+    }
+    {
+      mode = "n";
+      key = "<leader>rn";
+      action = "<cmd>lua vim.lsp.buf.rename()<cr>";
+      options.desc = "Rename";
+    }
+    {
+      mode = "n";
+      key = "[d";
+      action = "<cmd>lua vim.diagnostic.goto_prev()<cr>";
+      options.desc = "Prev Diagnostic";
+    }
+    {
+      mode = "n";
+      key = "]d";
+      action = "<cmd>lua vim.diagnostic.goto_next()<cr>";
+      options.desc = "Next Diagnostic";
+    }
+
+    {
+      mode = "n";
+      key = "<leader>op";
+      action.__raw = ''
+        function()
+            local pdf = vim.fn.glob(vim.fn.getcwd() .. "/*.pdf")
+            if pdf ~= "" then 
+                vim.fn.jobstart({"zathura", pdf})
+            end
+            end
+      '';
+      options.desc = "Open PDF";
+    }
+
   ];
 }

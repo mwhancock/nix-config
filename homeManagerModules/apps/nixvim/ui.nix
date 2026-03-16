@@ -26,17 +26,6 @@
             width = 10;
             winblend = 0;
           };
-          integrations = {
-            "__unkeyed-1" = {
-              "__raw" = "require('mini.map').gen_integration.builtin_search()";
-            };
-            "__unkeyed-2" = {
-              "__raw" = "require('mini.map').gen_integration.diagnostic()";
-            };
-            "__unkeyed-3" = {
-              "__raw" = "require('mini.map').gen_integration.diff()";
-            };
-          };
         };
       };
     };

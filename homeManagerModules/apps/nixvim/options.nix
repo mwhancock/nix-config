@@ -13,6 +13,7 @@
     signcolumn = "yes";
     updatetime = 50;
     termguicolors = true;
+    clipboard = "unnamedplus";
   };
   programs.nixvim.globals = {
     mapleader = " ";
