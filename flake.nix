@@ -1,4 +1,4 @@
-{
+ {
   description = "My NixOS flake";
 
   inputs = {

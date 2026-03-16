@@ -14,7 +14,7 @@
             __inherited_from = "openai";
             api_key_name = "GROQ_API_KEY";
             endpoint = "https://api.groq.com/openai/v1";
-            model = "llama-3.3-70b-versatile";
+            model = "mixtral-8x7b-32768";
             max_tokens = 4096;
           };
           ollama = {
