@@ -8,7 +8,7 @@
     ./editor.nix
     ./lsp.nix
     ./treesitter.nix
-    ./ai.nix
+    #./ai.nix
     ./git.nix
   ];
 
