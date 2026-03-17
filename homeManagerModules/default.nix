@@ -11,9 +11,9 @@
     ./core/session-vars.nix
     ./core/terminal.nix
     ./core/xdg-overrides.nix
-    #./desktop/dank-material-shell.nix
-    #./desktop/niri.nix
-    ./desktop/noctalia
+    ./desktop/dank-material-shell.nix
+    ./desktop/niri.nix
+    #./desktop/noctalia
     ./scripts/zenBackup.nix
   ];
 }
