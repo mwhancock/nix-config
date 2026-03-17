@@ -32,7 +32,20 @@
         vim.g.maplocalleader = " "
         vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
-          vim.api.nvim_create_autocmd({"VimResized", "VimEnter"}, {
+        vim.api.nvim_create_autocmd("TermOpen", {
+          callback = function()
+            require("mini.map").close()
+          end,
+        })
+        vim.api.nvim_create_autocmd("TermClose", {
+          callback = function()
+            vim.defer_fn(function()
+              require("mini.map").open()
+            end, 100)
+          end,
+        })
+
+        vim.api.nvim_create_autocmd({"VimResized", "VimEnter"}, {
           callback = function()
             local cols = vim.o.columns
             local percent

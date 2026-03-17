@@ -11,7 +11,7 @@
       spawn-at-startup = [
         {
           command = [
-            "noctalia-shell"
+            "dms"
           ];
         }
       ];
