@@ -3,7 +3,7 @@
   imports = [
     ./apps/cli-tools.nix
     ./apps/desktop-apps.nix
-    ./apps/nixvim
+    ./apps/nvim
     ./apps/thunar.nix
     ./core/gtk.nix
     ./core/git-config.nix
