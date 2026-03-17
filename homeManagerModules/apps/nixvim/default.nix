@@ -3,6 +3,7 @@
   imports = [
     inputs.nixvim.homeModules.nixvim
     ./options.nix
+    ./dap.nix
     ./keymaps.nix
     ./ui.nix
     ./editor.nix

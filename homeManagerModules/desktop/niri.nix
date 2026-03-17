@@ -8,6 +8,13 @@
     enable = true;
     package = pkgs.niri-unstable;
     settings = {
+      spawn-at-startup = [
+        {
+          command = [
+            "noctalia-shell"
+          ];
+        }
+      ];
       prefer-no-csd = true;
       input = {
         focus-follows-mouse = {
