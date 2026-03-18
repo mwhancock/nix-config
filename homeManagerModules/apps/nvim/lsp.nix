@@ -24,6 +24,7 @@
         bash-language-server.enable = true;
         lua-ls.enable = true;
         nil.enable = true;
+                nixd.enable = true;
       };
     };
     autocomplete.nvim-cmp = {
