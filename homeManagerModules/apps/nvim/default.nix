@@ -18,10 +18,9 @@
   programs.nvf = {
     enable = true;
     settings.vim = {
-      package = pkgs.neovim;
       viAlias = true;
       vimAlias = true;
-      defaultEditor = true;
+
 
       options = {
         number = true;

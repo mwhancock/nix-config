@@ -38,11 +38,7 @@
     autopairs.nvim-autopairs.enable = true;
 
     comments.comment-nvim.enable = true;
-
-    surround.enable = true;
-
-    flash.enable = true;
-
+   
     projects.project-nvim = {
       enable = true;
     };

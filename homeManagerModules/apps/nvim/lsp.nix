@@ -1,11 +1,19 @@
 { ... }:
 {
   programs.nvf.settings.vim = {
+    diagnostics = {
+      enable = true;
+      config = {
+        virtual_text = false;
+        virtual_lines = true;
+        signs = true;
+        underline = true;
+        update_in_insert = false;
+      };
+    };
     lsp = {
       enable = true;
-      formatOnSave = true;
       lspkind.enable = true;
-      lsplines.enable = true;
       lightbulb.enable = true;
       trouble.enable = true;
       lspSignature.enable = true;
@@ -18,13 +26,10 @@
         nil.enable = true;
       };
     };
-
     autocomplete.nvim-cmp = {
       enable = true;
     };
-
     snippets.luasnip.enable = true;
-
     formatter = {
       conform-nvim = {
         enable = true;
