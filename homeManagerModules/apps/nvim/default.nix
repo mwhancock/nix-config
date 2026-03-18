@@ -46,8 +46,8 @@
 
       extraPackages = with pkgs; [
         lazygit
-                nil
-                nixd
+        nil
+        nixd
         ripgrep
         fd
         fzf
