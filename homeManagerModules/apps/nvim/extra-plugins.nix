@@ -30,9 +30,18 @@
     };
 
     harpoon = {
-      package = harpoon2;
+      package = pkgs.vimPlugins.harpoon2;
       setup = ''
-        require("harpoon"):setup({})
+        local harpoon = require("harpoon")
+        harpoon:setup({})
+
+        vim.keymap.set("n", "<leader>ha", function()
+          harpoon:list():add()
+        end, { desc = "Harpoon Add File" })
+
+        vim.keymap.set("n", "<leader>hh", function()
+          harpoon.ui:toggle_quick_menu(harpoon:list())
+        end, { desc = "Harpoon Menu" })
       '';
     };
 
@@ -40,6 +49,20 @@
       package = vim-illuminate;
       setup = ''
         require("illuminate").configure({})
+      '';
+    };
+    flash = {
+      package = pkgs.vimPlugins.flash-nvim;
+      setup = ''
+        require("flash").setup({})
+        vim.keymap.set({ "n", "x", "o" }, "<leader>s", function()
+          require("flash").jump()
+        end, { desc = "Flash Jump" })
+      '';
+    };
+    vim-surround = {
+      package = pkgs.vimPlugins.vim-surround;
+      setup = ''
       '';
     };
   };

@@ -34,8 +34,8 @@
         layout.spacing = 3;
         triggers = [
           {
-            __unkeyed-1 = "<leader>";
             mode = "nxsot";
+            prefix = "<leader>";
           }
         ];
       };

@@ -1,4 +1,3 @@
-
 { ... }:
 {
   programs.nvf.settings.vim.keymaps = [
@@ -36,20 +35,6 @@
       key = "<leader>mm";
       action = "<cmd>lua MiniMap.toggle()<cr>";
       desc = "Toggle Minimap";
-    }
-
-    #Harpoon
-    {
-      mode = "n";
-      key = "<leader>ha";
-      action.__raw = ''function() require("harpoon"):list():add() end'';
-      desc = "Harpoon Add File";
-    }
-    {
-      mode = "n";
-      key = "<leader>hh";
-      action.__raw = ''function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end'';
-      desc = "Harpoon Menu";
     }
 
     # Terminal
@@ -96,13 +81,6 @@
       key = "<C-l>";
       action = "<C-w>l";
       desc = "Move to right window";
-    }
-
-    {
-      mode = [ "n" "x" "o" ];
-      key = "<leader>s";
-      action.__raw = ''function() require("flash").jump() end'';
-      desc = "Flash Jump";
     }
 
     #BufferLine
@@ -193,20 +171,6 @@
       key = "]d";
       action = "<cmd>lua vim.diagnostic.goto_next()<cr>";
       desc = "Next Diagnostic";
-    }
-
-    {
-      mode = "n";
-      key = "<leader>op";
-      action.__raw = ''
-        function()
-            local pdf = vim.fn.glob(vim.fn.getcwd() .. "/*.pdf")
-            if pdf ~= "" then 
-                vim.fn.jobstart({"zathura", pdf})
-            end
-            end
-      '';
-      desc = "Open PDF";
     }
 
   ];
