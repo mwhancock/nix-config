@@ -1,6 +1,13 @@
-{ ... }:
-{
+{...}: {
   programs.nvf.settings.vim = {
+    lsp = {
+      enable = true;
+      lspkind.enable = true;
+      lightbulb.enable = true;
+      trouble.enable = true;
+      lspSignature.enable = true;
+    };
+
     diagnostics = {
       enable = true;
       config = {
@@ -11,42 +18,43 @@
         update_in_insert = false;
       };
     };
-    lsp = {
-      enable = true;
-      lspkind.enable = true;
-      lightbulb.enable = true;
-      trouble.enable = true;
-      lspSignature.enable = true;
-      servers = {
-        clangd.enable = true;
-        pyright.enable = true;
-        java-language-server.enable = true;
-        bash-language-server.enable = true;
-        lua-ls.enable = true;
-        nil.enable = true;
-                nixd.enable = true;
-      };
-    };
-    autocomplete.nvim-cmp = {
-      enable = true;
-    };
-    snippets.luasnip.enable = true;
-    formatter = {
-      conform-nvim = {
+
+    languages = {
+      enableTreesitter = true;
+      enableFormat = true;
+
+      nix = {
         enable = true;
-        setupOpts = {
-          format_on_save = {
-            timeout_ms = 500;
-            lsp_fallback = true;
-          };
-          formatters_by_ft = {
-            python = [ "black" ];
-            c = [ "clang_format" ];
-            cpp = [ "clang_format" ];
-            java = [ "clang_format" ];
-            lua = [ "stylua" ];
-            nix = [ "nixpkgs_fmt" ];
-          };
+        lsp.servers = ["nixd"];
+      };
+
+      rust.enable = true;
+
+      python = {
+        enable = true;
+        lsp.servers = ["pyright"];
+        format.type = ["black"];
+      };
+
+      clang = {
+        enable = true;
+        lsp.servers = ["clangd"];
+      };
+
+      java.enable = true;
+      bash.enable = true;
+      lua.enable = true;
+    };
+
+    autocomplete.nvim-cmp.enable = true;
+    snippets.luasnip.enable = true;
+
+    formatter.conform-nvim = {
+      enable = true;
+      setupOpts = {
+        format_on_save = {
+          timeout_ms = 500;
+          lsp_format = "fallback";
         };
       };
     };
