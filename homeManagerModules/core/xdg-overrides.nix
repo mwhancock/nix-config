@@ -33,7 +33,22 @@
       "text/x-java" = [ "nvim.desktop" ];
       "text/x-python" = [ "nvim.desktop" ];
       "application/x-shellscript" = [ "nvim.desktop" ];
-      "applications/pdf" = [ "org.pwmt.zathura.desktop" ];
+      "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/msword" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.ms-excel" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.ms-powerpoint" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.oasis.opendocument.text" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.oasis.opendocument.spreadsheet" = [ "onlyoffice-desktopeditors.desktop" ];
+      "application/vnd.oasis.opendocument.presentation" = [ "onlyoffice-desktopeditors.desktop" ];
+    };
+    associations.removed = {
+      "application/pdf" = [
+        "com.calibre_ebook.calibre.desktop"
+        "com.github.jeromerobert.pdfarranger.desktop"
+      ];
     };
   };
 }
