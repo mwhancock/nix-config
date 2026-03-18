@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   programs.nvf.settings.vim = {
     filetree.neo-tree = {
@@ -30,15 +30,22 @@
       mappings.open = "<C-\\>";
       setupOpts = {
         direction = "horizontal";
-        size = 15;
         shade_terminals = true;
+        size = lib.generators.mkLuaInline ''
+          function(term)
+            if term.direction == "horizontal" then
+              return 15
+            elseif term.direction == "vertical" then
+              return math.floor(vim.o.columns * 0.4)
+            end
+          end
+        '';
       };
     };
-
     autopairs.nvim-autopairs.enable = true;
 
     comments.comment-nvim.enable = true;
-   
+
     projects.project-nvim = {
       enable = true;
     };

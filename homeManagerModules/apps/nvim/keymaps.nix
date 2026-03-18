@@ -15,6 +15,19 @@
       desc = "Force Quit All";
     }
 
+    {
+      key = ">";
+      mode = "v";
+      action = ">gv";
+      desc = "Indent and reselect";
+    }
+    {
+      key = "<";
+      mode = "v";
+      action = "<gv";
+      desc = "Unindent and reselect";
+    }
+
     # File tree
     {
       mode = "n";

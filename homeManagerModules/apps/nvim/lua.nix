@@ -3,6 +3,21 @@
   programs.nvf.settings.vim.luaConfigRC.myConfig = ''
           -- Prevent space from moving cursor
           vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+            
+          -- Terminal auto-insert mode
+          vim.api.nvim_create_autocmd("TermOpen", {
+              pattern = "*",
+              callback = function()
+                vim.cmd("startinsert")
+              end,
+            })
+
+            vim.api.nvim_create_autocmd("BufEnter", {
+              pattern = "term://*",
+              callback = function()
+                vim.cmd("startinsert")
+              end,
+            })
 
           -- Dynamic colorcolumn
           vim.api.nvim_create_autocmd({"VimResized", "VimEnter"}, {
@@ -69,23 +84,7 @@
             end,
           })
 
-          -- Minimap auto hide with terminal
-          vim.api.nvim_create_autocmd("TermOpen", {
-            callback = function()
-              require("mini.map").close()
-            end,
-          })
-          vim.api.nvim_create_autocmd({"TermClose", "BufWinLeave"}, {
-            callback = function()
-              if vim.bo.buftype == "terminal" then
-                  vim.defer_fn(function()
-                    require("mini.map").open()
-                  end, 100)
-                end
-              end,
-            })
-
-          -- Dynamic neo-tree width
+         -- Dynamic neo-tree width
           vim.api.nvim_create_autocmd("VimResized", {
             callback = function()
               local cols = vim.o.columns
@@ -108,5 +107,7 @@
           vim.fn.jobstart({"zathura", pdf})
             end
             end, { desc = "Open PDF" })
+   
   '';
+
 }
