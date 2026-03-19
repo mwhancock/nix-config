@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   users.users.mark = {
     isNormalUser = true;
     description = "mark";
@@ -10,7 +9,6 @@
       "mark"
       "disk"
       "root"
-      "audio"
     ];
   };
 }
