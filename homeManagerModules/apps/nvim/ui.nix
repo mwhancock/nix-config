@@ -14,17 +14,7 @@
 
     statusline.lualine = {
       enable = true;
-      theme = lib.generators.mkLuaInline ''
-        (function()
-          local custom_gruvbox = require('lualine.themes.gruvbox')
-
-               custom_gruvbox.insert.a.bg = '#b8bb26'
-
-               custom_gruvbox.visual.a.bg = '#d65d0e'
-
-          return custom_gruvbox
-        end)()
-      '';
+      theme = "gruvbox";
     };
 
     tabline.nvimBufferline.enable = true;

@@ -136,5 +136,23 @@
         vim.fn.jobstart({"zathura", pdf})
       end
     end, { desc = "Open PDF" })
+
+-------------------------------------------------------------------------------
+    -- 6. LUALINE COLOR OVERRIDES (Fixing the Aqua/Orange issue)
+    -------------------------------------------------------------------------------
+    -- We wrap this in a pcall in case lualine hasn't loaded yet
+    local lualine_ok, lualine = pcall(require, "lualine")
+    if lualine_ok then
+      local custom_gruvbox = require('lualine.themes.gruvbox')
+      
+      -- Insert Mode: Gruvbox Green (#b8bb26)
+      custom_gruvbox.insert.a.bg = '#b8bb26'
+      
+      -- Visual Mode: Neutral Orange (#d65d0e)
+      custom_gruvbox.visual.a.bg = '#d65d0e'
+      
+      -- Apply the modified theme
+      lualine.setup({ options = { theme = custom_gruvbox } })
+    end
   '';
 }
