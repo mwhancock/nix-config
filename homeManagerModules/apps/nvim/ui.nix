@@ -51,6 +51,7 @@
         setupOpts = {
           indent = {
             char = "▎";
+            # We reference the highlight groups here
             highlight = [
               "IndentBlanklineRed"
               "IndentBlanklineOrange"

@@ -5,10 +5,6 @@
       setup = ''
         local map = require("mini.map")
 
-        vim.api.nvim_set_hl(0, "MiniMapNormal", { fg = "#928374", bg = "#1d2021" })
-        vim.api.nvim_set_hl(0, "MiniMapSymbolCurrent", { fg = "#83a598", bold = true })
-        vim.api.nvim_set_hl(0, "MiniMapSymbolSearch", { fg = "#fabd2f", bg = "#665c54" })
-
         map.setup({
           integrations = {
             map.gen_integration.builtin_search(),
