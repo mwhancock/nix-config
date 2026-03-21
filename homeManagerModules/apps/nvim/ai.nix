@@ -9,7 +9,19 @@
       package = avante-nvim;
       setup = ''
         require("copilot").setup({
-          suggestion = { enabled = false },
+          suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          hide_during_completion = true,
+          keymap = {
+              accept = "<Tab>",
+              accept_word = "<C-Right>",
+              accept_line = "<C-Down>",
+              next = "<M-]>",
+              prev = "<M-[>",
+              dismiss = "<C-e>",
+              },
+          },
           panel = { enabled = false },
         })
         require("avante_lib").load()
@@ -30,5 +42,5 @@
         })
       '';
     };
-  };
+};
 }
