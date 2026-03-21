@@ -1,8 +1,8 @@
-{ pkgs
-, inputs
-, ...
-}:
 {
+  pkgs,
+  inputs,
+  ...
+}: {
   home.packages = with pkgs; [
     fluffychat
     foliate
@@ -11,6 +11,7 @@
     nextcloud-client
     onlyoffice-desktopeditors
     pdfarranger
+    python314Packages.deemix
     postman
     trayscale
     vesktop
