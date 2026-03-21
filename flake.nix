@@ -59,42 +59,40 @@
     };
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , agenix
-    , home-manager
-    , nix-flatpak
-    , ...
-    }@inputs:
-    let
-      system = "x86_64-linux";
-    in
-    {
-      packages.${system} = {
-        agenix = agenix.packages.${system}.default;
-      };
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs; };
-        modules = [
-          ./hosts/mfv3/configuration.nix
-          ./nixModules
-          agenix.nixosModules.age
-          nix-flatpak.nixosModules.nix-flatpak
-          {
-            age.identityPaths = [ "/home/mark/.ssh/id_ed25519" ];
-          }
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.mark = import ./hosts/mfv3/home.nix;
-              extraSpecialArgs = { inherit inputs; };
-              backupFileExtension = "bak";
-            };
-          }
-        ];
-      };
+  outputs = {
+    self,
+    nixpkgs,
+    agenix,
+    home-manager,
+    nix-flatpak,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+  in {
+    packages.${system} = {
+      agenix = agenix.packages.${system}.default;
     };
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/mfv3/configuration.nix
+        ./nixModules
+        agenix.nixosModules.age
+        nix-flatpak.nixosModules.nix-flatpak
+        {
+          age.identityPaths = ["/home/mark/.ssh/id_ed25519"];
+        }
+        home-manager.nixosModules.home-manager
+        {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            users.mark = import ./hosts/mfv3/home.nix;
+            extraSpecialArgs = {inherit inputs;};
+            backupFileExtension = "bak";
+          };
+        }
+      ];
+    };
+  };
 }
