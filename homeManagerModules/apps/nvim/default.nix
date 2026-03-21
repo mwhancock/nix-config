@@ -1,5 +1,8 @@
-{ inputs, pkgs, ... }:
 {
+  inputs,
+  pkgs,
+  ...
+}: {
   imports = [
     inputs.nvf.homeManagerModules.default
     ./theme.nix
@@ -9,7 +12,7 @@
     ./treesitter.nix
     ./git.nix
     ./keymaps.nix
-    #./ai.nix
+    ./ai.nix
     ./dap.nix
     ./lua.nix
     ./extra-plugins.nix
@@ -20,7 +23,6 @@
     settings.vim = {
       viAlias = true;
       vimAlias = true;
-
 
       options = {
         number = true;
@@ -58,6 +60,7 @@
         gnumake
         jdt-language-server
         nodePackages.bash-language-server
+        nodejs
       ];
     };
   };

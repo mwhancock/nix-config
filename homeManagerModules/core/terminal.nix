@@ -7,8 +7,8 @@
       font-family = "JetBrains Mono";
 
       #appearance
-      background-opacity = 1;
-      background-blur = 15;
+      background-opacity = 0.9;
+      background-blur-radius = 15;
       window-theme = "dark";
       theme = "Gruvbox Dark Hard";
       window-decoration = false;

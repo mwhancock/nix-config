@@ -31,12 +31,16 @@
       statusbar-fg = "#ebdbb2";
 
       # Highlighting
-      highlight-color = "#fabd2f";
-      highlight-active-color = "#fe8019";
+      highlight-color = "#fabd2f80";
+      highlight-active-color = "#fe80198";
+      highlight-fg = "#83a59880";
 
       # Smooth Scrolling
       scroll-step = "50";
       zoom-step = "10";
+
+      # Selection Color
+      selection-color = "#83a59880";
     };
   };
 }

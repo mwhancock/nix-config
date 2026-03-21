@@ -1,134 +1,97 @@
 {...}: {
   programs.nvf.settings.vim.luaConfigRC.myConfig = ''
-        -------------------------------------------------------------------------------
-        -- 1. BASIC BEHAVIOR & UTILS
-        -------------------------------------------------------------------------------
-        -- Prevent space from moving cursor (it's our leader key)
-        vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+    -------------------------------------------------------------------------------
+    -- 1. BASIC BEHAVIOR
+    -------------------------------------------------------------------------------
+    vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
-        -- Terminal auto-insert mode
-        vim.api.nvim_create_autocmd("TermOpen", {
-          pattern = "*",
-          callback = function()
-            vim.cmd("startinsert")
-          end,
-        })
+    -- Terminal auto-insert
+    vim.api.nvim_create_autocmd("TermOpen", {
+      pattern = "*",
+      callback = function()
+        vim.cmd("startinsert")
+      end,
+    })
 
-        vim.api.nvim_create_autocmd("BufEnter", {
-          pattern = "term://*",
-          callback = function()
-            vim.cmd("startinsert")
-          end,
-        })
-
-        -- Autosave on focus change
-        vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
-          callback = function()
-            if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
-              vim.cmd("silent! write")
-            end
-          end,
-        })
-
-        -------------------------------------------------------------------------------
-        -- 2. UI & COSMETICS
-        -------------------------------------------------------------------------------
-        -- Cursor: block in normal, bar in insert
-        vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor"
-
-        -- Dynamic colorcolumn (adjusts based on window size)
-        vim.api.nvim_create_autocmd({"VimResized", "VimEnter"}, {
-          callback = function()
-            local cols = vim.o.columns
-            local percent = cols < 100 and 0.80 or cols < 160 and 0.75 or 0.66
-            vim.opt.colorcolumn = tostring(math.floor(cols * percent))
-          end,
-        })
-
-
-        vim.api.nvim_create_autocmd("ColorScheme", { callback = set_neotree_colors })
-        set_neotree_colors() -- Apply immediately
+    -- Autosave on focus lost
+    vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+      callback = function()
+        if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
+          vim.cmd("silent! write")
+        end
+      end,
+    })
 
     -------------------------------------------------------------------------------
-    -------------------------------------------------------------------------------
-    -- 3. GRUVBOX DASHBOARD (ALPHA-NVIM)
+    -- 2. UI & DASHBOARD (ALPHA-NVIM)
     -------------------------------------------------------------------------------
     local status_ok, alpha = pcall(require, "alpha")
-       if status_ok then
-          local dashboard = require("alpha.themes.dashboard")
-          dashboard.section.header.val = {
-            [[                               __                ]],
-            [[  ___     __    __   __   __  /\_\    ___ ___    ]],
-            [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
-            [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
-            [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
-            [[  \/_/\/_/\/____/ \/___/   \/_/  \/_/ \/_/\/_/\/_/]],
-            [[                                                  ]],
-            [[             -- THE GROOVY EDITOR --              ]],
-          }
-          dashboard.section.header.opts.hl = "Keyword" -- Makes it Gruvbox Orange/Red
+    if status_ok then
+      local dashboard = require("alpha.themes.dashboard")
+      dashboard.section.header.val = {
+        [[                               __                ]],
+        [[  ___     __    __   __   __  /\_\    ___ ___    ]],
+        [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
+        [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
+        [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
+        [[  \/_/\/_/\/____/ \/___/   \/_/  \/_/ \/_/\/_/\/_/]],
+        [[                                                  ]],
+        [[             -- THE GROOVY EDITOR --              ]],
+      }
+      dashboard.section.header.opts.hl = "Keyword"
 
-          dashboard.section.buttons.val = {
-            dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-            dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
-            dashboard.button("r", "󰄉  Recent", ":Telescope oldfiles <CR>"),
-            dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
-            dashboard.button("q", "󰅚  Quit", ":qa<CR>"),
-          }
-          alpha.setup(dashboard.opts)
-        end
+      dashboard.section.buttons.val = {
+        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+        dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
+        dashboard.button("r", "󰄉  Recent", ":Telescope oldfiles <CR>"),
+        dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
+        dashboard.button("q", "󰅚  Quit", ":qa<CR>"),
+      }
+      alpha.setup(dashboard.opts)
+    end
 
-        -------------------------------------------------------------------------------
-        -- 4. PLUGINS & FILETYPES
-        -------------------------------------------------------------------------------
-        -- Neo-tree on startup (only if no file is specified)
-        vim.api.nvim_create_autocmd("VimEnter", {
-          callback = function()
-            if vim.fn.argc() == 0 then
+    ------------------------------------------------------------------------------
+    -- 3. PLUGINS & STARTUP BEHAVIOR
+    -------------------------------------------------------------------------------
+    -- Neo-tree on startup (only if opening a directory or no file)
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+            if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
               vim.defer_fn(function()
-                require("neo-tree.command").execute({ action = "show" })
-              end, 100)
-            end
-          end,
-        })
-
-        -- Dynamic Neo-tree width
-        vim.api.nvim_create_autocmd("VimResized", {
-          callback = function()
-            local cols = vim.o.columns
-            local width = cols < 100 and 20 or cols < 160 and 25 or 30
-            require("neo-tree.command").execute({
-              action = "show",
-              position = "left",
-              width = width,
-            })
-          end,
-        })
-
-        -- Custom Keymap: Open PDF in Zathura
-        vim.keymap.set("n", "<leader>op", function()
-          local pdf = vim.fn.glob(vim.fn.getcwd() .. "/*.pdf")
-          if pdf ~= "" then
-            vim.fn.jobstart({"zathura", pdf})
-          end
-        end, { desc = "Open PDF" })
-
-        -------------------------------------------------------------------------------
-        -- 5. LUALINE COLOR OVERRIDES (Fixing the Aqua/Orange issue)
-        -------------------------------------------------------------------------------
-        -- We wrap this in a pcall in case lualine hasn't loaded yet
-        local lualine_ok, lualine = pcall(require, "lualine")
-        if lualine_ok then
-          local custom_gruvbox = require('lualine.themes.gruvbox')
-
-          -- Insert Mode: Gruvbox Green (#b8bb26)
-          custom_gruvbox.insert.a.bg = '#b8bb26'
-
-          -- Visual Mode: Neutral Orange (#d65d0e)
-          custom_gruvbox.visual.a.bg = '#d65d0e'
-
-          -- Apply the modified theme
-          lualine.setup({ options = { theme = custom_gruvbox } })
+            require("neo-tree.command").execute({ action = "show", position = "left" })
+          end, 50)
         end
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("VimResized", {
+      callback = function()
+        local cols = vim.o.columns
+        local width = cols < 100 and 20 or cols < 160 and 25 or 30
+        pcall(require("neo-tree.command").execute, {
+          action = "show",
+          position = "left",
+          width = width,
+        })
+      end,
+    })
+
+    local wk = require("which-key")
+    wk.add({
+      { "<leader>a", group = "Avante" },
+      { "<leader>b", group = "Buffers" },
+      { "<leader>d", group = "Debug" },
+      { "<leader>e", group = "Explorer" },
+      { "<leader>g", group = "Git" },
+      { "<leader>h", group = "Harpoon" },
+      { "<leader>l", group = "LSP" },
+      { "<leader>m", group = "Minimap" },
+      { "<leader>o", group = "Open" },
+      { "<leader>r", group = "Rename" },
+      { "<leader>s", group = "Flash" },
+      { "<leader>t", group = "Terminal" },
+      { "<leader>q", group = "Quit" },
+      { "<leader>c", group = "Code" },
+    })
   '';
 }
