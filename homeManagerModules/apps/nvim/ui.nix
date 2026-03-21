@@ -1,4 +1,4 @@
-{lib, ...}: {
+{...}: {
   programs.nvf.settings.vim = {
     ui = {
       borders = {
@@ -25,22 +25,20 @@
     binds.whichKey = {
       enable = true;
       setupOpts = {
-        delay = 300;
+        preset = "modern";
         win = {
-          border = "rounded";
-          padding = [1 2];
-          row = -1;
+          border = "single";
+          col = 999;
+          row = 999;
+          width = 0.3;
+          padding = [1 2 1 2];
         };
-        layout.spacing = 3;
-        triggers = [
-          {
-            mode = "nxsot";
-            prefix = "<leader>";
-          }
-        ];
+        layout = {
+          align = "left";
+          spacing = 3;
+        };
       };
     };
-
     spellcheck.enable = false;
 
     visuals = {
