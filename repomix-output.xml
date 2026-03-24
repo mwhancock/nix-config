@@ -1,0 +1,3813 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: .git/**, result/**, *.pdf, *.png
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+homeManagerModules/
+  apps/
+    nvim/
+      ai.nix
+      dap.nix
+      default.nix
+      editor.nix
+      extra-plugins.nix
+      git.nix
+      keymaps.nix
+      lsp.nix
+      lua.nix
+      theme.nix
+      treesitter.nix
+      ui.nix
+    cli-tools.nix
+    desktop-apps.nix
+    neovim.nix
+    thunar.nix
+    zathura.nix
+  core/
+    git-config.nix
+    gtk.nix
+    session-vars.nix
+    shell.nix
+    terminal.nix
+    xdg-overrides.nix
+  desktop/
+    noctalia/
+      app-launcher.nix
+      audio.nix
+      bar.nix
+      brightness.nix
+      calendar.nix
+      colors.nix
+      control-center.nix
+      default.nix
+      desktop-widgets.nix
+      dock.nix
+      location.nix
+      network.nix
+      notifications.nix
+      osd.nix
+      power.nix
+      session-menu.nix
+      sounds.nix
+      system-monitor.nix
+      ui.nix
+      wallpaper.nix
+    dank-material-shell.nix
+    niri.nix
+    plugins.nix
+  scripts/
+    zenBackup.nix
+  default.nix
+hosts/
+  mfv3/
+    configuration.nix
+    hardware-configuration.nix
+    home.nix
+nixModules/
+  core/
+    base.nix
+    boot.nix
+    fonts.nix
+    networking.nix
+  desktop/
+    display-manager.nix
+    gnome.nix
+    keymap.nix
+    noctalia.nix
+    plasma.nix
+    thunar.nix
+  hardware/
+    audio.nix
+    bluetooth.nix
+    gpu.nix
+    power.nix
+  packages/
+    system-packages.nix
+  security/
+    nix-ld.nix
+  services/
+    flatpak.nix
+    ollama.nix
+    portal.nix
+    printing.nix
+    ssh.nix
+    tailscale.nix
+    virtualbox.nix
+  users/
+    mark.nix
+  default.nix
+.gitignore
+flake.lock
+flake.nix
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="homeManagerModules/apps/nvim/dap.nix">
+{ pkgs, ... }:
+{
+  programs.nvf.settings.vim = {
+    extraPackages = with pkgs; [
+      lldb
+    ];
+
+    debugger = {
+      nvim-dap = {
+        enable = true;
+        ui.enable = true;
+      };
+    };
+
+    extraPlugins = with pkgs.vimPlugins; {
+      dap-virtual-text = {
+        package = nvim-dap-virtual-text;
+        setup = ''
+          require("nvim-dap-virtual-text").setup({})
+        '';
+      };
+    };
+
+    pluginRC.dap-config = ''
+      local dap = require("dap")
+      local dapui = require("dapui")
+
+      -- C adapter
+      dap.adapters.lldb = {
+        type = "executable",
+        command = "lldb-dap",
+        name = "lldb",
+      }
+
+      -- C configuration
+      dap.configurations.c = {
+        {
+          name = "Launch",
+          type = "lldb",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+          end,
+          cwd = "''${workspaceFolder}",
+          stopOnEntry = false,
+          args = {},
+        },
+      }
+      dap.configurations.cpp = dap.configurations.c
+
+      -- Java uses jdtls built-in DAP
+      dap.configurations.java = {
+        {
+          name = "Launch Java",
+          type = "java",
+          request = "launch",
+          mainClass = "",
+        },
+      }
+
+      -- Auto open/close dapui
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+      end
+    '';
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/git.nix">
+{ pkgs, ... }:
+{
+  programs.nvf.settings.vim = {
+    git = {
+      enable = true;
+      gitsigns = {
+        enable = true;
+        setupOpts = {
+          current_line_blame = true;
+          current_line_blame_opts = {
+            delay = 500;
+          };
+          signs = {
+            add.text = "▎";
+            change.text = "▎";
+            delete.text = "";
+            topdelete.text = "";
+            changedelete.text = "▎";
+          };
+        };
+      };
+    };
+
+    extraPlugins = with pkgs.vimPlugins; {
+      diffview = {
+        package = diffview-nvim;
+        setup = ''
+          require("diffview").setup({})
+        '';
+      };
+    };
+
+    extraPackages = with pkgs; [
+      lazygit
+    ];
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/thunar.nix">
+{ pkgs, ... }:
+{
+  home.packages = with pkgs; [
+    thunar-archive-plugin
+    thunar-volman
+  ];
+}
+</file>
+
+<file path="homeManagerModules/core/git-config.nix">
+{
+  programs.git = {
+    enable = true;
+    settings = {
+      user.name = "mark";
+      user.email = "mwhancock@proton.me";
+      safe.directory = "/home/mark/nixos-config";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/app-launcher.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    appLauncher = {
+      enableClipboardHistory = true;
+      autoPasteClipboard = false;
+      enableClipPreview = true;
+      clipboardWrapText = true;
+      enableClipboardSmartIcons = true;
+      enableClipboardChips = true;
+      clipboardWatchTextCommand = "wl-paste --type text --watch cliphist store";
+      clipboardWatchImageCommand = "wl-paste --type image --watch cliphist store";
+      position = "center";
+      pinnedApps = [ ];
+      sortByMostUsed = true;
+      terminalCommand = "ghostyy -e";
+      customLaunchPrefixEnabled = false;
+      customLaunchPrefix = "";
+      viewMode = "list";
+      showCategories = true;
+      iconMode = "tabler";
+      showIconBackground = false;
+      enableSettingsSearch = true;
+      enableWindowsSearch = true;
+      enableSessionSearch = true;
+      ignoreMouseInput = false;
+      screenshotAnnotationTool = "";
+      overviewLayer = false;
+      density = "default";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/audio.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    audio = {
+      volumeStep = 5;
+      volumeOverdrive = false;
+      spectrumFrameRate = 30;
+      visualizerType = "linear";
+      mprisBlacklist = [ ];
+      preferredPlayer = "";
+      volumeFeedback = false;
+      volumeFeedbackSoundFile = "";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/bar.nix">
+{ pkgs, inputs, ... }:
+{
+  programs.noctalia-shell.settings = {
+    bar = {
+      barType = "simple";
+      position = "top";
+      monitors = [ ];
+      density = "default";
+      showOutline = false;
+      showCapsule = true;
+      capsuleOpacity = 1;
+      capsuleColorKey = "none";
+      widgetSpacing = 6;
+      contentPadding = 2;
+      fontScale = 1;
+      enableExclusionZoneInset = true;
+      backgroundOpacity = 0.93;
+      useSeparateOpacity = false;
+      floating = true;
+      marginVertical = 4;
+      marginHorizontal = 4;
+      frameThickness = 8;
+      frameRadius = 12;
+      outerCorners = true;
+      hideOnOverview = true;
+      displayMode = "always_visible";
+      autoHideDelay = 500;
+      autoShowDelay = 150;
+      showOnWorkspaceSwitch = true;
+      widgets = {
+        left = [
+          {
+            id = "Launcher";
+          }
+          {
+            id = "Workspace";
+          }
+          {
+            id = "ActiveWindow";
+          }
+        ];
+        center = [
+          {
+            id = "Clock";
+          }
+          {
+            id = "MediaMini";
+          }
+        ];
+        right = [
+          {
+            id = "Tray";
+          }
+          {
+            id = "NotificationHistory";
+          }
+          {
+            id = "Battery";
+          }
+          {
+            id = "SystemMonitor";
+          }
+
+          {
+            id = "ControlCenter";
+          }
+        ];
+      };
+      mouseWheelAction = "none";
+      reverseScroll = false;
+      mouseWheelWrap = true;
+      middleClickAction = "none";
+      middleClickFollowMouse = false;
+      middleClickCommand = "";
+      rightClickAction = "controlCenter";
+      rightClickFollowMouse = true;
+      rightClickCommand = "";
+      screenOverrides = [ ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/brightness.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    brightness = {
+      brightnessStep = 5;
+      enforceMinimum = true;
+      enableDdcSupport = false;
+      backlightDeviceMappings = [ ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/calendar.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    calendar = {
+      cards = [
+        {
+          enabled = true;
+          id = "calendar-header-card";
+        }
+        {
+          enabled = true;
+          id = "calendar-month-card";
+        }
+        {
+          enabled = true;
+          id = "weather-card";
+        }
+      ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/colors.nix">
+{ pkgs, inputs, ... }:
+{
+  programs.noctalia-shell = {
+
+    colors = {
+
+      mError = "#dddddd";
+      mOnError = "#111111";
+      mOnPrimary = "#111111";
+      mOnSecondary = "#111111";
+      mOnSurface = "#828282";
+      mOnSurfaceVariant = "#5d5d5d";
+      mOnTertiary = "#111111";
+      mOnHover = "#ffffff";
+      mOutline = "#3c3c3c";
+      mPrimary = "#aaaaaa";
+      mSecondary = "#a7a7a7";
+      mShadow = "#000000";
+      mSurface = "#111111";
+      mHover = "#1f1f1f";
+      mSurfaceVariant = "#191919";
+      mTertiary = "#cccccc";
+    };
+    settings = {
+      colorSchemes = {
+        useWallpaperColors = false;
+        predefinedScheme = "Noctalia (default)";
+        darkMode = true;
+        schedulingMode = "off";
+        manualSunrise = "06:30";
+        manualSunset = "18:30";
+        generationMethod = "tonal-spot";
+        monitorForColors = "";
+      };
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/control-center.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    controlCenter = {
+      position = "close_to_bar_button";
+      diskPath = "/";
+      shortcuts = {
+        left = [
+          {
+            id = "Network";
+          }
+          {
+            id = "Bluetooth";
+          }
+          {
+            id = "WallpaperSelector";
+          }
+          {
+            id = "NoctaliaPerformance";
+          }
+        ];
+        right = [
+          {
+            id = "Notifications";
+          }
+          {
+            id = "PowerProfile";
+          }
+          {
+            id = "KeepAwake";
+          }
+          {
+            id = "NightLight";
+          }
+        ];
+      };
+      cards = [
+        {
+          enabled = true;
+          id = "profile-card";
+        }
+        {
+          enabled = true;
+          id = "shortcuts-card";
+        }
+        {
+          enabled = true;
+          id = "audio-card";
+        }
+        {
+          enabled = false;
+          id = "brightness-card";
+        }
+        {
+          enabled = true;
+          id = "weather-card";
+        }
+        {
+          enabled = true;
+          id = "media-sysmon-card";
+        }
+      ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/default.nix">
+{ pkgs, inputs, ... }:
+{
+  imports = [
+    inputs.niri.homeModules.niri
+    inputs.noctalia.homeModules.default
+        #    ./app-launcher.nix
+        #    ./audio.nix
+        #    ./bar.nix
+        #    ./calendar.nix
+        #    ./colors.nix
+        #    ./control-center.nix
+        #    ./desktop-widgets.nix
+        #    ./dock.nix
+        #    ./location.nix
+        #    ./network.nix
+        #    ./notifications.nix
+        #    ./osd.nix
+        #    ./power.nix
+        #    ./session-menu.nix
+        #    ./sounds.nix
+        #    ./system-monitor.nix
+        #    ./ui.nix
+        #./wallpaper.nix
+  ];
+
+  programs.niri = {
+    enable = true;
+    package = pkgs.niri-unstable;
+    settings = {
+      spawn-at-startup = [
+        {
+          command = [ "noctalia-shell" ];
+        }
+      ];
+      prefer-no-csd = true;
+      input = {
+        focus-follows-mouse = {
+          enable = true;
+          max-scroll-amount = "0%";
+        };
+      };
+    };
+  };
+  programs.noctalia-shell = {
+    enable = true;
+    settings = {
+      noctaliaPerformance = {
+        disableWallpaper = true;
+        disableDesktopWidgets = true;
+      };
+      general = {
+        avatarImage = "";
+        dimmerOpacity = 0.2;
+        showScreenCorners = false;
+        forceBlackScreenCorners = false;
+        scaleRatio = 1.25;
+        radiusRatio = 1;
+        iRadiusRatio = 1;
+        boxRadiusRatio = 1;
+        screenRadiusRatio = 1;
+        animationSpeed = 1;
+        animationDisabled = false;
+        compactLockScreen = false;
+        lockScreenAnimations = false;
+        lockOnSuspend = true;
+        showSessionButtonsOnLockScreen = true;
+        showHibernateOnLockScreen = false;
+        enableLockScreenMediaControls = false;
+        enableShadows = true;
+        enableBlurBehind = true;
+        shadowDirection = "bottom_right";
+        shadowOffsetX = 2;
+        shadowOffsetY = 3;
+        language = "";
+        allowPanelsOnScreenWithoutBar = true;
+        showChangelogOnStartup = true;
+        telemetryEnabled = false;
+        enableLockScreenCountdown = true;
+        lockScreenCountdownDuration = 10000;
+        autoStartAuth = false;
+        allowPasswordWithFprintd = false;
+        clockStyle = "custom";
+        clockFormat = "hh\nmm";
+        passwordChars = false;
+        lockScreenMonitors = [ ];
+        lockScreenBlur = 0;
+        lockScreenTint = 0;
+        keybinds = {
+          keyUp = [
+            "Up"
+          ];
+          keyDown = [
+            "Down"
+          ];
+          keyLeft = [
+            "Left"
+          ];
+          keyRight = [
+            "Right"
+          ];
+          keyEnter = [
+            "Return"
+            "Enter"
+          ];
+          keyEscape = [
+            "Esc"
+          ];
+          keyRemove = [
+            "Del"
+          ];
+        };
+        reverseScroll = false;
+      };
+    };
+  };
+
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/desktop-widgets.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    desktopWidgets = {
+      enabled = false;
+      overviewEnabled = true;
+      gridSnap = false;
+      gridSnapScale = false;
+      monitorWidgets = [ ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/dock.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    dock = {
+      enabled = true;
+      position = "bottom";
+      displayMode = "auto_hide";
+      dockType = "floating";
+      backgroundOpacity = 1;
+      floatingRatio = 1;
+      size = 1;
+      onlySameOutput = true;
+      monitors = [ ];
+      pinnedApps = [ ];
+      colorizeIcons = false;
+      showLauncherIcon = false;
+      launcherPosition = "end";
+      launcherIconColor = "none";
+      pinnedStatic = false;
+      inactiveIndicators = false;
+      groupApps = false;
+      groupContextMenuMode = "extended";
+      groupClickAction = "cycle";
+      groupIndicatorStyle = "dots";
+      deadOpacity = 0.6;
+      animationSpeed = 1;
+      sitOnFrame = false;
+      showDockIndicator = false;
+      indicatorThickness = 3;
+      indicatorColor = "primary";
+      indicatorOpacity = 0.6;
+    };
+
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/location.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    location = {
+      name = "St_Johns";
+      weatherEnabled = true;
+      weatherShowEffects = true;
+      useFahrenheit = false;
+      use12hourFormat = false;
+      showWeekNumberInCalendar = false;
+      showCalendarEvents = true;
+      showCalendarWeather = true;
+      analogClockInCalendar = false;
+      firstDayOfWeek = -1;
+      hideWeatherTimezone = false;
+      hideWeatherCityName = false;
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/network.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    network = {
+      wifiEnabled = true;
+      airplaneModeEnabled = false;
+      bluetoothRssiPollingEnabled = false;
+      bluetoothRssiPollIntervalMs = 60000;
+      networkPanelView = "wifi";
+      wifiDetailsViewMode = "grid";
+      bluetoothDetailsViewMode = "grid";
+      bluetoothHideUnnamedDevices = false;
+      disableDiscoverability = false;
+      bluetoothAutoConnect = true;
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/notifications.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    notifications = {
+      enabled = true;
+      enableMarkdown = false;
+      density = "default";
+      monitors = [ ];
+      location = "top_right";
+      overlayLayer = true;
+      backgroundOpacity = 1;
+      respectExpireTimeout = false;
+      lowUrgencyDuration = 3;
+      normalUrgencyDuration = 8;
+      criticalUrgencyDuration = 15;
+      clearDismissed = true;
+      saveToHistory = {
+        low = true;
+        normal = true;
+        critical = true;
+      };
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/osd.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    osd = {
+      enabled = true;
+      location = "top_right";
+      autoHideMs = 2000;
+      overlayLayer = true;
+      backgroundOpacity = 1;
+      enabledTypes = [
+        0
+        1
+        2
+      ];
+      monitors = [ ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/power.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    idle = {
+      enabled = false;
+      screenOffTimeout = 600;
+      lockTimeout = 660;
+      suspendTimeout = 1800;
+      fadeDuration = 5;
+      screenOffCommand = "";
+      lockCommand = "";
+      suspendCommand = "";
+      resumeScreenOffCommand = "";
+      resumeLockCommand = "";
+      resumeSuspendCommand = "";
+      customCommands = "[]";
+    };
+
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/session-menu.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    sessionMenu = {
+      enableCountdown = true;
+      countdownDuration = 10000;
+      position = "center";
+      showHeader = true;
+      showKeybinds = true;
+      largeButtonsStyle = true;
+      largeButtonsLayout = "single-row";
+      powerOptions = [
+        {
+          action = "lock";
+          enabled = true;
+          keybind = "1";
+        }
+        {
+          action = "suspend";
+          enabled = true;
+          keybind = "2";
+        }
+        {
+          action = "hibernate";
+          enabled = true;
+          keybind = "3";
+        }
+        {
+          action = "reboot";
+          enabled = true;
+          keybind = "4";
+        }
+        {
+          action = "logout";
+          enabled = true;
+          keybind = "5";
+        }
+        {
+          action = "shutdown";
+          enabled = true;
+          keybind = "6";
+        }
+        {
+          action = "rebootToUefi";
+          enabled = true;
+          keybind = "7";
+        }
+      ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/sounds.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    sounds = {
+      enabled = false;
+      volume = 0.5;
+      separateSounds = false;
+      criticalSoundFile = "";
+      normalSoundFile = "";
+      lowSoundFile = "";
+      excludedApps = "discord,firefox,chrome,chromium,edge";
+    };
+    enableMediaToast = false;
+    enableKeyboardLayoutToast = true;
+    enableBatteryToast = true;
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/system-monitor.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    systemMonitor = {
+      cpuWarningThreshold = 80;
+      cpuCriticalThreshold = 90;
+      tempWarningThreshold = 80;
+      tempCriticalThreshold = 90;
+      gpuWarningThreshold = 80;
+      gpuCriticalThreshold = 90;
+      memWarningThreshold = 80;
+      memCriticalThreshold = 90;
+      swapWarningThreshold = 80;
+      swapCriticalThreshold = 90;
+      diskWarningThreshold = 80;
+      diskCriticalThreshold = 90;
+      diskAvailWarningThreshold = 20;
+      diskAvailCriticalThreshold = 10;
+      batteryWarningThreshold = 20;
+      batteryCriticalThreshold = 5;
+      enableDgpuMonitoring = false;
+      useCustomColors = false;
+      warningColor = "";
+      criticalColor = "";
+      externalMonitor = "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/ui.nix">
+{ pkgs, ... }:
+{
+  programs.noctalia-shell.settings = {
+    ui = {
+      fontDefault = "JetBrains Mono";
+      fontFixed = "";
+      fontDefaultScale = 1;
+      fontFixedScale = 1;
+      tooltipsEnabled = true;
+      scrollbarAlwaysVisible = true;
+      boxBorderEnabled = false;
+      panelBackgroundOpacity = 0.93;
+      translucentWidgets = false;
+      panelsAttachedToBar = true;
+      settingsPanelMode = "attached";
+      settingsPanelSideBarCardStyle = false;
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/noctalia/wallpaper.nix">
+{ ... }:
+{
+  programs.noctalia-shell.settings = {
+    wallpaper = {
+      enabled = true;
+      overviewEnabled = false;
+      directory = "";
+      monitorDirectories = [ ];
+      enableMultiMonitorDirectories = false;
+      showHiddenFiles = false;
+      viewMode = "single";
+      setWallpaperOnAllMonitors = true;
+      fillMode = "crop";
+      fillColor = "#000000";
+      useSolidColor = false;
+      solidColor = "#1a1a2e";
+      automationEnabled = false;
+      wallpaperChangeMode = "random";
+      randomIntervalSec = 300;
+      transitionDuration = 1500;
+      transitionType = [
+        "fade"
+        "disc"
+        "stripes"
+        "wipe"
+        "pixelate"
+        "honeycomb"
+      ];
+      skipStartupTransition = false;
+      transitionEdgeSmoothness = 0.05;
+      panelPosition = "follow_bar";
+      hideWallpaperFilenames = false;
+      overviewBlur = 0.4;
+      overviewTint = 0.6;
+      useWallhaven = false;
+      wallhavenQuery = "";
+      wallhavenSorting = "relevance";
+      wallhavenOrder = "desc";
+      wallhavenCategories = "111";
+      wallhavenPurity = "100";
+      wallhavenRatios = "";
+      wallhavenApiKey = "";
+      wallhavenResolutionMode = "atleast";
+      wallhavenResolutionWidth = "";
+      wallhavenResolutionHeight = "";
+      sortOrder = "name";
+      favorites = [ ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/plugins.nix">
+
+</file>
+
+<file path="homeManagerModules/scripts/zenBackup.nix">
+{ pkgs, ... }:
+
+{
+
+  home.packages = [
+    (pkgs.writeShellScriptBin "zen-backup" ''
+      # Your exact profile path
+      PROFILE_DIR="$HOME/.config/zen/kzzbegky.Default Profile"
+      BACKUP_DIR="$HOME/Nextcloud/Documents/ZenBrowser"
+
+      # Create backup directory if it doesn't exist
+      mkdir -p "$BACKUP_DIR"
+
+      # Create timestamp
+      TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+      BACKUP_FILE="$BACKUP_DIR/zen-profile-$TIMESTAMP.tar.gz"
+
+      # Check if profile exists
+      if [ ! -d "$PROFILE_DIR" ]; then
+        echo "Error: Profile directory not found at $PROFILE_DIR"
+        exit 1
+      fi
+
+      echo "Backing up Zen profile from: $PROFILE_DIR"
+      echo "Creating backup in Nextcloud: $BACKUP_FILE"
+
+      # Create the backup
+      tar -czf "$BACKUP_FILE" -C "$HOME/.config/zen" "$(basename "$PROFILE_DIR")"
+
+      # Show result
+      if [ $? -eq 0 ]; then
+        echo "✅ Backup successful!"
+        ls -lh "$BACKUP_FILE"
+
+        # keep only last 5 backups
+        echo "Cleaning up old backups (keeping last 5)..."
+        ls -t "$BACKUP_DIR"/zen-profile-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm
+      else
+        echo "❌ Backup failed"
+        exit 1
+      fi
+    '')
+
+    (pkgs.writeShellScriptBin "zen-restore" ''
+      BACKUP_DIR="$HOME/Nextcloud/Documents/ZenBrowser"
+      PROFILE_DIR="$HOME/.config/zen/kzzbegky.Default Profile"
+
+      # Check if backup directory exists
+      if [ ! -d "$BACKUP_DIR" ]; then
+        echo "Backup directory not found at $BACKUP_DIR"
+        echo "Creating it now..."
+        mkdir -p "$BACKUP_DIR"
+        exit 1
+      fi
+
+      # List available backups
+      echo "Available backups in Nextcloud:"
+      ls -1 "$BACKUP_DIR"/zen-profile-*.tar.gz 2>/dev/null | cat -n
+
+      if [ $? -ne 0 ]; then
+        echo "No backups found in $BACKUP_DIR"
+        exit 1
+      fi
+
+      # Ask which backup to restore
+      echo ""
+      read -p "Enter backup number to restore: " $CHOICE
+
+      BACKUP_FILE=$(ls -1 "$BACKUP_DIR"/zen-profile-*.tar.gz | sed -n "$CHOICE") --strip-components=1
+
+      if [ -z "$BACKUP_FILE" ]; then
+        echo "Invalid choice"
+        exit 1
+      fi
+
+      echo "Restoring from: $BACKUP_FILE"
+      echo "This will replace your current profile at: $PROFILE_DIR"
+      read -p "Are you sure? (y/N): " CONFIRM
+
+      if [ "$CONFIRM" = "y" ] || [ "$CONFIRM" = "Y" ]; then
+        # Backup current profile just in case
+        if [ -d "$PROFILE_DIR" ]; then
+          mv "$PROFILE_DIR" "$PROFILE_DIR.bak.$(date +%s)"
+          echo "Current profile backed up to: $PROFILE_DIR.bak.$(date +%s)"
+        fi
+
+        # Restore
+        tar -xzf "$BACKUP_FILE" -C "$HOME/.config/zen"
+        echo "✅ Restore complete!"
+      else
+        echo "Cancelled"
+      fi
+    '')
+  ];
+}
+</file>
+
+<file path="nixModules/core/base.nix">
+{ ... }:
+{
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+  nixpkgs.config.allowUnfree = true;
+
+}
+</file>
+
+<file path="nixModules/core/fonts.nix">
+{pkgs, ...}: {
+  fonts.packages = with pkgs; [
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+    liberation_ttf
+    fira-code
+    fira-code-symbols
+    mplus-outline-fonts.githubRelease
+    dina-font
+    proggyfonts
+    inter
+    roboto
+  ];
+}
+</file>
+
+<file path="nixModules/core/networking.nix">
+{ ... }:
+{
+  networking.hostName = "nixos";
+  networking.networkmanager.enable = true;
+}
+</file>
+
+<file path="nixModules/desktop/keymap.nix">
+{ ... }:
+{
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+}
+</file>
+
+<file path="nixModules/desktop/noctalia.nix">
+{ pkgs, inputs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+}
+</file>
+
+<file path="nixModules/desktop/thunar.nix">
+{ pkgs, ... }:
+{
+  programs.thunar = {
+    enable = true;
+    plugins = with pkgs; [
+      thunar-archive-plugin
+      thunar-volman
+    ];
+  };
+
+  services.gvfs.enable = true;
+  services.tumbler.enable = true;
+}
+</file>
+
+<file path="nixModules/hardware/bluetooth.nix">
+{ ... }:
+{
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true;
+        FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
+      };
+    };
+  };
+}
+</file>
+
+<file path="nixModules/security/nix-ld.nix">
+{ pkgs, ... }:
+{
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      alsa-lib
+      wayland
+      wayland-utils
+      libxkbcommon
+      vulkan-loader
+      mesa
+      libGL
+      libglvnd
+      xkeyboard-config
+    ];
+  };
+}
+</file>
+
+<file path="nixModules/services/portal.nix">
+{ pkgs, ... }:
+
+{
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
+      xdg-desktop-portal-wlr
+    ];
+
+    config = {
+      common = {
+        default = [
+          "gnome"
+          "gtk"
+          "wlr"
+        ];
+        "org.freedesktop.impl.portal.FileChooser" = "gnome";
+        "org.freedesktop.impl.portal.OpenURI" = "gnome";
+      };
+    };
+  };
+
+  environment.etc."xdg-desktop-portal/portals.conf".text = ''
+    [preferred]
+    default=gnome;gtk;wlr;
+    org.freedesktop.impl.portal.FileChooser=gnome
+    org.freedesktop.impl.portal.OpenURI=gnome
+  '';
+}
+</file>
+
+<file path="nixModules/services/ssh.nix">
+{ ... }:
+{
+  services.openssh.enable = true;
+}
+</file>
+
+<file path="nixModules/services/tailscale.nix">
+{ ... }:
+{
+  services.tailscale.enable = true;
+}
+</file>
+
+<file path="nixModules/services/virtualbox.nix">
+{ ... }:
+{
+  virtualisation.virtualbox.host.enable = true;
+}
+</file>
+
+<file path=".gitignore">
+/secrets/*.age
+/secrets/*.age
+</file>
+
+<file path="homeManagerModules/apps/nvim/treesitter.nix">
+{ pkgs, ... }:
+{
+  programs.nvf.settings.vim = {
+    treesitter = {
+      enable = true;
+      grammars = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+        c
+        cpp
+        java
+        python
+        lua
+        nix
+        bash
+        json
+        yaml
+        toml
+        markdown
+        markdown-inline
+      ];
+    };
+
+    extraPlugins = with pkgs.vimPlugins; {
+      treesitter-context = {
+        package = nvim-treesitter-context;
+        setup = ''
+          require("treesitter-context").setup({})
+        '';
+      };
+      treesitter-textobjects = {
+        package = nvim-treesitter-textobjects;
+        setup = ''
+          require("nvim-treesitter-textobjects").setup({
+            select = {
+              enable = true,
+              lookahead = true,
+              keymaps = {
+                ["af"] = "@function.outer",
+                ["if"] = "@function.inner",
+                ["ac"] = "@class.outer",
+                ["ic"] = "@class.inner",
+              },
+            },
+            move = {
+              enable = true,
+              goto_next_start = {
+                ["]f"] = "@function.outer",
+                ["]c"] = "@class.outer",
+              },
+              goto_previous_start = {
+                ["[f"] = "@function.outer",
+                ["[c"] = "@class.outer",
+              },
+            },
+          })
+        '';
+      };
+    };
+  };
+}
+</file>
+
+<file path="nixModules/desktop/display-manager.nix">
+{ ... }:
+{
+  services = {
+    desktopManager.gnome.enable = true;
+    displayManager.gdm.enable = true;
+  };
+}
+</file>
+
+<file path="nixModules/desktop/gnome.nix">
+{ pkgs, ... }:
+
+{
+
+  services.gnome.core-apps.enable = false;
+  services.gnome.core-developer-tools.enable = false;
+  services.gnome.games.enable = false;
+  environment.gnome.excludePackages = with pkgs; [
+    gnome-tour
+    gnome-user-docs
+  ];
+
+}
+</file>
+
+<file path="nixModules/desktop/plasma.nix">
+{ pkgs, ... }:
+{
+  services.desktopManager.plasma6.enable = true;
+  environment.etc."xdg/menus/applications.menu".source =
+    "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+}
+</file>
+
+<file path="nixModules/hardware/gpu.nix">
+{ pkgs, ... }:
+{
+  hardware.amdgpu.opencl.enable = true;
+  systemd.tmpfiles.rules = [
+    "L+ /opt/rocm/hip - - - - ${pkgs.rocmPackages.clr}"
+  ];
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+}
+</file>
+
+<file path="nixModules/hardware/power.nix">
+{ ... }:
+{
+  services.auto-cpufreq.enable = true;
+  services.power-profiles-daemon.enable = false;
+  services.logind.settings.Login.HandleLidSwitch = "suspend-then-hibernate";
+}
+</file>
+
+<file path="nixModules/services/ollama.nix">
+{ pkgs, ... }:
+{
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-vulkan;
+  };
+}
+</file>
+
+<file path="nixModules/services/printing.nix">
+{ ... }:
+{
+  services.printing.enable = true;
+}
+</file>
+
+<file path="README.md">
+# nix-config
+My nixOS journey
+</file>
+
+<file path="homeManagerModules/apps/nvim/editor.nix">
+{ lib, ... }:
+{
+  programs.nvf.settings.vim = {
+    filetree.neo-tree = {
+      enable = true;
+      setupOpts = {
+        filesystem = {
+          hijack_netrw_behavior = "open_current";
+          use_libuv_file_watcher = true;
+          bind_to_cwd = true;
+        };
+        window = {
+          width = 30;
+          mappings = {
+            "<cr>" = "open";
+            "l" = "open";
+            "h" = "close_node";
+          };
+        };
+      };
+    };
+
+    telescope = {
+      enable = true;
+    };
+
+    terminal.toggleterm = {
+      enable = true;
+      lazygit.enable = true;
+      mappings.open = "<C-\\>";
+      setupOpts = {
+        direction = "horizontal";
+        shade_terminals = true;
+        size = lib.generators.mkLuaInline ''
+          function(term)
+            if term.direction == "horizontal" then
+              return 15
+            elseif term.direction == "vertical" then
+              return math.floor(vim.o.columns * 0.4)
+            end
+          end
+        '';
+      };
+    };
+    autopairs.nvim-autopairs.enable = true;
+
+    comments.comment-nvim.enable = true;
+
+    projects.project-nvim = {
+      enable = true;
+    };
+
+    autocomplete.nvim-cmp.enable = true;
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/theme.nix">
+{ ... }:
+{
+  programs.nvf.settings.vim.theme = {
+    enable = true;
+    name = "gruvbox";
+    style = "dark";
+    transparent = false; 
+    extraConfig = ''
+      -------------------------------------------------------------------------
+      -- 1. RAINBOW INDENT HIGHLIGHTS
+      -------------------------------------------------------------------------
+      vim.api.nvim_set_hl(0, "IndentBlanklineRed",    { fg = "#cc241d" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineOrange", { fg = "#d65d0e" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineYellow", { fg = "#d79921" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineGreen",  { fg = "#689d6a" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineBlue",   { fg = "#458588" })
+      vim.api.nvim_set_hl(0, "IndentBlanklinePurple", { fg = "#b16286" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineCurrent",{ fg = "#fabd2f", bold = true })
+
+      -------------------------------------------------------------------------
+      -- 2. MINIMAP INTEGRATION
+      -------------------------------------------------------------------------
+      -- Background of the map (slightly darker for depth)
+      vim.api.nvim_set_hl(0, "MiniMapNormal", { fg = "#928374", bg = "#1d2021" }) 
+      -- The "You are here" symbol (Gruvbox Aqua)
+      vim.api.nvim_set_hl(0, "MiniMapSymbolCurrent", { fg = "#83a598", bold = true })
+      -- Search results in the map (Gruvbox Yellow)
+      vim.api.nvim_set_hl(0, "MiniMapSymbolSearch", { fg = "#fabd2f", bg = "#665c54" })
+
+      -------------------------------------------------------------------------
+      -- 3. NEO-TREE GIT INDICATORS
+      -------------------------------------------------------------------------
+      vim.api.nvim_set_hl(0, "NeoTreeGitModified",  { fg = "#fabd2f" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitUntracked", { fg = "#b8bb26" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitStaged",    { fg = "#83a598" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitDeleted",   { fg = "#fb4934" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitRenamed",   { fg = "#fe8019" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitIgnored",   { fg = "#928374" })
+      vim.api.nvim_set_hl(0, "NeoTreeGitConflict",  { fg = "#fb4934" })
+    '';
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/neovim.nix">
+{pkgs, ...}: {
+  programs.neovim = {
+    enable = true;
+    defaultEditor = false;
+    viAlias = true;
+    vimAlias = true;
+  };
+
+  home.packages = with pkgs; [
+    lazygit
+    ripgrep
+    fd
+    fzf
+
+    jdt-language-server
+    clang-tools
+    pyright
+    python3
+    nodePackages.bash-language-server
+    nodejs
+    # formatters
+    stylua # lua (LazyVim configs are lua)
+    prettierd # general
+    black # Python
+    clang-tools # clang-format for C
+  ];
+}
+</file>
+
+<file path="nixModules/services/flatpak.nix">
+{ ... }:
+{
+  services.flatpak = {
+    enable = true;
+    remotes = [
+      {
+        name = "flathub";
+        location = "https://flathub.org/repo/flathub.flatpakrepo";
+      }
+    ];
+    packages = [
+      "dev.aunetx.deezer"
+      #"dev.zed.Zed"
+      "com.calibre_ebook.calibre"
+      "app.grayjay.Grayjay"
+    ];
+    update = {
+      onActivation = true;
+      auto = {
+        enable = true;
+        onCalendar = "weekly";
+      };
+    };
+  };
+}
+</file>
+
+<file path="nixModules/users/mark.nix">
+{pkgs, ...}: {
+  users.users.mark = {
+    isNormalUser = true;
+    description = "mark";
+    shell = pkgs.fish;
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "mark"
+      "disk"
+      "root"
+    ];
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/ai.nix">
+{pkgs, ...}: {
+  programs.nvf.settings.vim.extraPlugins = with pkgs.vimPlugins; {
+    bullets-vim = {
+      package = pkgs.vimPlugins.bullets-vim;
+      setup = ''
+        vim.g.bullets_enabled_filetypes = { 'markdown', 'text', 'gitcommit' }
+        vim.g.bullets_outline_levels = { 'rom', 'std', 'num',}
+        vim.keymap.set('i', '<Tab>', '<Plug>(bullets-demote)', { silent = true })
+        vim.keymap.set('i', '<S-Tab>', '<Plug>(bullets-promote)', { silent = true })
+      '';
+    };
+
+    copilot-lua = {
+      package = copilot-lua;
+      setup = "";
+    };
+
+    avante = {
+      package = avante-nvim;
+      setup = ''
+        require("copilot").setup({
+          suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          hide_during_completion = true,
+          keymap = {
+              accept = "<M-l>",
+              accept_word = "<C-Right>",
+              accept_line = "<C-Down>",
+              next = "<M-]>",
+              prev = "<M-[>",
+              dismiss = "<C-e>",
+              },
+          },
+          panel = { enabled = false },
+        })
+        require("avante_lib").load()
+        require("avante").setup({
+          provider = "copilot",
+          auto_suggestions_provider = "copilot",
+          providers = {
+            copilot = {
+              model = "gpt-4o",
+            },
+          },
+          mappings = {
+            submit = {
+              normal = "<CR>",
+              insert = "<C-s>",
+            },
+          },
+        })
+      '';
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/lsp.nix">
+{...}: {
+  programs.nvf.settings.vim = {
+    lsp = {
+      enable = true;
+      lspkind.enable = true;
+      lightbulb.enable = true;
+      trouble.enable = true;
+      lspSignature.enable = true;
+    };
+
+    diagnostics = {
+      enable = true;
+      config = {
+        virtual_text = false;
+        virtual_lines = true;
+        signs = true;
+        underline = true;
+        update_in_insert = false;
+      };
+    };
+
+    languages = {
+      enableTreesitter = true;
+      enableFormat = true;
+
+      nix = {
+        enable = true;
+        lsp.servers = ["nixd"];
+      };
+
+      rust.enable = true;
+
+      python = {
+        enable = true;
+        lsp.servers = ["pyright"];
+        format.type = ["black"];
+      };
+
+      clang = {
+        enable = true;
+        lsp.servers = ["clangd"];
+      };
+
+      java.enable = true;
+      bash.enable = true;
+      lua.enable = true;
+    };
+
+    autocomplete.nvim-cmp.enable = true;
+    snippets.luasnip.enable = true;
+
+    formatter.conform-nvim = {
+      enable = true;
+      setupOpts = {
+        format_on_save = {
+          timeout_ms = 500;
+          lsp_format = "fallback";
+        };
+      };
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/cli-tools.nix">
+{ pkgs, ... }:
+{
+  home.packages = with pkgs; [
+    zip
+    xz
+    unzip
+    p7zip
+    nmap
+    socat
+    ipcalc
+    traceroute
+    gemini-cli
+    fastfetch
+    btop
+    iftop
+    strace
+    ltrace
+    pciutils
+    sysstat
+    usbutils
+  ];
+}
+</file>
+
+<file path="homeManagerModules/apps/zathura.nix">
+{...}: {
+  programs.zathura = {
+    enable = true;
+    options = {
+      # Selection & UI colors
+      selection-clipboard = "clipboard";
+      notification-error-bg = "#fb4934"; # Red
+      notification-error-fg = "#ebdbb2";
+      notification-warning-bg = "#fabd2f"; # Yellow
+      notification-warning-fg = "#282828";
+
+      # Completion / Status bar
+      completion-bg = "#3c3836";
+      completion-fg = "#ebdbb2";
+      completion-highlight-bg = "#83a598"; # Blue
+      completion-highlight-fg = "#282828";
+
+      recolor = "true";
+      recolor-keephue = "true"; # Keeps images/colors from looking like a negative
+
+      # Background of the page
+      recolor-lightcolor = "#282828";
+      # Foreground (text) color
+      recolor-darkcolor = "#ebdbb2";
+
+      # UI Background (The area around the page)
+      default-bg = "#282828";
+      default-fg = "#ebdbb2";
+
+      statusbar-bg = "#3c3836";
+      statusbar-fg = "#ebdbb2";
+
+      # Highlighting
+      highlight-color = "#fabd2f80";
+      highlight-active-color = "#fe80198";
+      highlight-fg = "#83a59880";
+
+      # Smooth Scrolling
+      scroll-step = "50";
+      zoom-step = "10";
+
+      # Selection Color
+      selection-color = "#fe801980";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/core/gtk.nix">
+{ pkgs, lib, ... }:
+{
+  gtk = {
+    enable = true;
+    iconTheme = lib.mkForce {
+      name = "oomox-gruvbox-dark";
+      package = pkgs.gruvbox-dark-icons-gtk;
+    };
+    theme = lib.mkForce {
+      name = "gruvbox-dark";
+      package = pkgs.gruvbox-dark-gtk;
+    };
+    cursorTheme = {
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+      size = 24;
+    };
+  };
+
+  home.pointerCursor = {
+    gtk.enable = true;
+    x11.enable = true;
+    package = pkgs.adwaita-icon-theme;
+    name = "Adwaita";
+    size = 24;
+  };
+}
+</file>
+
+<file path="homeManagerModules/desktop/dank-material-shell.nix">
+{ inputs, ... }:
+{
+  imports = [
+    inputs.dms.homeModules.dank-material-shell
+    inputs.dms.homeModules.niri
+  ];
+
+  programs.dank-material-shell = {
+    enable = true;
+    systemd.enable = false;
+    niri.includes.filesToInclude = [
+      "alttab"
+      "binds"
+      "colors"
+      "layout"
+      "outputs"
+      "wpblur"
+    ];
+  };
+}
+</file>
+
+<file path="hosts/mfv3/hardware-configuration.nix">
+# Do not modify this file!  It was generated by ‘nixos-generate-config’
+# and may be overwritten by future invocations.  Please make changes
+# to /etc/nixos/configuration.nix instead.
+{
+  config,
+  lib,
+  modulesPath,
+  ...
+}:
+
+{
+  imports = [
+    (modulesPath + "/installer/scan/not-detected.nix")
+  ];
+
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "thunderbolt"
+    "usbhid"
+    "rtsx_pci_sdmmc"
+  ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@root" ];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" ];
+  };
+
+  fileSystems."/var/log" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@log" ];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-uuid/48052bd0-fdc8-49a4-a563-b918e2cb1726";
+    fsType = "btrfs";
+    options = [ "subvol=@home" ];
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/57B4-E4CE";
+    fsType = "vfat";
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+    ];
+  };
+
+  swapDevices = [ ];
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+}
+</file>
+
+<file path="nixModules/core/boot.nix">
+{...}: {
+  boot.loader = {
+    limine = {
+      enable = true;
+      maxGenerations = 10;
+    };
+    timeout = 5;
+  };
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelParams = ["snd-hda-intel.model=alc256-asus-aio"];
+  boot.blacklistedKernelModules = ["snd_acp_pci" "snd_acp70"];
+}
+</file>
+
+<file path="nixModules/hardware/audio.nix">
+{...}: {
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  services.pipewire.wireplumber.extraConfig = {
+    "99-alsa-soft-mixer" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            {"node.name" = "~alsa_output.*";}
+          ];
+          actions = {
+            "update-props" = {
+              "api.alsa.soft-mixer" = true;
+            };
+          };
+        }
+        {
+          matches = [
+            {"node.name" = "~alsa_input.*";}
+          ];
+          actions = {
+            "update-props" = {
+              "api.alsa.soft-mixer" = false;
+            };
+          };
+        }
+      ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/default.nix">
+{
+  inputs,
+  pkgs,
+  ...
+}: {
+  imports = [
+    inputs.nvf.homeManagerModules.default
+    ./theme.nix
+    ./lsp.nix
+    ./ui.nix
+    ./editor.nix
+    ./treesitter.nix
+    ./git.nix
+    ./keymaps.nix
+    ./ai.nix
+    ./dap.nix
+    ./lua.nix
+    ./extra-plugins.nix
+  ];
+
+  programs.nvf = {
+    enable = true;
+    settings.vim = {
+      viAlias = true;
+      vimAlias = true;
+
+      options = {
+        number = true;
+        relativenumber = true;
+        tabstop = 4;
+        shiftwidth = 4;
+        expandtab = true;
+        smartindent = true;
+        wrap = false;
+        scrolloff = 8;
+        signcolumn = "yes";
+        updatetime = 50;
+        swapfile = false;
+        termguicolors = true;
+        clipboard = "unnamedplus";
+        colorcolumn = "80";
+      };
+
+      globals = {
+        mapleader = " ";
+        maplocalleader = " ";
+      };
+
+      extraPackages = with pkgs; [
+        lazygit
+        nil
+        nixd
+        ripgrep
+        fd
+        fzf
+        clang-tools
+        pyright
+        black
+        stylua
+        gnumake
+        jdt-language-server
+        nodePackages.bash-language-server
+        nodejs
+      ];
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/extra-plugins.nix">
+{pkgs, ...}: {
+  programs.nvf.settings.vim.extraPlugins = with pkgs.vimPlugins; {
+    mini-map = {
+      package = mini-nvim;
+      setup = ''
+        local map = require("mini.map")
+
+        map.setup({
+          integrations = {
+            map.gen_integration.builtin_search(),
+            map.gen_integration.diagnostic(),
+            map.gen_integration.diff(),
+            map.gen_integration.gitsigns(),
+          },
+          symbols = {
+            encode = map.gen_encode_symbols.dot("4x2"),
+            scroll_line = '█',
+          },
+          window = {
+            side = "right",
+            width = 10,
+            winblend = 15,
+            show_spawn_with_clean = true,
+          },
+        })
+        map.open()
+
+        vim.keymap.set("n", "<leader>mm", function()
+          map.toggle()
+        end, { desc = "Toggle Minimap" })
+      '';
+    };
+
+    harpoon = {
+      package = pkgs.vimPlugins.harpoon2;
+      setup = ''
+        local harpoon = require("harpoon")
+        harpoon:setup({})
+
+        vim.keymap.set("n", "<leader>ha", function()
+          harpoon:list():add()
+        end, { desc = "Harpoon Add File" })
+
+        vim.keymap.set("n", "<leader>hh", function()
+          harpoon.ui:toggle_quick_menu(harpoon:list())
+        end, { desc = "Harpoon Menu" })
+      '';
+    };
+
+    vim-illuminate = {
+      package = vim-illuminate;
+      setup = ''
+        require("illuminate").configure({})
+      '';
+    };
+    flash = {
+      package = pkgs.vimPlugins.flash-nvim;
+      setup = ''
+        require("flash").setup({})
+        vim.keymap.set({ "n", "x", "o" }, "<leader>s", function()
+          require("flash").jump()
+        end, { desc = "Flash Jump" })
+      '';
+    };
+    vim-surround = {
+      package = pkgs.vimPlugins.vim-surround;
+      setup = ''
+      '';
+    };
+    render-markdown = {
+      package = render-markdown-nvim;
+      setup = ''
+        require('render-markdown').setup({
+          heading = {
+                icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+          },
+          checkbox = {
+            enabled = true,
+            unchecked = { icon = '󰄱 ' },
+            checked = { icon = '󰄲 ' },
+          },
+              anti_conceal = { enabled = true },
+        })
+      '';
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/keymaps.nix">
+{ ... }:
+{
+  programs.nvf.settings.vim.keymaps = [
+    # General
+    {
+      mode = "n";
+      key = "<leader>Q";
+      action = "<cmd>qa<cr>";
+      desc = "Quit All";
+    }
+    {
+      mode = "n";
+      key = "<leader>qq";
+      action = "<cmd>qa!<cr>";
+      desc = "Force Quit All";
+    }
+
+    {
+      key = ">";
+      mode = "v";
+      action = ">gv";
+      desc = "Indent and reselect";
+    }
+    {
+      key = "<";
+      mode = "v";
+      action = "<gv";
+      desc = "Unindent and reselect";
+    }
+
+    # File tree
+    {
+      mode = "n";
+      key = "<leader>e";
+      action = "<cmd>Neotree toggle<cr>";
+      desc = "Toggle File Tree";
+    }
+    {
+      mode = "n";
+      key = "<leader>E";
+      action = "<cmd>Neotree focus<cr>";
+      desc = "Focus File Tree";
+    }
+
+    # Minimap
+    {
+      mode = "n";
+      key = "<leader>mm";
+      action = "<cmd>lua MiniMap.toggle()<cr>";
+      desc = "Toggle Minimap";
+    }
+
+    # Terminal
+    {
+      mode = "n";
+      key = "<C-\\>";
+      action = "<cmd>ToggleTerm direction=horizontal<cr>";
+      desc = "Terminal Bottom";
+    }
+    {
+      mode = "n";
+      key = "<leader>tv";
+      action = "<cmd>ToggleTerm direction=vertical<cr>";
+      desc = "Terminal Right";
+    }
+    {
+      mode = "n";
+      key = "<leader>tf";
+      action = "<cmd>ToggleTerm direction=float<cr>";
+      desc = "Terminal Float";
+    }
+
+    # Window navigation
+    {
+      mode = "n";
+      key = "<C-h>";
+      action = "<C-w>h";
+      desc = "Move to left window";
+    }
+    {
+      mode = "n";
+      key = "<C-j>";
+      action = "<C-w>j";
+      desc = "Move to lower window";
+    }
+    {
+      mode = "n";
+      key = "<C-k>";
+      action = "<C-w>k";
+      desc = "Move to upper window";
+    }
+    {
+      mode = "n";
+      key = "<C-l>";
+      action = "<C-w>l";
+      desc = "Move to right window";
+    }
+
+    #BufferLine
+    {
+      mode = "n";
+      key = "<leader>bl";
+      action = "<cmd>BufferLineMoveNext<cr>";
+      desc = "Move Buffer Right";
+    }
+    {
+      mode = "n";
+      key = "<leader>bh";
+      action = "<cmd>BufferLineMovePrev<cr>";
+      desc = "Move Buffer Left";
+    }
+
+    # Move lines
+    {
+      mode = "n";
+      key = "<A-j>";
+      action = "<cmd>m .+1<cr>==";
+      desc = "Move line down";
+    }
+    {
+      mode = "n";
+      key = "<A-k>";
+      action = "<cmd>m .-2<cr>==";
+      desc = "Move line up";
+    }
+    {
+      mode = "v";
+      key = "<A-j>";
+      action = ":m '>+1<cr>gv=gv";
+      desc = "Move selection down";
+    }
+    {
+      mode = "v";
+      key = "<A-k>";
+      action = ":m '<-2<cr>gv=gv";
+      desc = "Move selection up";
+    }
+
+    #LSP
+    {
+      mode = "n";
+      key = "gd";
+      action = "<cmd>lua vim.lsp.buf.definition()<cr>";
+      desc = "Go to Definition";
+    }
+    {
+      mode = "n";
+      key = "gr";
+      action = "<cmd>lua vim.lsp.buf.references()<cr>";
+      desc = "References";
+    }
+    {
+      mode = "n";
+      key = "gi";
+      action = "<cmd>lua vim.lsp.buf.implementation()<cr>";
+      desc = "Go to Implementation";
+    }
+    {
+      mode = "n";
+      key = "K";
+      action = "<cmd>lua vim.lsp.buf.hover()<cr>";
+      desc = "Hover Docs";
+    }
+    {
+      mode = "n";
+      key = "<leader>ca";
+      action = "<cmd>lua vim.lsp.buf.code_action()<cr>";
+      desc = "Code Action";
+    }
+    {
+      mode = "n";
+      key = "<leader>rn";
+      action = "<cmd>lua vim.lsp.buf.rename()<cr>";
+      desc = "Rename";
+    }
+    {
+      mode = "n";
+      key = "[d";
+      action = "<cmd>lua vim.diagnostic.goto_prev()<cr>";
+      desc = "Prev Diagnostic";
+    }
+    {
+      mode = "n";
+      key = "]d";
+      action = "<cmd>lua vim.diagnostic.goto_next()<cr>";
+      desc = "Next Diagnostic";
+    }
+
+  ];
+}
+</file>
+
+<file path="homeManagerModules/core/session-vars.nix">
+{ pkgs, ... }:
+{
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+    TERMINAL = "ghostty";
+    ZEN_PROFILE_DIR = "~/.config/zen zen-backup";
+    XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
+    GTK_THEME = "gruvbox-dark";
+    ADW_DEBUG_COLOR_SCHEME = "prefer-dark";
+  };
+}
+</file>
+
+<file path="homeManagerModules/core/terminal.nix">
+{
+  programs.ghostty = {
+    enable = true;
+    settings = {
+      #font setting
+      font-size = 12;
+      font-family = "JetBrains Mono";
+
+      #appearance
+      background-opacity = 0.9;
+      background-blur-radius = 15;
+      window-theme = "dark";
+      theme = "Gruvbox Dark Hard";
+      window-decoration = false;
+      window-padding-x = 10;
+      window-padding-y = 10;
+
+      #shell integration
+      shell-integration = "fish";
+
+      cursor-text = "#fe8019";
+
+      #behavior
+      copy-on-select = true;
+      confirm-close-surface = false;
+
+      font-feature = "+calt +liga +dlig";
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/core/xdg-overrides.nix">
+{pkgs, ...}: {
+  xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf".force = true;
+  xdg.configFile."gtk-3.0/settings.ini".force = true;
+  xdg.configFile."gtk-4.0/settings.ini".force = true;
+  xdg.configFile."gtk-4.0/gtk.css".force = true;
+  xdg.desktopEntries.nemo = {
+    name = "Nemo";
+    exec = "${pkgs.nemo-with-extensions}/bin/nemo";
+  };
+  xdg.desktopEntries.nvim = {
+    name = "Neovim";
+    exec = "ghostty -e nvim %F";
+    terminal = false;
+    mimeType = [
+      "text/plain"
+      "text/x-c"
+      "text/x-csrc"
+      "text/x-chdr"
+      "text/x-java"
+      "text/x-python"
+      "application/x-shellscript"
+    ];
+  };
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "inode/directory" = ["thunar.desktop"];
+      "text/plain" = ["nvim.desktop"];
+      "text/x-c" = ["nvim.desktop"];
+      "text/x-csrc" = ["nvim.desktop"];
+      "text/x-chdr" = ["nvim.desktop"];
+      "text/x-java" = ["nvim.desktop"];
+      "text/x-python" = ["nvim.desktop"];
+      "application/x-shellscript" = ["nvim.desktop"];
+      "application/pdf" = ["org.pwmt.zathura.desktop"];
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation" = ["onlyoffice-desktopeditors.desktop"];
+      "application/msword" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.ms-excel" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.ms-powerpoint" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.oasis.opendocument.text" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.oasis.opendocument.spreadsheet" = ["onlyoffice-desktopeditors.desktop"];
+      "application/vnd.oasis.opendocument.presentation" = ["onlyoffice-desktopeditors.desktop"];
+    };
+    associations.removed = {
+      "application/pdf" = [
+        "com.calibre_ebook.calibre.desktop"
+        "com.github.jeromerobert.pdfarranger.desktop"
+      ];
+    };
+  };
+  xdg.configFile."pandoc/defaults.yaml".text = ''
+    pdf-engine: tectonic
+    variables:
+      mainfont: "Inter"
+      fontsize: 11pt
+      geometry: margin=1in
+      fontfamily: "inter"
+    metadata:
+      author: "Mark"
+  '';
+}
+</file>
+
+<file path="homeManagerModules/core/shell.nix">
+{
+  programs.fish = {
+    enable = true;
+
+    # Shell aliases
+    shellAliases = {
+      ll = "ls -l";
+      la = "ls -a";
+      lla = "ls -la";
+      gs = "git status";
+      gp = "git push";
+      gl = "git log --oneline --graph";
+      gd = "git diff";
+      cb-config = "nix run nixpkgs#repomix -- --copy --ignore '.git/**,result/**,*.pdf,*.png'";
+      nix-rebuild = "find ~/.config -name '*.bak' -exec rm -rf {} + 2>/dev/null; find ~/ -maxdepth 1 -name '*.bak' -exec rm -rf {} + 2>/dev/null; sudo nixos-rebuild switch --flake ~/nixos-config";
+      nix-diff = "sudo nixos-rebuild list-generations";
+      nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
+      home-rebuild = "home-manager switch --flake ~/nixos-config";
+    };
+
+    # Abbreviations (expand after space - Fish-specific)
+    shellAbbrs = {
+      nix-up = "sudo nixos-rebuild switch --flake ~/nixos-config";
+      nix-dry = "cd ~/nixos-config; and sudo nixos-rebuild dry-activate --flake .";
+      nix-test = "sudo nixos-rebuild test --flake ~/nixos-config";
+      nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
+      ts-up = "sudo tailscale up";
+      ts-down = "sudo tailscale down";
+      ts-status = "tailscale status";
+      nix-update = "cd ~/nixos-config && git pull && nix-rebuild";
+      nix-save = "cd ~/nixos-config; and git add .; and git commit -m \"Update: \"(date \"+%Y-%m-%d %H:%M\"); and git push";
+      nix-save-manual = "cd ~/nixos-config; and git add .; and git commit; and git push";
+    };
+
+    # Additional shell initialization
+    shellInit = ''
+      set -gx EDITOR nvim
+      set -gx VISUAL nvim
+      set -gx TERMINAL ghostty
+      set -g fish_greeting "Welcome back, mark! λ"
+    '';
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/ui.nix">
+{...}: {
+  programs.nvf.settings.vim = {
+    ui = {
+      borders = {
+        enable = true;
+        globalStyle = "rounded";
+      };
+      illuminate.enable = true;
+      noice.enable = true;
+      colorizer = {
+        enable = true;
+      };
+    };
+
+    statusline.lualine = {
+      enable = true;
+      theme = "gruvbox-material";
+    };
+
+    tabline.nvimBufferline.enable = true;
+
+    notify.nvim-notify.enable = true;
+    dashboard.alpha.enable = true;
+
+    binds.whichKey = {
+      enable = true;
+      setupOpts = {
+        preset = "modern";
+        win = {
+          border = "single";
+          col = 999;
+          row = 999;
+          width = 0.3;
+          padding = [1 2 1 2];
+        };
+        layout = {
+          align = "left";
+          spacing = 3;
+        };
+      };
+    };
+    spellcheck.enable = false;
+
+    visuals = {
+      nvim-scrollbar.enable = false;
+      nvim-web-devicons.enable = true;
+      indent-blankline = {
+        enable = true;
+        setupOpts = {
+          indent = {
+            char = "▎";
+            highlight = [
+              "IndentBlanklineRed"
+              "IndentBlanklineOrange"
+              "IndentBlanklineYellow"
+              "IndentBlanklineGreen"
+              "IndentBlanklineBlue"
+              "IndentBlanklinePurple"
+            ];
+          };
+          scope = {
+            enabled = true;
+            show_start = false;
+            highlight = "IndentBlanklineCurrent";
+          };
+        };
+      };
+    };
+  };
+}
+</file>
+
+<file path="nixModules/packages/system-packages.nix">
+{pkgs, ...}: {
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+  };
+  environment.systemPackages = with pkgs; [
+    git
+    gcc
+    clang
+    clang-tools
+    cmake
+    jdk
+    python3
+    cargo
+    rustc
+    rustup
+    #android-studio
+    nixpkgs-fmt
+    nh
+    gamemode
+    wl-clipboard
+    grim
+    gvfs
+    gnumake
+    rocmPackages.rpp
+    slurp
+    swappy
+    swaybg
+    swaylock
+    swayidle
+    xwayland-satellite
+    jetbrains-mono
+    wget
+    nil
+    nixd
+    tree
+    impression
+    alsa-tools
+    alsa-firmware
+    adwaita-icon-theme
+    gnome-themes-extra
+    hicolor-icon-theme
+  ];
+}
+</file>
+
+<file path="homeManagerModules/desktop/niri.nix">
+{ inputs, pkgs, ... }:
+{
+  imports = [
+    inputs.niri.homeModules.niri
+  ];
+
+  programs.niri = {
+    enable = true;
+    package = pkgs.niri-unstable;
+    settings = {
+      spawn-at-startup = [
+        {
+          command = [
+            "dms"
+          ];
+        }
+      ];
+      prefer-no-csd = true;
+      input = {
+        focus-follows-mouse = {
+          enable = true;
+          max-scroll-amount = "0%";
+        };
+      };
+    };
+  };
+}
+</file>
+
+<file path="homeManagerModules/apps/nvim/lua.nix">
+{...}: {
+  programs.nvf.settings.vim.luaConfigRC.myConfig = ''
+    -------------------------------------------------------------------------------
+    -- 1. BASIC BEHAVIOR & APPEARANCE
+    -------------------------------------------------------------------------------
+    vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+
+    vim.opt.conceallevel = 2
+    vim.opt.concealcursor = "nc"
+
+    -- Markdown Heading Colors
+    vim.api.nvim_set_hl(0, "@text.title.1.markdown", { fg = "#fb4934", bold = true }) -- Red
+    vim.api.nvim_set_hl(0, "@text.title.2.markdown", { fg = "#fabd2f", bold = true }) -- Yellow
+    vim.api.nvim_set_hl(0, "@text.title.3.markdown", { fg = "#b8bb26", bold = true }) -- Green
+
+    -- Terminal auto-insert
+    vim.api.nvim_create_autocmd("TermOpen", {
+      pattern = "*",
+      callback = function()
+        vim.cmd("startinsert")
+      end,
+    })
+
+    -- Autosave on focus lost
+    vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+      callback = function()
+        if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
+          vim.cmd("silent! write")
+        end
+      end,
+    })
+
+    -------------------------------------------------------------------------------
+    -- 2. UI & DASHBOARD (ALPHA-NVIM)
+    -------------------------------------------------------------------------------
+    local status_ok, alpha = pcall(require, "alpha")
+    if status_ok then
+      local dashboard = require("alpha.themes.dashboard")
+      dashboard.section.header.val = {
+        [[                               __                ]],
+        [[  ___     __    __   __   __  /\_\    ___ ___    ]],
+        [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
+        [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
+        [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
+        [[  \/_/\/_/\/____/ \/___/    \/_/  \/_/ \/_/\/_/\/_/]],
+        [[                                                 ]],
+        [[             -- THE GROOVY EDITOR --             ]],
+      }
+      dashboard.section.header.opts.hl = "Keyword"
+
+      dashboard.section.buttons.val = {
+        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+        dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
+        dashboard.button("r", "󰄉  Recent", ":Telescope oldfiles <CR>"),
+        dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
+        dashboard.button("q", "󰅚  Quit", ":qa<CR>"),
+      }
+      alpha.setup(dashboard.opts)
+    end
+
+    -------------------------------------------------------------------------------
+    -- 3. FILE EXPLORER (NEO-TREE)
+    -------------------------------------------------------------------------------
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+        if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+          vim.defer_fn(function()
+            require("neo-tree.command").execute({ action = "show", position = "left" })
+          end, 50)
+        end
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("VimResized", {
+      callback = function()
+        local cols = vim.o.columns
+        local width = cols < 100 and 20 or cols < 160 and 25 or 30
+        pcall(require("neo-tree.command").execute, {
+          action = "show",
+          position = "left",
+          width = width,
+        })
+      end,
+    })
+
+    -------------------------------------------------------------------------------
+    -- 4. ASSIGNMENT EXPORT LOGIC (PANDOC + TECTONIC)
+    -------------------------------------------------------------------------------
+    local function export_assignment_pdf()
+      if vim.bo.filetype ~= "markdown" then return end
+
+      local file = vim.fn.expand('%')
+      local pdf = vim.fn.expand('%:r') .. '.pdf'
+      local yaml_path = os.getenv("HOME") .. "/Nextcloud/Documents/School/metadata.yaml"
+      local clean_title = vim.fn.expand('%:t:r'):gsub("_", " ")
+      local current_date = os.date("%B %d, %Y")
+
+      local cmd = {
+        "pandoc", file,
+        "-H", yaml_path,
+        "-V", "geometry:margin=1in",
+        "-V", "fontsize=11pt",
+        "-o", pdf,
+        "--pdf-engine=tectonic",
+        "-M", "title=" .. clean_title,
+        "-M", "date=" .. current_date,
+      }
+
+      vim.notify("Exporting PDF...", vim.log.levels.INFO)
+
+      vim.fn.jobstart(cmd, {
+        on_exit = function(_, code)
+          if code == 0 then
+            vim.notify("PDF Exported Successfully!", vim.log.levels.INFO)
+          else
+            vim.notify("PDF Export Failed!", vim.log.levels.ERROR)
+          end
+        end,
+      })
+    end
+
+    -- Automatic export on save if PDF already exists
+    vim.api.nvim_create_autocmd("BufWritePost", {
+      pattern = "*.md",
+      callback = function()
+        local pdf_file = vim.fn.expand('%:r') .. '.pdf'
+        if vim.fn.filereadable(pdf_file) == 1 then
+          export_assignment_pdf()
+        end
+      end,
+    })
+
+    -------------------------------------------------------------------------------
+    -- 5. KEYMAPS & MENU LABELS (WHICH-KEY)
+    -------------------------------------------------------------------------------
+    local wk = require("which-key")
+    wk.add({
+      { "<leader>a", group = "Avante" },
+      { "<leader>b", group = "Buffers" },
+      { "<leader>c", group = "Code" },
+      { "<leader>d", group = "Debug" },
+      { "<leader>e", group = "Explorer" },
+      { "<leader>g", group = "Git" },
+      { "<leader>h", group = "Harpoon" },
+      { "<leader>l", group = "LSP" },
+      { "<leader>m", group = "Minimap" },
+      { "<leader>n", group = "Notes" },
+      { "<leader>ne", group = "Export" },
+      { "<leader>nep", desc = "Export as PDF" },
+      { "<leader>no", desc = "Open PDF Viewer" },
+      { "<leader>na", desc = "Insert Template" },
+      { "<leader>o", group = "Open" },
+      { "<leader>q", group = "Quit" },
+      { "<leader>r", group = "Rename" },
+      { "<leader>s", group = "Flash" },
+      { "<leader>t", group = "Terminal" },
+    })
+
+    -- PDF Export
+    vim.keymap.set('n', '<leader>nep', export_assignment_pdf)
+
+    -- Open PDF in Zathura
+    vim.keymap.set('n', '<leader>no', function()
+      local pdf = vim.fn.expand('%:r') .. '.pdf'
+      if vim.fn.filereadable(pdf) == 1 then
+        vim.notify("Opening Zathura...")
+        vim.fn.jobstart({"zathura", pdf}, {detach = true})
+      else
+        vim.notify("No PDF found. Run <leader>nep first.", vim.log.levels.WARN)
+      end
+    end)
+
+    -- Markdown Template
+    local function insert_template()
+      local lines = { "# ", "" }
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+      vim.api.nvim_win_set_cursor(0, {1, 2})
+    end
+
+    vim.keymap.set('n', '<leader>na', insert_template)
+  '';
+}
+</file>
+
+<file path="homeManagerModules/apps/desktop-apps.nix">
+{
+  pkgs,
+  inputs,
+  ...
+}: {
+  home.packages = with pkgs; [
+    fluffychat
+    file-roller
+    foliate
+    inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    nextcloud-client
+    onlyoffice-desktopeditors
+    pdfarranger
+    python314Packages.deemix
+    postman
+    trayscale
+    vesktop
+    zathura
+    standardnotes
+    pandoc
+    tectonic
+    librsvg
+  ];
+}
+</file>
+
+<file path="nixModules/default.nix">
+{...}: {
+  imports = [
+    ./core/base.nix
+    ./core/boot.nix
+    ./core/fonts.nix
+    ./core/networking.nix
+    ./desktop/display-manager.nix
+    ./desktop/keymap.nix
+    ./desktop/gnome.nix
+    ./desktop/noctalia.nix
+    ./desktop/thunar.nix
+    ./hardware/audio.nix
+    ./hardware/bluetooth.nix
+    ./hardware/power.nix
+    ./security/nix-ld.nix
+    ./services/flatpak.nix
+    ./services/ollama.nix
+    ./services/portal.nix
+    ./services/printing.nix
+    ./services/ssh.nix
+    ./services/tailscale.nix
+    ./services/virtualbox.nix
+    ./packages/system-packages.nix
+    ./users/mark.nix
+  ];
+}
+</file>
+
+<file path="hosts/mfv3/configuration.nix">
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [
+    ./hardware-configuration.nix
+    ../../nixModules
+  ];
+
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+
+  services.displayManager.sessionPackages = [ pkgs.niri-unstable ];
+  environment.shells = with pkgs; [ fish ];
+  programs.fish.enable = true;
+  time.timeZone = "America/St_Johns";
+  i18n.defaultLocale = "en_CA.UTF-8";
+  environment.systemPackages = with pkgs; [
+    niri-unstable
+  ];
+
+  environment.sessionVariables = lib.mkForce {
+    XDG_DATA_DIRS = [
+      "/var/lib/flatpak/exports/share"
+      "$HOME/.local/share/flatpak/exports/share"
+      "/nix/store/hq58p9cjbkrfzandg0fgrlj07jgi8wpv-xdg-desktop-portal-gtk-1.15.3/share"
+      "/run/current-system/sw/share"
+      "/etc/profiles/per-user/mark/share"
+    ];
+    XKB_CONFIG_ROOT = "${pkgs.xkeyboard-config}/etc/X11/xkb";
+  };
+
+  nix.settings = {
+    download-buffer-size = 524288000;
+    substituters = [
+      "https://cache.nixos.org"
+      "https://niri.cachix.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzdYcQW5oNaIZQDx2K7m/7zTikB3Q4="
+    ];
+  };
+
+  system.stateVersion = "25.11";
+}
+</file>
+
+<file path="hosts/mfv3/home.nix">
+{...}: {
+  imports = [
+    ../../homeManagerModules/default.nix
+  ];
+  home.sessionVariables = {
+    PATH = "$HOME/.local/bin:$PATH";
+  };
+  home.enableNixpkgsReleaseCheck = false;
+  home.username = "mark";
+  home.homeDirectory = "/home/mark";
+  home.stateVersion = "25.11";
+  programs.home-manager.enable = true;
+  programs.quickshell.enable = true;
+
+  home.file."/home/mark/Nextcloud/Documents/School/metadata.yaml".text = ''
+    \usepackage{fontspec}
+    \setmainfont{Inter}
+    \usepackage{titling}
+
+    \pretitle{\begin{center}\LARGE\bfseries}
+    \posttitle{\end{center}\vskip 1.5em}
+    \preauthor{\begin{center}\large Mark Hancock \par \vskip 1em Student \# 20140473 \end{center}}
+    \postauthor{\vskip 1.5em}
+    \predate{\begin{center}\large}
+    \postdate{\end{center}\vfill\newpage}
+  '';
+}
+</file>
+
+<file path="flake.lock">
+{
+  "nodes": {
+    "agenix": {
+      "inputs": {
+        "darwin": "darwin",
+        "home-manager": "home-manager",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1770165109,
+        "narHash": "sha256-9VnK6Oqai65puVJ4WYtCTvlJeXxMzAp/69HhQuTdl/I=",
+        "owner": "ryantm",
+        "repo": "agenix",
+        "rev": "b027ee29d959fda4b60b57566d64c98a202e0feb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ryantm",
+        "repo": "agenix",
+        "type": "github"
+      }
+    },
+    "claude-desktop": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764098187,
+        "narHash": "sha256-H6JjWXhKqxZ8QLMoqndZx9e5x0Sv5AiipSmqvIxIbgo=",
+        "owner": "k3d3",
+        "repo": "claude-desktop-linux-flake",
+        "rev": "b2b040cb68231d2118906507d9cc8fd181ca6308",
+        "type": "github"
+      },
+      "original": {
+        "owner": "k3d3",
+        "repo": "claude-desktop-linux-flake",
+        "type": "github"
+      }
+    },
+    "darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "agenix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1744478979,
+        "narHash": "sha256-dyN+teG9G82G+m+PX/aSAagkC+vUv0SgUw3XkPhQodQ=",
+        "owner": "lnl7",
+        "repo": "nix-darwin",
+        "rev": "43975d782b418ebf4969e9ccba82466728c2851b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lnl7",
+        "ref": "master",
+        "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
+    "dms": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "quickshell": "quickshell"
+      },
+      "locked": {
+        "lastModified": 1772034342,
+        "narHash": "sha256-InX8kRyrpVL+MP/gW1qhH9tGtDx2z2gmJ9NfmvUJ35I=",
+        "owner": "AvengeMedia",
+        "repo": "DankMaterialShell",
+        "rev": "47b12d09fc8526f9c231de60848a41b5990b4a37",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "ref": "stable",
+        "repo": "DankMaterialShell",
+        "type": "github"
+      }
+    },
+    "dsearch": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1771867960,
+        "narHash": "sha256-7VK/R3ZkrSlk8WQlQxjP2BJl5PGNkgbPnd9jh/7xbTw=",
+        "owner": "AvengeMedia",
+        "repo": "danksearch",
+        "rev": "55c58870c666a45eeb2fe34180eb886c34e68d0c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "danksearch",
+        "type": "github"
+      }
+    },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1751685974,
+        "narHash": "sha256-NKw96t+BgHIYzHUjkTK95FqYRVKB8DHpVhefWSz/kTw=",
+        "ref": "refs/heads/main",
+        "rev": "549f2762aebeff29a2e5ece7a7dc0f955281a1d1",
+        "revCount": 92,
+        "type": "git",
+        "url": "https://git.lix.systems/lix-project/flake-compat.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.lix.systems/lix-project/flake-compat.git"
+      }
+    },
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nvf",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769996383,
+        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "agenix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1745494811,
+        "narHash": "sha256-YZCh2o9Ua1n9uCvrvi5pRxtuVNml8X2a03qIFfRKpFs=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "abfad3d2958c9e6300a883bd443512c55dfeb1be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "home-manager_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773422513,
+        "narHash": "sha256-MPjR48roW7CUMU6lu0+qQGqj92Kuh3paIulMWFZy+NQ=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "ef12a9a2b0f77c8fa3dda1e7e494fca668909056",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "matugen": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "systems": "systems_3"
+      },
+      "locked": {
+        "lastModified": 1773432152,
+        "narHash": "sha256-fktwjABwDpdFB1y6cURFDQ4tGDJUCO3oxyTUj9eb+JY=",
+        "owner": "InioX",
+        "repo": "Matugen",
+        "rev": "55e7b94f5674f320d9664caa98d349d2172d1551",
+        "type": "github"
+      },
+      "original": {
+        "owner": "InioX",
+        "repo": "Matugen",
+        "type": "github"
+      }
+    },
+    "mnw": {
+      "locked": {
+        "lastModified": 1770419553,
+        "narHash": "sha256-b1XqsH7AtVf2dXmq2iyRr2NC1yG7skY7Z6N2MpWHlK4=",
+        "owner": "Gerg-L",
+        "repo": "mnw",
+        "rev": "2aaffa8030d0b262176146adbb6b0e6374ce2957",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Gerg-L",
+        "repo": "mnw",
+        "type": "github"
+      }
+    },
+    "ndg": {
+      "inputs": {
+        "nixpkgs": [
+          "nvf",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768214250,
+        "narHash": "sha256-hnBZDQWUxJV3KbtvyGW5BKLO/fAwydrxm5WHCWMQTbw=",
+        "owner": "feel-co",
+        "repo": "ndg",
+        "rev": "a6bd3c1ce2668d096e4fdaaa03ad7f03ba1fbca8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "feel-co",
+        "ref": "refs/tags/v2.6.0",
+        "repo": "ndg",
+        "type": "github"
+      }
+    },
+    "niri": {
+      "inputs": {
+        "niri-stable": "niri-stable",
+        "niri-unstable": "niri-unstable",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-stable": "nixpkgs-stable",
+        "xwayland-satellite-stable": "xwayland-satellite-stable",
+        "xwayland-satellite-unstable": "xwayland-satellite-unstable"
+      },
+      "locked": {
+        "lastModified": 1773577199,
+        "narHash": "sha256-Z77lGBRlueA+igtScByJ0soMRnEy5T/XG9w661OCPaw=",
+        "owner": "sodiboo",
+        "repo": "niri-flake",
+        "rev": "afc45f69929e5b5ab23d903b24532cfe718de6be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sodiboo",
+        "repo": "niri-flake",
+        "type": "github"
+      }
+    },
+    "niri-stable": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1756556321,
+        "narHash": "sha256-RLD89dfjN0RVO86C/Mot0T7aduCygPGaYbog566F0Qo=",
+        "owner": "YaLTeR",
+        "repo": "niri",
+        "rev": "01be0e65f4eb91a9cd624ac0b76aaeab765c7294",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YaLTeR",
+        "ref": "v25.08",
+        "repo": "niri",
+        "type": "github"
+      }
+    },
+    "niri-unstable": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773130184,
+        "narHash": "sha256-3bwx4WqCB06yfQIGB+OgIckOkEDyKxiTD5pOo4Xz2rI=",
+        "owner": "YaLTeR",
+        "repo": "niri",
+        "rev": "b07bde3ee82dd73115e6b949e4f3f63695da35ea",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YaLTeR",
+        "repo": "niri",
+        "type": "github"
+      }
+    },
+    "nix-flatpak": {
+      "locked": {
+        "lastModified": 1767983141,
+        "narHash": "sha256-7ZCulYUD9RmJIDULTRkGLSW1faMpDlPKcbWJLYHoXcs=",
+        "owner": "gmodena",
+        "repo": "nix-flatpak",
+        "rev": "440818969ac2cbd77bfe025e884d0aa528991374",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gmodena",
+        "ref": "latest",
+        "repo": "nix-flatpak",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1771369470,
+        "narHash": "sha256-0NBlEBKkN3lufyvFegY4TYv5mCNHbi5OmBDrzihbBMQ=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "0182a361324364ae3f436a63005877674cf45efb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-stable": {
+      "locked": {
+        "lastModified": 1773524153,
+        "narHash": "sha256-Jms57zzlFf64ayKzzBWSE2SGvJmK+NGt8Gli71d9kmY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e9f278faa1d0c2fc835bd331d4666b59b505a410",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1773389992,
+        "narHash": "sha256-wvfdLLWJ2I9oEpDd9PfMA8osfIZicoQ5MT1jIwNs9Tk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c06b4ae3d6599a672a6210b7021d699c351eebda",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1770107345,
+        "narHash": "sha256-tbS0Ebx2PiA1FRW8mt8oejR0qMXmziJmPaU1d4kYY9g=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "4533d9293756b63904b7238acb84ac8fe4c8c2c4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "noctalia": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "noctalia-qs": [
+          "noctalia-qs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773710469,
+        "narHash": "sha256-VriVZGm6bMvzKFoma9mSNg/zWYS/RUQh7F/l2VJxmC4=",
+        "owner": "noctalia-dev",
+        "repo": "noctalia-shell",
+        "rev": "e39ff3a815a855e437bcf485413018a95d3f23f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "noctalia-shell",
+        "type": "github"
+      }
+    },
+    "noctalia-qs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_4",
+        "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1773629133,
+        "narHash": "sha256-9/GtCljeEYQAQlU4LB/o8cTJ8TzYvNCzf4ILnW5Rs3g=",
+        "owner": "noctalia-dev",
+        "repo": "noctalia-qs",
+        "rev": "5794d3a88fced826e1903164d77a7b07bdb93ff6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "noctalia-qs",
+        "type": "github"
+      }
+    },
+    "nvf": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "flake-parts": "flake-parts",
+        "mnw": "mnw",
+        "ndg": "ndg",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_5"
+      },
+      "locked": {
+        "lastModified": 1773777664,
+        "narHash": "sha256-HOqYvG6kyLyBhh6wpGz2z0+JID/mkGgjNa9c1nPJ4k8=",
+        "owner": "notashelf",
+        "repo": "nvf",
+        "rev": "ef0e10f591402cb9fad3e4f0faa8f66162655c04",
+        "type": "github"
+      },
+      "original": {
+        "owner": "notashelf",
+        "repo": "nvf",
+        "type": "github"
+      }
+    },
+    "quickshell": {
+      "inputs": {
+        "nixpkgs": [
+          "dms",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1766725085,
+        "narHash": "sha256-O2aMFdDUYJazFrlwL7aSIHbUSEm3ADVZjmf41uBJfHs=",
+        "ref": "refs/heads/master",
+        "rev": "41828c4180fb921df7992a5405f5ff05d2ac2fff",
+        "revCount": 715,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      },
+      "original": {
+        "rev": "41828c4180fb921df7992a5405f5ff05d2ac2fff",
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      }
+    },
+    "quickshell_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773480707,
+        "narHash": "sha256-VkuO1LWpK7tS/YDmxJSDeONEwt1RFLPfOucQJwKnsV0=",
+        "ref": "refs/heads/master",
+        "rev": "1b2519d9f3d963e575b8a1ef08fab47c7af0d1b3",
+        "revCount": 759,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
+      }
+    },
+    "root": {
+      "inputs": {
+        "agenix": "agenix",
+        "claude-desktop": "claude-desktop",
+        "dms": "dms",
+        "dsearch": "dsearch",
+        "home-manager": "home-manager_2",
+        "matugen": "matugen",
+        "niri": "niri",
+        "nix-flatpak": "nix-flatpak",
+        "nixpkgs": "nixpkgs_2",
+        "noctalia": "noctalia",
+        "noctalia-qs": "noctalia-qs",
+        "nvf": "nvf",
+        "quickshell": "quickshell_2",
+        "zen-backup": "zen-backup",
+        "zen-browser": "zen-browser"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_3": {
+      "locked": {
+        "lastModified": 1689347949,
+        "narHash": "sha256-12tWmuL2zgBgZkdoB6qXZsgJEH9LR3oUgpaQq2RbI80=",
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "rev": "31732fcf5e8fea42e59c2488ad31a0e651500f68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "systems_4": {
+      "locked": {
+        "lastModified": 1689347949,
+        "narHash": "sha256-12tWmuL2zgBgZkdoB6qXZsgJEH9LR3oUgpaQq2RbI80=",
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "rev": "31732fcf5e8fea42e59c2488ad31a0e651500f68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "systems_5": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1772660329,
+        "narHash": "sha256-IjU1FxYqm+VDe5qIOxoW+pISBlGvVApRjiw/Y/ttJzY=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "3710e0e1218041bbad640352a0440114b1e10428",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "xwayland-satellite-stable": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1755491097,
+        "narHash": "sha256-m+9tUfsmBeF2Gn4HWa6vSITZ4Gz1eA1F5Kh62B0N4oE=",
+        "owner": "Supreeeme",
+        "repo": "xwayland-satellite",
+        "rev": "388d291e82ffbc73be18169d39470f340707edaa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Supreeeme",
+        "ref": "v0.7",
+        "repo": "xwayland-satellite",
+        "type": "github"
+      }
+    },
+    "xwayland-satellite-unstable": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773499041,
+        "narHash": "sha256-XZ4/tVdLeAYDgKe4JD4C7yYUKydMxwt8c2j6APFWcIc=",
+        "owner": "Supreeeme",
+        "repo": "xwayland-satellite",
+        "rev": "309d8e2a29953f7465dc14c939e2afe4682c0aa9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Supreeeme",
+        "repo": "xwayland-satellite",
+        "type": "github"
+      }
+    },
+    "zen-backup": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770288897,
+        "narHash": "sha256-wJQaMUixVmx+krPBC9K4dFg3RLyl0eO9wcbHLpm5vIM=",
+        "owner": "Ronin-CK",
+        "repo": "Zen-Backup-Tool",
+        "rev": "54fa9a0dcf94d359eefaa8507714f7ca8fd0286a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ronin-CK",
+        "repo": "Zen-Backup-Tool",
+        "type": "github"
+      }
+    },
+    "zen-browser": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773290160,
+        "narHash": "sha256-u09eF4Oafi+OIbTtKe/EWil26q1glcTATiSA7dF1oCI=",
+        "owner": "youwen5",
+        "repo": "zen-browser-flake",
+        "rev": "c7cb51b30960757ed9fb8eb28567b32585d0a688",
+        "type": "github"
+      },
+      "original": {
+        "owner": "youwen5",
+        "repo": "zen-browser-flake",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
+</file>
+
+<file path="homeManagerModules/default.nix">
+{...}: {
+  imports = [
+    ./apps/cli-tools.nix
+    ./apps/desktop-apps.nix
+    ./apps/nvim
+    ./apps/thunar.nix
+    ./apps/zathura.nix
+    ./core/gtk.nix
+    ./core/git-config.nix
+    ./core/shell.nix
+    ./core/session-vars.nix
+    ./core/terminal.nix
+    ./core/xdg-overrides.nix
+    ./desktop/dank-material-shell.nix
+    ./desktop/niri.nix
+    #./desktop/noctalia
+    ./scripts/zenBackup.nix
+  ];
+}
+</file>
+
+<file path="flake.nix">
+{
+  description = "My NixOS flake";
+
+  inputs = {
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.url = "github:nix-community/home-manager";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-flatpak = {
+      url = "github:gmodena/nix-flatpak/?ref=latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    zen-backup = {
+      url = "github:Ronin-CK/Zen-Backup-Tool";
+      flake = false;
+    };
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dsearch = {
+      url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    matugen = {
+      url = "github:/InioX/Matugen";
+    };
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nvf = {
+      url = "github:notashelf/nvf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    claude-desktop = {
+      url = "github:k3d3/claude-desktop-linux-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.noctalia-qs.follows = "noctalia-qs";
+    };
+    noctalia-qs = {
+      url = "github:noctalia-dev/noctalia-qs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = {
+    self,
+    nixpkgs,
+    agenix,
+    home-manager,
+    nix-flatpak,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+  in {
+    packages.${system} = {
+      agenix = agenix.packages.${system}.default;
+    };
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/mfv3/configuration.nix
+        ./nixModules
+        agenix.nixosModules.age
+        nix-flatpak.nixosModules.nix-flatpak
+        {
+          age.identityPaths = ["/home/mark/.ssh/id_ed25519"];
+        }
+        home-manager.nixosModules.home-manager
+        {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            users.mark = import ./hosts/mfv3/home.nix;
+            extraSpecialArgs = {inherit inputs;};
+            backupFileExtension = "bak";
+          };
+        }
+      ];
+    };
+  };
+}
+</file>
+
+</files>
