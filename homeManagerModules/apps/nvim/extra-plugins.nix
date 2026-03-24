@@ -67,5 +67,21 @@
       setup = ''
       '';
     };
+    render-markdown = {
+      package = render-markdown-nvim;
+      setup = ''
+        require('render-markdown').setup({
+          heading = {
+                icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+          },
+          checkbox = {
+            enabled = true,
+            unchecked = { icon = '󰄱 ' },
+            checked = { icon = '󰄲 ' },
+          },
+              anti_conceal = { enabled = true },
+        })
+      '';
+    };
   };
 }

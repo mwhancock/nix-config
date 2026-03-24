@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -11,11 +10,10 @@
 
   services.pipewire.wireplumber.extraConfig = {
     "99-alsa-soft-mixer" = {
-      "monitor.alsa.rules" =[
+      "monitor.alsa.rules" = [
         {
-          # Enable soft-mixer for all outputs (Fixes global volume control)
-          matches =[
-            { "node.name" = "~alsa_output.*"; }
+          matches = [
+            {"node.name" = "~alsa_output.*";}
           ];
           actions = {
             "update-props" = {
@@ -24,9 +22,8 @@
           };
         }
         {
-          # Disable soft-mixer for inputs (Prevents mic breakage)
-          matches =[
-            { "node.name" = "~alsa_input.*"; }
+          matches = [
+            {"node.name" = "~alsa_input.*";}
           ];
           actions = {
             "update-props" = {

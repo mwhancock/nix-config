@@ -40,7 +40,7 @@
       zoom-step = "10";
 
       # Selection Color
-      selection-color = "#83a59880";
+      selection-color = "#fe801980";
     };
   };
 }

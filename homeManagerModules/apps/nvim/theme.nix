@@ -4,9 +4,7 @@
     enable = true;
     name = "gruvbox";
     style = "dark";
-    transparent = false; # Set to true if you want your Ghostty BG to show through
-
-    # This is the "God Block" for all custom Gruvbox overrides
+    transparent = false; 
     extraConfig = ''
       -------------------------------------------------------------------------
       -- 1. RAINBOW INDENT HIGHLIGHTS

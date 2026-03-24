@@ -14,7 +14,7 @@
 
     statusline.lualine = {
       enable = true;
-      theme = "gruvbox";
+      theme = "gruvbox-material";
     };
 
     tabline.nvimBufferline.enable = true;
@@ -49,7 +49,6 @@
         setupOpts = {
           indent = {
             char = "▎";
-            # We reference the highlight groups here
             highlight = [
               "IndentBlanklineRed"
               "IndentBlanklineOrange"
