@@ -1,4 +1,23 @@
+# -----------------------------------------------------------------------------
+# MODULE: NEOVIM CUSTOM LUA CONFIGURATION
+# Description: Dashboard, Auto-commands, and School Assignment Logic.
+# -----------------------------------------------------------------------------
 {...}: {
+  # 1. LATEX METADATA (Required for the Assignment Export)
+  home.file."/home/mark/Nextcloud/Documents/School/metadata.yaml".text = ''
+    \usepackage{fontspec}
+    \setmainfont{Inter}
+    \usepackage{titling}
+
+    \pretitle{\begin{center}\LARGE\bfseries}
+    \posttitle{\end{center}\vskip 1.5em}
+    \preauthor{\begin{center}\large Mark Hancock \par \vskip 1.5em Student \# 20140473 \end{center}}
+    \postauthor{\vskip 1.5em}
+    \predate{\begin{center}\large}
+    \postdate{\end{center}\vfill\newpage}
+  '';
+
+  # 2. NVF LUA CONFIGURATION
   programs.nvf.settings.vim.luaConfigRC.myConfig = ''
     -------------------------------------------------------------------------------
     -- 1. BASIC BEHAVIOR & APPEARANCE
@@ -37,14 +56,14 @@
     if status_ok then
       local dashboard = require("alpha.themes.dashboard")
       dashboard.section.header.val = {
-        [[                               __                ]],
-        [[  ___     __    __   __   __  /\_\    ___ ___    ]],
+        [[                                __                ]],
+        [[  ___     __    __   __   __   /\_\    ___ ___    ]],
         [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
         [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
         [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
         [[  \/_/\/_/\/____/ \/___/    \/_/  \/_/ \/_/\/_/\/_/]],
-        [[                                                 ]],
-        [[             -- THE GROOVY EDITOR --             ]],
+        [[                                                  ]],
+        [[             -- THE GROOVY EDITOR --              ]],
       }
       dashboard.section.header.opts.hl = "Keyword"
 
