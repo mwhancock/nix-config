@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   programs.neovim = {
     enable = true;
     defaultEditor = false;
@@ -14,11 +13,11 @@
     fzf
 
     jdt-language-server
-    clang-tools 
-    pyright 
-    python3 
-     nodePackages.bash-language-server
-     nodejs
+    clang-tools
+    pyright
+    python3
+    nodePackages.bash-language-server
+    nodejs
     # formatters
     stylua # lua (LazyVim configs are lua)
     prettierd # general
