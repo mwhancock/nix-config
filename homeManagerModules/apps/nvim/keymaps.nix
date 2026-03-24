@@ -10,12 +10,6 @@
     }
     {
       mode = "n";
-      key = "<leader>op";
-      action = "!zathura *.pdf &";
-      desc = "Open all PDFs in current directory";
-    }
-    {
-      mode = "n";
       key = "<leader>qq";
       action = "<cmd>qa!<cr>";
       desc = "Force Quit All";
