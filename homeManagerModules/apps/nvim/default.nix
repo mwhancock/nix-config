@@ -1,48 +1,29 @@
 # -----------------------------------------------------------------------------
 # MODULE: NEOVIM (NVF) MASTER CONFIGURATION
-# Description: Main entry point for the Neovim flake. 
-# Imports all sub-modules and sets global editor behavior.
+# Description: Fixed deprecation errors for clipboard and visuals.
 # -----------------------------------------------------------------------------
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   imports = [
-    ./ai.nix            # Avante / Copilot
-    ./dap.nix           # Debugger (lldb/java)
-    ./editor.nix        # Basic editor settings (indentation, etc)
-    ./extra-plugins.nix # Manual plugin additions
-    ./git.nix           # Gitsigns / Diffview
-    ./keymaps.nix       # Global keybindings
-    ./lsp.nix           # Language Server Protocol & Completion
-    ./lua.nix           # Custom Lua logic & School PDF export
-    ./theme.nix         # Gruvbox / Theme settings
-    ./treesitter.nix    # Syntax highlighting
-    ./ui.nix            # Lualine / Bufferline / Alpha
+    ./ai.nix
+    ./dap.nix
+    ./editor.nix
+    ./extra-plugins.nix
+    ./git.nix
+    ./keymaps.nix
+    ./lsp.nix
+    ./lua.nix
+    ./theme.nix
+    ./treesitter.nix
+    ./ui.nix
   ];
 
   programs.nvf = {
     enable = true;
-    
-    # Wrap settings in the 'vim' attribute as required by nvf
     settings.vim = {
-      # 1. CORE ALIASES
       viAlias = true;
       vimAlias = true;
-
-      # 2. SYSTEM INTEGRATION
-      useSystemClipboard = true;
-      preventJunkFiles = true; # No swap files cluttering your school work
-      
-      # 3. GLOBAL SETTINGS
-      globals.mapleader = " "; # Ensure space is the leader for Which-Key
-      
-      # 4. DEFAULT SEARCH/UI BEHAVIOR
-      searchCase = "smart";
-      lineNumbers = true;
-      relativeLineNumbers = true;
-      cursorline = true;
-      
-      # 5. ASSIGNMENT ENGINE SUPPORT
-      # Ensuring these are available for your Pandoc/Tectonic exports
+      clipboard.registers.unnamedplus = true; 
+      visuals.nvim-web-devicons.enable = true;
       extraPackages = with pkgs; [
         pandoc
         tectonic
