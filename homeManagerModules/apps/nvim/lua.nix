@@ -49,6 +49,20 @@
       end,
     })
 
+    -- Auto-format settings for School Assignments
+        vim.api.nvim_create_autocmd("FileType", {
+          pattern = "markdown",
+          callback = function()
+            -- Matches the command that worked for you
+            vim.opt_local.textwidth = 72
+            vim.opt_local.formatoptions = "tcqnj"
+
+            -- Ensures the second line of a list item stays indented
+            -- under the first word, not the number.
+            vim.opt_local.autoindent = true
+          end,
+        })
+
     -------------------------------------------------------------------------------
     -- 2. UI & DASHBOARD (ALPHA-NVIM)
     -------------------------------------------------------------------------------

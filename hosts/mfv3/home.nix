@@ -1,5 +1,6 @@
-{...}: {
+{inputs, ...}: {
   imports = [
+    inputs.nvf.homeManagerModules.default
     ../../homeManagerModules/default.nix
   ];
   home.sessionVariables = {
