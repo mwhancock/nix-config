@@ -135,6 +135,8 @@
         "-V", "fontsize=11pt",
         "-o", pdf,
         "--pdf-engine=tectonic",
+        "--standalone",
+        "--filter", "mermaid-filter",
         "-M", "title=" .. clean_title,
         "-M", "date=" .. current_date,
       }

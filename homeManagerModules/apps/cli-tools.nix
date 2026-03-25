@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   home.packages = with pkgs; [
     zip
     xz
@@ -18,5 +17,13 @@
     pciutils
     sysstat
     usbutils
+    vimPlugins.markdown-preview-nvim
+    mermaid-filter
+    chromium
+    nodejs
   ];
+
+  home.sessionVariables = {
+    PUPPETEER_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
+  };
 }
