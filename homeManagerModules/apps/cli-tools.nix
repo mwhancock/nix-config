@@ -19,7 +19,6 @@
     usbutils
     vimPlugins.markdown-preview-nvim
     mermaid-filter
-    chromium
     nodejs
   ];
 
