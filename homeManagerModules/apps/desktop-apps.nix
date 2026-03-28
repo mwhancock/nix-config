@@ -14,7 +14,7 @@
     pdfarranger
     python314Packages.deemix
     postman
-    trayscale
+    #trayscale
     vesktop
     zathura
     standardnotes

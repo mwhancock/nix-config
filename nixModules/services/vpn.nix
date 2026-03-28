@@ -3,6 +3,7 @@
     autostart = false;
     address = ["10.73.186.95/32"];
     dns = ["1.1.1.1"];
+    privateKey = "iJz/GPO35jTFBOuW9rf9XFDjFjsErRMf1n/4YOQ+pkg=";
 
     peers = [
       {

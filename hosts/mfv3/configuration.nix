@@ -3,17 +3,16 @@
   pkgs,
   inputs,
   ...
-}:
-{
+}: {
   imports = [
     ./hardware-configuration.nix
     ../../nixModules
   ];
 
-  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+  nixpkgs.overlays = [inputs.niri.overlays.niri];
 
-  services.displayManager.sessionPackages = [ pkgs.niri-unstable ];
-  environment.shells = with pkgs; [ fish ];
+  services.displayManager.sessionPackages = [pkgs.niri-unstable];
+  environment.shells = with pkgs; [fish];
   programs.fish.enable = true;
   time.timeZone = "America/St_Johns";
   i18n.defaultLocale = "en_CA.UTF-8";
@@ -33,6 +32,7 @@
   };
 
   nix.settings = {
+    trusted-users = ["root" "mark"];
     download-buffer-size = 524288000;
     substituters = [
       "https://cache.nixos.org"

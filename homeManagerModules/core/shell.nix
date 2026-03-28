@@ -5,8 +5,8 @@
     # Shell aliases
     shellAliases = {
       ll = "ls -l";
-      vpnup = "sudo systemctl start wg-quick@wg0";
-      vpndown = "sudo systemctl stop wg-quick@wg0";
+      vpnup = "sudo systemctl start wg-quick-wg0.service";
+      vpndown = "sudo systemctl stop wg-quick-wg0.service";
       la = "ls -a";
       lla = "ls -la";
       gs = "git status";

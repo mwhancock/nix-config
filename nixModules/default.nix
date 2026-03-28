@@ -20,7 +20,7 @@
     ./services/ssh.nix
     ./services/tailscale.nix
     ./services/virtualbox.nix
-    ./vpn.nix
+    ./services/vpn.nix
     ./packages/system-packages.nix
     ./users/mark.nix
   ];
