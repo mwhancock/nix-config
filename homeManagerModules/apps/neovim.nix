@@ -11,7 +11,6 @@
     ripgrep
     fd
     fzf
-
     jdt-language-server
     clang-tools
     pyright

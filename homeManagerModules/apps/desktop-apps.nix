@@ -4,6 +4,7 @@
   ...
 }: {
   home.packages = with pkgs; [
+    eloquent
     fluffychat
     file-roller
     foliate

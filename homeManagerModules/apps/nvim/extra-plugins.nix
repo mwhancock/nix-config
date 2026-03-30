@@ -21,7 +21,8 @@
             width = 10,
             winblend = 15,
             show_spawn_with_clean = true,
-          },
+
+         },
         })
         map.open()
 
