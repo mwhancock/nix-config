@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   services.flatpak = {
     enable = true;
     remotes = [
@@ -9,8 +8,7 @@
       }
     ];
     packages = [
-      "dev.aunetx.deezer"
-      #"dev.zed.Zed"
+      "dev.aunetx.deezer" 
       "com.calibre_ebook.calibre"
       "app.grayjay.Grayjay"
     ];

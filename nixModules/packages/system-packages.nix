@@ -3,7 +3,12 @@
     enable = true;
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = true;
-  }; 
+  };
+
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
 
   environment.systemPackages = with pkgs; [
     git
@@ -22,6 +27,7 @@
     gamemode
     wl-clipboard
     grim
+    godot
     gvfs
     gnumake
     rocmPackages.rpp
