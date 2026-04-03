@@ -7,7 +7,6 @@
     ./desktop/display-manager.nix
     ./desktop/keymap.nix
     ./desktop/gnome.nix
-    ./desktop/noctalia.nix
     ./desktop/thunar.nix
     ./hardware/audio.nix
     ./hardware/bluetooth.nix

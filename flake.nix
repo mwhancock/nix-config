@@ -5,6 +5,8 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak/?ref=latest";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -55,6 +57,7 @@
     agenix,
     home-manager,
     nix-flatpak,
+    disko,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -83,6 +86,18 @@
           };
         }
       ];
+      server = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          disko.nixosModules.disko
+          ./hosts/server/disko-config.nix
+          ./hosts/server/configuration.nix
+          ./nixModules/core/base.nix
+          ./nixModules/core/boot.nix
+          
+        ];
+      };
     };
   };
 }
