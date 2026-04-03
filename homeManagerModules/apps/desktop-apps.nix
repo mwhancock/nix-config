@@ -16,6 +16,7 @@
     pdfarranger
     python314Packages.deemix
     postman
+    teamspeak6-client
     #trayscale
     vesktop
     zathura
