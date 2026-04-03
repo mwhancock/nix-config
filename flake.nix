@@ -51,7 +51,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-
   outputs = {
     nixpkgs,
     agenix,
@@ -65,37 +64,54 @@
     packages.${system} = {
       agenix = agenix.packages.${system}.default;
     };
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs;};
-      modules = [
-        ./hosts/mfv3/configuration.nix
-        ./nixModules
-        agenix.nixosModules.age
-        nix-flatpak.nixosModules.nix-flatpak
-        {
-          age.identityPaths = ["/home/mark/.ssh/id_ed25519"];
-        }
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.mark = import ./hosts/mfv3/home.nix;
-            extraSpecialArgs = {inherit inputs;};
-            backupFileExtension = "bak";
-          };
-        }
-      ];
+
+    nixosConfigurations = {
+      # --- Minisforum V3 (Laptop) ---
+      nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {inherit inputs;};
+        modules = [
+          ./hosts/mfv3/configuration.nix
+          ./nixModules
+          agenix.nixosModules.age
+          nix-flatpak.nixosModules.nix-flatpak
+          {
+            age.identityPaths = ["/home/mark/.ssh/id_ed25519"];
+          }
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              users.mark = import ./hosts/mfv3/home.nix;
+              extraSpecialArgs = {inherit inputs;};
+              backupFileExtension = "bak";
+            };
+          }
+        ];
+      };
+
+      # --- Pangolin (Server) ---
       server = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
+        inherit system;
+        specialArgs = {inherit inputs;};
         modules = [
           disko.nixosModules.disko
           ./hosts/server/disko-config.nix
           ./hosts/server/configuration.nix
           ./nixModules/core/base.nix
           ./nixModules/core/boot.nix
-          
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              users.mark = import ./hosts/server/home.nix;
+              extraSpecialArgs = {inherit inputs;};
+              backupFileExtension = "bak";
+            };
+          }
         ];
       };
     };
