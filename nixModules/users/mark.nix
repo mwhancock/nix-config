@@ -4,6 +4,7 @@
     description = "mark";
     shell = pkgs.fish;
     extraGroups = [
+      "audio"
       "networkmanager"
       "wheel"
       "mark"

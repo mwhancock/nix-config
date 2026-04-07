@@ -1,0 +1,22 @@
+[0;1;32m●[0m dms.service - Dank Material Shell (DMS)
+     Loaded: loaded (]8;;file://nixos/home/mark/.config/systemd/user/dms.service\/home/mark/.config/systemd/user/dms.service]8;;\; [0;1;32menabled[0m; preset: ignored)
+     Active: [0;1;32mactive (running)[0m since Sat 2026-04-04 15:26:29 NDT; 3 days ago
+ Invocation: 7c2b66fe17554910b26ce7f82c499fb8
+   Main PID: 4634 (.dms-wrapped)
+      Tasks: 70[0;38:5:245m (limit: 35816)[0m
+     Memory: 523.1M (peak: 622.7M)
+        CPU: 2h 1min 34.716s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/dms.service
+             ├─[0;38:5:245m4634 /nix/store/z7cr5pbs7kan88pk2aa239ah95z068rg-dms-shell-1.4.3+date=2026-02-25_47b12d0/bin/dms -c /nix/store/z7cr5pbs7kan88pk2aa239ah95z068rg-dms-shell-1.4.3+date=2026-02-25_47b12d0/share/quickshell/dms run --session[0m
+             └─[0;38:5:245m4697 /nix/store/c40ncp183bi2ga0xyvsb8j8qchwjbiy3-quickshell-wrapped-0.2.1/bin/quickshell -p /nix/store/z7cr5pbs7kan88pk2aa239ah95z068rg-dms-shell-1.4.3+date=2026-02-25_47b12d0/share/quickshell/dms[0m
+
+Apr 07 18:45:06 nixos dms[4697]: Input #0, wav, from '/nix/store/z7cr5pbs7kan88pk2aa239ah95z068rg-dms-shell-1.4.3+date=2026-02-25_47b12d0/share/quickshell/dms/assets/sounds/plasma/power-plug.wav':
+Apr 07 18:45:06 nixos dms[4697]:   Metadata:
+Apr 07 18:45:06 nixos dms[4697]:     encoder         : Lavf62.3.100
+Apr 07 18:45:06 nixos dms[4697]:   Duration: 00:00:03.00, bitrate: 1411 kb/s
+Apr 07 18:45:06 nixos dms[4697]:   Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, 2 channels, s16, 1411 kb/s
+Apr 07 18:45:06 nixos dms[4697]: Input #0, wav, from '/nix/store/z7cr5pbs7kan88pk2aa239ah95z068rg-dms-shell-1.4.3+date=2026-02-25_47b12d0/share/quickshell/dms/assets/sounds/plasma/power-unplug.wav':
+Apr 07 18:45:06 nixos dms[4697]:   Metadata:
+Apr 07 18:45:06 nixos dms[4697]:     encoder         : Lavf62.3.100
+Apr 07 18:45:06 nixos dms[4697]:   Duration: 00:00:03.00, bitrate: 1411 kb/s
+Apr 07 18:45:06 nixos dms[4697]:   Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, 2 channels, s16, 1411 kb/s
