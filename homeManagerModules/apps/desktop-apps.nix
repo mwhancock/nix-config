@@ -16,6 +16,7 @@
     pdfarranger
     python314Packages.deemix
     postman
+    rnote
     teamspeak6-client
     #trayscale
     vesktop
@@ -24,5 +25,6 @@
     pandoc
     tectonic
     librsvg
+    xournalapp
   ];
 }
