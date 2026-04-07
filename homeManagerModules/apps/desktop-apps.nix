@@ -25,6 +25,6 @@
     pandoc
     tectonic
     librsvg
-    xournalapp
+    xournalpp
   ];
 }

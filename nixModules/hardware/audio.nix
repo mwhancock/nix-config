@@ -6,6 +6,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
   };
 
   services.pipewire.wireplumber.extraConfig = {
@@ -17,7 +18,9 @@
           ];
           actions = {
             "update-props" = {
-              "api.alsa.soft-mixer" = true;
+              "api.alsa.soft-mixer" = false;
+              "api.dbus.ReserveDevice" = true;
+              "api.alsa.ignore-dB" = true;
             };
           };
         }
