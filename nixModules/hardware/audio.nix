@@ -9,32 +9,38 @@
     wireplumber.enable = true;
   };
 
-  services.pipewire.wireplumber.extraConfig = {
-    "99-alsa-soft-mixer" = {
-      "monitor.alsa.rules" = [
+   boot.extraModprobeConfig = ''
+    options snd-hda-intel model=alc256-asus-aio
+  '';
+
+  services.pipewire.wireplumber.extraConfig."alsa-soft-mixer"."monitor.alsa.rules" = [
+    {
+      actions.update-props."api.alsa.soft-mixer" = true;
+      matches = [
         {
-          matches = [
-            {"node.name" = "~alsa_output.*";}
-          ];
-          actions = {
-            "update-props" = {
-              "api.alsa.soft-mixer" = false;
-              "api.dbus.ReserveDevice" = true;
-              "api.alsa.ignore-dB" = true;
-            };
-          };
-        }
-        {
-          matches = [
-            {"node.name" = "~alsa_input.*";}
-          ];
-          actions = {
-            "update-props" = {
-              "api.alsa.soft-mixer" = false;
-            };
-          };
+          "device.name" = "~alsa_card.*";
         }
       ];
-    };
-  };
+    }
+    {
+      actions.update-props."api.alsa.soft-mixer" = false;
+      matches = [
+        {
+          "device.name" = "~alsa_card.*";
+          "node.name" = "~alsa_input.*";
+        }
+      ];
+    }
+    {
+      actions.update-props."session.suspend-timeout-seconds" = "0";
+      matches = [
+        {
+          "node.name" = "~alsa_input.*";
+        }
+        {
+          "node.name" = "~alsa_output.*";
+        }
+      ];
+    }
+  ];
 }

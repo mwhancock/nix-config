@@ -18,6 +18,7 @@
       nix-diff = "sudo nixos-rebuild list-generations";
       nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       home-rebuild = "home-manager switch --flake ~/nixos-config";
+      fix-audio = "nix shell nixpkgs#alsa-utils --command sudo alsactl restore";
     };
 
     # Abbreviations (expand after space - Fish-specific)
