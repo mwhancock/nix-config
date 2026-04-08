@@ -16,6 +16,7 @@
     clang
     clang-tools
     cmake
+    input-remapper
     jdk
     python3
     cargo
