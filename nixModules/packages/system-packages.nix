@@ -49,5 +49,7 @@
     adwaita-icon-theme
     gnome-themes-extra
     hicolor-icon-theme
+    maven
+    gradle
   ];
 }

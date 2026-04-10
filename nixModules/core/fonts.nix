@@ -9,7 +9,7 @@
     mplus-outline-fonts.githubRelease
     dina-font
     proggyfonts
-    inter
+    nerd-fonts.jetbrains-mono
     roboto
   ];
 }

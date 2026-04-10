@@ -1,5 +1,17 @@
 {pkgs, ...}: {
-  xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf".force = true;
+  xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf" = {
+    force = true;
+    text = ''
+      <?xml version="1.0"?>
+      <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+      <fontconfig>
+          <alias>
+              <family>monospace</family>
+              <prefer><family>JetBrainsMono Nerd Font</family></prefer>
+          </alias>
+      </fontconfig>
+    '';
+  };
   xdg.configFile."gtk-3.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/gtk.css".force = true;
@@ -7,6 +19,7 @@
     name = "Nemo";
     exec = "${pkgs.nemo-with-extensions}/bin/nemo";
   };
+
   xdg.desktopEntries.nvim = {
     name = "Neovim";
     exec = "ghostty -e nvim %F";

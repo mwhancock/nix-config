@@ -19,6 +19,7 @@
       nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       home-rebuild = "home-manager switch --flake ~/nixos-config";
       fix-audio = "nix shell nixpkgs#alsa-utils --command sudo alsactl restore";
+      iron = "ssh -t sauron@mountdoom.taile9eef.ts.net 'tmux attach || tmux new-session -s nvim nvim'";
     };
 
     # Abbreviations (expand after space - Fish-specific)
