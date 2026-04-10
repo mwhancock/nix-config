@@ -44,5 +44,17 @@
     ];
   };
 
+  #Minisforum audio fix
+  systemd.services.restore-alsa-state = {
+    description = "Restore ALSA state for Minisforum V3";
+    wantedBy = ["multi-user.target"];
+    after = ["alsa-state.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.alsa-utils}/bin/alsactl restore -f /home/mark/asound.state";
+      RemainAfterExit = true;
+    };
+  };
+
   system.stateVersion = "25.11";
 }

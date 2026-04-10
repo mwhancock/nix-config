@@ -4,7 +4,7 @@
     settings = {
       #font setting
       font-size = 12;
-      font-family = "JetBrains Mono";
+      font-family = "JetBrainsMono Nerd Font";
 
       #appearance
       background-opacity = 0.9;
