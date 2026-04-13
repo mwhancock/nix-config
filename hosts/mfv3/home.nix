@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  config,
+  ...
+}: {
   imports = [
     inputs.nvf.homeManagerModules.default
     ../../homeManagerModules/default.nix
@@ -12,6 +16,7 @@
   home.stateVersion = "25.11";
   programs.home-manager.enable = true;
   programs.quickshell.enable = true;
+  gtk.gtk4.theme = config.gtk.theme;
 
   home.file."/home/mark/Nextcloud/Documents/School/metadata.yaml".text = ''
     \usepackage{fontspec}

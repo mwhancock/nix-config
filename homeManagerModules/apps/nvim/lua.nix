@@ -19,107 +19,107 @@
 
   # 2. NVF LUA CONFIGURATION
   programs.nvf.settings.vim.luaConfigRC.myConfig = ''
-    -------------------------------------------------------------------------------
-    -- 1. BASIC BEHAVIOR & APPEARANCE
-    -------------------------------------------------------------------------------
-    vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+        -------------------------------------------------------------------------------
+        -- 1. BASIC BEHAVIOR & APPEARANCE
+        -------------------------------------------------------------------------------
+        vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
-    vim.opt.conceallevel = 2
-    vim.opt.concealcursor = "nc"
+        vim.opt.conceallevel = 2
+        vim.opt.concealcursor = "nc"
 
-    -- Markdown Heading Colors
-    vim.api.nvim_set_hl(0, "@text.title.1.markdown", { fg = "#fb4934", bold = true }) -- Red
-    vim.api.nvim_set_hl(0, "@text.title.2.markdown", { fg = "#fabd2f", bold = true }) -- Yellow
-    vim.api.nvim_set_hl(0, "@text.title.3.markdown", { fg = "#b8bb26", bold = true }) -- Green
+        -- Markdown Heading Colors
+        vim.api.nvim_set_hl(0, "@text.title.1.markdown", { fg = "#fb4934", bold = true }) -- Red
+        vim.api.nvim_set_hl(0, "@text.title.2.markdown", { fg = "#fabd2f", bold = true }) -- Yellow
+        vim.api.nvim_set_hl(0, "@text.title.3.markdown", { fg = "#b8bb26", bold = true }) -- Green
 
-    -- Terminal auto-insert
-    vim.api.nvim_create_autocmd("TermOpen", {
-      pattern = "*",
-      callback = function()
-        vim.cmd("startinsert")
-      end,
-    })
-
-    -- Autosave on focus lost
-    vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
-      callback = function()
-        if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
-          vim.cmd("silent! write")
-        end
-      end,
-    })
-
-    -- Auto-format settings for School Assignments
-        vim.api.nvim_create_autocmd("FileType", {
-          pattern = "markdown",
+        -- Terminal auto-insert
+        vim.api.nvim_create_autocmd("TermOpen", {
+          pattern = "*",
           callback = function()
-            -- Matches the command that worked for you
-            vim.opt_local.textwidth = 72
-            vim.opt_local.formatoptions = "tcqnj"
-
-            -- Ensures the second line of a list item stays indented
-            -- under the first word, not the number.
-            vim.opt_local.autoindent = true
+            vim.cmd("startinsert")
           end,
         })
 
-    -------------------------------------------------------------------------------
-    -- 2. UI & DASHBOARD (ALPHA-NVIM)
-    -------------------------------------------------------------------------------
-    local status_ok, alpha = pcall(require, "alpha")
-    if status_ok then
-      local dashboard = require("alpha.themes.dashboard")
-      dashboard.section.header.val = {
-        [[                                __                ]],
-        [[  ___     __    __   __   __   /\_\    ___ ___    ]],
-        [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
-        [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
-        [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
-        [[  \/_/\/_/\/____/ \/___/    \/_/  \/_/ \/_/\/_/\/_/]],
-        [[                                                  ]],
-        [[             -- THE GROOVY EDITOR --              ]],
-      }
-      dashboard.section.header.opts.hl = "Keyword"
-
-      dashboard.section.buttons.val = {
-        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
-        dashboard.button("r", "󰄉  Recent", ":Telescope oldfiles <CR>"),
-        dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
-        dashboard.button("q", "󰅚  Quit", ":qa<CR>"),
-      }
-      alpha.setup(dashboard.opts)
-    end
-
-    -------------------------------------------------------------------------------
-    -- 3. FILE EXPLORER (NEO-TREE)
-    -------------------------------------------------------------------------------
-    vim.api.nvim_create_autocmd("VimEnter", {
-      callback = function()
-        if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-          vim.defer_fn(function()
-            require("neo-tree.command").execute({ action = "show", position = "left" })
-          end, 50)
-        end
-      end,
-    })
-
-    vim.api.nvim_create_autocmd("VimResized", {
-      callback = function()
-        local cols = vim.o.columns
-        local width = cols < 100 and 20 or cols < 160 and 25 or 30
-        pcall(require("neo-tree.command").execute, {
-          action = "show",
-          position = "left",
-          width = width,
+        -- Autosave on focus lost
+        vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave" }, {
+          callback = function()
+            if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" then
+              vim.cmd("silent! write")
+            end
+          end,
         })
-      end,
-    })
 
-    -------------------------------------------------------------------------------
-    -- 4. ASSIGNMENT EXPORT LOGIC (PANDOC + TECTONIC)
-    -------------------------------------------------------------------------------
-    local function export_assignment_pdf()
+        -- Auto-format settings for School Assignments
+            vim.api.nvim_create_autocmd("FileType", {
+              pattern = "markdown",
+              callback = function()
+                -- Matches the command that worked for you
+                vim.opt_local.textwidth = 72
+                vim.opt_local.formatoptions = "tcqnj"
+
+                -- Ensures the second line of a list item stays indented
+                -- under the first word, not the number.
+                vim.opt_local.autoindent = true
+              end,
+            })
+
+        -------------------------------------------------------------------------------
+        -- 2. UI & DASHBOARD (ALPHA-NVIM)
+        -------------------------------------------------------------------------------
+        local status_ok, alpha = pcall(require, "alpha")
+        if status_ok then
+          local dashboard = require("alpha.themes.dashboard")
+          dashboard.section.header.val = {
+            [[                                __                ]],
+            [[  ___     __    __   __   __   /\_\    ___ ___    ]],
+            [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
+            [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
+            [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
+            [[  \/_/\/_/\/____/ \/___/    \/_/  \/_/ \/_/\/_/\/_/]],
+            [[                                                  ]],
+            [[             -- THE GROOVY EDITOR --              ]],
+          }
+          dashboard.section.header.opts.hl = "Keyword"
+
+          dashboard.section.buttons.val = {
+            dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+            dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
+            dashboard.button("r", "󰄉  Recent", ":Telescope oldfiles <CR>"),
+            dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
+            dashboard.button("q", "󰅚  Quit", ":qa<CR>"),
+          }
+          alpha.setup(dashboard.opts)
+        end
+
+        -------------------------------------------------------------------------------
+        -- 3. FILE EXPLORER (NEO-TREE)
+        -------------------------------------------------------------------------------
+        vim.api.nvim_create_autocmd("VimEnter", {
+          callback = function()
+            if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+              vim.defer_fn(function()
+                require("neo-tree.command").execute({ action = "show", position = "left" })
+              end, 50)
+            end
+          end,
+        })
+
+        vim.api.nvim_create_autocmd("VimResized", {
+          callback = function()
+            local cols = vim.o.columns
+            local width = cols < 100 and 20 or cols < 160 and 25 or 30
+            pcall(require("neo-tree.command").execute, {
+              action = "show",
+              position = "left",
+              width = width,
+            })
+          end,
+        })
+
+        -------------------------------------------------------------------------------
+        -- 4. ASSIGNMENT EXPORT LOGIC (PANDOC + TECTONIC)
+        -------------------------------------------------------------------------------
+       local function export_assignment_pdf()
       if vim.bo.filetype ~= "markdown" then return end
 
       local file = vim.fn.expand('%')
@@ -134,84 +134,98 @@
         "-V", "geometry:margin=1in",
         "-V", "fontsize=11pt",
         "-o", pdf,
-        "--pdf-engine=tectonic",
+        "--pdf-engine=xelatex",
         "--standalone",
-        "--filter", "mermaid-filter",
         "-M", "title=" .. clean_title,
         "-M", "date=" .. current_date,
       }
 
+      local stderr_data = {}
+
       vim.notify("Exporting PDF...", vim.log.levels.INFO)
 
       vim.fn.jobstart(cmd, {
+        on_stderr = function(_, data)
+          if data then
+            for _, line in ipairs(data) do
+              if line ~= "" then table.insert(stderr_data, line) end
+            end
+          end
+        end,
         on_exit = function(_, code)
           if code == 0 then
             vim.notify("PDF Exported Successfully!", vim.log.levels.INFO)
           else
-            vim.notify("PDF Export Failed!", vim.log.levels.ERROR)
+            local full_error = table.concat(stderr_data, "\n")
+            -- This will show the actual Pandoc/Tectonic error in a notification
+            vim.notify("Export Failed: " .. (full_error:sub(1, 100) or "Unknown Error"), vim.log.levels.ERROR)
+
+            print("--- PANDOC ERROR LOG ---")
+            print(full_error)
+            print("------------------------")
           end
         end,
       })
     end
 
-    -- Automatic export on save if PDF already exists
-    vim.api.nvim_create_autocmd("BufWritePost", {
-      pattern = "*.md",
-      callback = function()
-        local pdf_file = vim.fn.expand('%:r') .. '.pdf'
-        if vim.fn.filereadable(pdf_file) == 1 then
-          export_assignment_pdf()
+        -- Automatic export on save if PDF already exists
+        vim.api.nvim_create_autocmd("BufWritePost", {
+          pattern = "*.md",
+          callback = function()
+            local pdf_file = vim.fn.expand('%:r') .. '.pdf'
+            if vim.fn.filereadable(pdf_file) == 1 then
+              export_assignment_pdf()
+            end
+          end,
+        })
+
+        -------------------------------------------------------------------------------
+        -- 5. KEYMAPS & MENU LABELS (WHICH-KEY)
+        -------------------------------------------------------------------------------
+        local wk = require("which-key")
+        wk.add({
+          { "<leader>a", group = "Avante" },
+          { "<leader>b", group = "Buffers" },
+          { "<leader>c", group = "Code" },
+          { "<leader>d", group = "Debug" },
+          { "<leader>e", group = "Explorer" },
+          { "<leader>g", group = "Git" },
+          { "<leader>h", group = "Harpoon" },
+          { "<leader>l", group = "LSP" },
+          { "<leader>m", group = "Minimap" },
+          { "<leader>n", group = "Notes" },
+          { "<leader>ne", group = "Export" },
+          { "<leader>nep", desc = "Export as PDF" },
+          { "<leader>no", desc = "Open PDF Viewer" },
+          { "<leader>na", desc = "Insert Template" },
+          { "<leader>o", group = "Open" },
+          { "<leader>q", group = "Quit" },
+          { "<leader>r", group = "Rename" },
+          { "<leader>s", group = "Flash" },
+          { "<leader>t", group = "Terminal" },
+        })
+
+        -- PDF Export
+        vim.keymap.set('n', '<leader>nep', export_assignment_pdf)
+
+        -- Open PDF in Zathura
+        vim.keymap.set('n', '<leader>no', function()
+          local pdf = vim.fn.expand('%:r') .. '.pdf'
+          if vim.fn.filereadable(pdf) == 1 then
+            vim.notify("Opening Zathura...")
+            vim.fn.jobstart({"zathura", pdf}, {detach = true})
+          else
+            vim.notify("No PDF found. Run <leader>nep first.", vim.log.levels.WARN)
+          end
+        end)
+
+        -- Markdown Template
+        local function insert_template()
+          local lines = { "# ", "" }
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+          vim.api.nvim_win_set_cursor(0, {1, 2})
         end
-      end,
-    })
 
-    -------------------------------------------------------------------------------
-    -- 5. KEYMAPS & MENU LABELS (WHICH-KEY)
-    -------------------------------------------------------------------------------
-    local wk = require("which-key")
-    wk.add({
-      { "<leader>a", group = "Avante" },
-      { "<leader>b", group = "Buffers" },
-      { "<leader>c", group = "Code" },
-      { "<leader>d", group = "Debug" },
-      { "<leader>e", group = "Explorer" },
-      { "<leader>g", group = "Git" },
-      { "<leader>h", group = "Harpoon" },
-      { "<leader>l", group = "LSP" },
-      { "<leader>m", group = "Minimap" },
-      { "<leader>n", group = "Notes" },
-      { "<leader>ne", group = "Export" },
-      { "<leader>nep", desc = "Export as PDF" },
-      { "<leader>no", desc = "Open PDF Viewer" },
-      { "<leader>na", desc = "Insert Template" },
-      { "<leader>o", group = "Open" },
-      { "<leader>q", group = "Quit" },
-      { "<leader>r", group = "Rename" },
-      { "<leader>s", group = "Flash" },
-      { "<leader>t", group = "Terminal" },
-    })
-
-    -- PDF Export
-    vim.keymap.set('n', '<leader>nep', export_assignment_pdf)
-
-    -- Open PDF in Zathura
-    vim.keymap.set('n', '<leader>no', function()
-      local pdf = vim.fn.expand('%:r') .. '.pdf'
-      if vim.fn.filereadable(pdf) == 1 then
-        vim.notify("Opening Zathura...")
-        vim.fn.jobstart({"zathura", pdf}, {detach = true})
-      else
-        vim.notify("No PDF found. Run <leader>nep first.", vim.log.levels.WARN)
-      end
-    end)
-
-    -- Markdown Template
-    local function insert_template()
-      local lines = { "# ", "" }
-      vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-      vim.api.nvim_win_set_cursor(0, {1, 2})
-    end
-
-    vim.keymap.set('n', '<leader>na', insert_template)
+        vim.keymap.set('n', '<leader>na', insert_template)
   '';
 }
