@@ -15,7 +15,7 @@
     clang-tools
     pyright
     python3
-    nodePackages.bash-language-server
+    bash-language-server
     nodejs
     # formatters
     stylua # lua (LazyVim configs are lua)

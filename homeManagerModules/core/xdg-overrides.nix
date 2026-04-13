@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf" = {
+  xdg.configFile."fontconfig/conf.d/99-hm-fonts.conf" = {
     force = true;
     text = ''
       <?xml version="1.0"?>
