@@ -2,15 +2,13 @@
   description = "My NixOS flake";
 
   inputs = {
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
-    nix-flatpak = {
-      url = "github:gmodena/nix-flatpak/?ref=latest";
-    #inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+
     zen-backup = {
       url = "github:Ronin-CK/Zen-Backup-Tool";
       flake = false;
@@ -46,10 +44,6 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    claude-desktop = {
-      url = "github:k3d3/claude-desktop-linux-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
   outputs = {
     nixpkgs,
@@ -71,6 +65,7 @@
         inherit system;
         specialArgs = {inherit inputs;};
         modules = [
+          {nixpkgs.hostPlatform = "x86_64-linux";}
           ./hosts/mfv3/configuration.nix
           ./nixModules
           agenix.nixosModules.age
