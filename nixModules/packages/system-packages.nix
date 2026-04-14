@@ -51,5 +51,7 @@
     hicolor-icon-theme
     maven
     gradle
+    texliveFull
+    net-tools
   ];
 }

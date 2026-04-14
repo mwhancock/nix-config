@@ -17,6 +17,7 @@
   programs.home-manager.enable = true;
   programs.quickshell.enable = true;
   gtk.gtk4.theme = config.gtk.theme;
+  programs.man.enable = false;
 
   home.file."/home/mark/Nextcloud/Documents/School/metadata.yaml".text = ''
     \usepackage{fontspec}
