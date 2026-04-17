@@ -34,6 +34,20 @@
       "application/x-shellscript"
     ];
   };
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
+    ];
+    config = {
+      common = {
+        default = ["gtk"];
+        "org.freedesktop.impl.portal.Screenshot" = ["hyprland"];
+        "org.freedesktop.impl.portal.ScreenCast" = ["hyprland"];
+      };
+    };
+  };
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
