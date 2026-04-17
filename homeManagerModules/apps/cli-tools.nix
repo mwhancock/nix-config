@@ -18,7 +18,6 @@
     sysstat
     usbutils
     vimPlugins.markdown-preview-nvim
-    mermaid-filter
     nodejs
   ];
 

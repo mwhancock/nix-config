@@ -27,6 +27,11 @@
     vim.opt.clipboard = "unnamedplus"
     vim.opt.conceallevel = 2
     vim.opt.concealcursor = "nc"
+    vim.opt.tabstop = 4
+    vim.opt.softtabstop = 4
+    vim.opt.shiftwidth = 4
+    vim.opt.expandtab = true
+    vim.opt.number = true
 
     -- Markdown Heading Colors
     vim.api.nvim_set_hl(0, "@text.title.1.markdown", { fg = "#fb4934", bold = true })
