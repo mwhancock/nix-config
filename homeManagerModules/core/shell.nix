@@ -14,6 +14,7 @@
       gl = "git log --oneline --graph";
       gd = "git diff";
       cb-config = "nix run nixpkgs#repomix -- --copy --ignore '.git/**,result/**,*.pdf,*.png'";
+      conf = "cd ~/nixos-config && vi";
       nix-rebuild = "find ~/.config -name '*.bak' -exec rm -rf {} + 2>/dev/null; find ~/ -maxdepth 1 -name '*.bak' -exec rm -rf {} + 2>/dev/null; sudo nixos-rebuild switch --flake ~/nixos-config";
       nix-diff = "sudo nixos-rebuild list-generations";
       nix-clean = "sudo nix-collect-garbage -d && nix-collect-garbage -d";

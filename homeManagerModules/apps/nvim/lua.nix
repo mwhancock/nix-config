@@ -208,6 +208,30 @@
     })
 
     -- Keybind Logic
+    vim.keymap.set("n", "<leader>nt", function()
+        local line = vim.api.nvim_get_current_line()
+        local new_line = line
+
+        if line:match("%- %[x%]") then
+            -- If checked, uncheck it
+            new_line = line:gsub("%- %[x%]", "- [ ]")
+        elseif line:match("%- %[ %]") then
+            -- If empty box, check it
+            new_line = line:gsub("%- %[ %]", "- [x]")
+        elseif line:match("^%s*%- ") then
+            -- If just a bullet, add the box
+            new_line = line:gsub("%- ", "- [ ] ", 1)
+        end
+
+        if new_line ~= line then
+            vim.api.nvim_set_current_line(new_line)
+        end
+    end, { desc = "Toggle Markdown Checkbox" })
+
+    vim.keymap.set("v", "b", [[c**<C-r>"**<Esc>]], {
+      desc = "Bold selection in visual mode",
+      silent = true
+    })
     vim.keymap.set('n', '<leader>nep', export_assignment_pdf)
     vim.keymap.set('n', '<leader>no', function()
       local pdf = vim.fn.expand('%:r') .. '.pdf'

@@ -16,9 +16,7 @@
     pdfarranger
     python314Packages.deemix
     postman
-    rnote
-    teamspeak6-client
-    #trayscale
+    trayscale
     vesktop
     zathura
     standardnotes
@@ -26,5 +24,17 @@
     tectonic
     librsvg
     xournalpp
+    protonplus
+    cartridges
+    ryubing
+    supertuxkart
+    bustle
+    cutter
+    #gaphor
+    learn6502
+    kdePackages.merkuro
+    qtrvsim
+    rustlings
+    element-desktop
   ];
 }
