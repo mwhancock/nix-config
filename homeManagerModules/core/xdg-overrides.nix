@@ -15,10 +15,6 @@
   xdg.configFile."gtk-3.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/gtk.css".force = true;
-  xdg.desktopEntries.nemo = {
-    name = "Nemo";
-    exec = "${pkgs.nemo-with-extensions}/bin/nemo";
-  };
 
   xdg.desktopEntries.nvim = {
     name = "Neovim";
