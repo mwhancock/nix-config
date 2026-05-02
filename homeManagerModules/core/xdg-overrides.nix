@@ -30,6 +30,30 @@
       "application/x-shellscript"
     ];
   };
+
+  xdg.desktopEntries.picotron = {
+    name = "Picotron";
+    exec = "steam-run /home/mark/Nextcloud/Documents/picotron/picotron";
+    icon = "/home/mark/Nextcloud/Documents/picotron/picotron.png";
+    comment = " Fantasy Console";
+    categories = ["Game" "Development"];
+  };
+  xdg.desktopEntries.voxatron = {
+    name = "Voxatron";
+    exec = "steam-run /home/mark/Nextcloud/Documents/voxatron/vox";
+    icon = "/home/mark/Nextcloud/Documents/voxatron/voxatron.png";
+    comment = " Fantasy Console";
+    categories = ["Game" "Development"];
+  };
+
+  xdg.desktopEntries.pico8 = {
+    name = "PICO-8";
+    exec = "steam-run /home/mark/Nextcloud/Documents/pico-8/pico8";
+    icon = "/home/mark/Nextcloud/Documents/pico-8/pico-8.png";
+    comment = " Fantasy Console";
+    categories = ["Game" "Development"];
+  };
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [

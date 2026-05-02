@@ -22,28 +22,6 @@
     languages = {
       enableTreesitter = true;
       enableFormat = true;
-
-      nix = {
-        enable = true;
-        lsp.servers = ["nixd"];
-      };
-
-      rust.enable = true;
-
-      python = {
-        enable = true;
-        lsp.servers = ["pyright"];
-        format.type = ["black"];
-      };
-
-      clang = {
-        enable = true;
-        lsp.servers = ["clangd"];
-      };
-
-      java.enable = true;
-      bash.enable = true;
-      lua.enable = true;
     };
 
     autocomplete.nvim-cmp.enable = true;
