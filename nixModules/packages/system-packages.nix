@@ -22,6 +22,7 @@
     cargo
     rustc
     rustup
+    clippy
     #android-studio
     nixpkgs-fmt
     nh

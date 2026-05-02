@@ -5,7 +5,6 @@
 }: {
   home.packages = with pkgs; [
     eloquent
-    fluffychat
     file-roller
     foliate
     gearlever
@@ -36,5 +35,6 @@
     qtrvsim
     rustlings
     element-desktop
+    morgen
   ];
 }

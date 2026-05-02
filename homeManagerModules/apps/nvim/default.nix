@@ -1,9 +1,9 @@
 # -----------------------------------------------------------------------------
 # MODULE: NEOVIM (NVF) MASTER CONFIGURATION
-# Description: Fixed deprecation errors for clipboard and visuals.
 # -----------------------------------------------------------------------------
 {pkgs, ...}: {
   imports = [
+    ./languages/default.nix
     ./ai.nix
     ./dap.nix
     ./editor.nix
@@ -22,7 +22,7 @@
     settings.vim = {
       viAlias = true;
       vimAlias = true;
-      clipboard.registers.unnamedplus = true; 
+      clipboard.registers.unnamedplus = true;
       visuals.nvim-web-devicons.enable = true;
       extraPackages = with pkgs; [
         pandoc
