@@ -19,6 +19,7 @@
     input-remapper
     jdk
     python3
+    python312Packages.websockets
     cargo
     rustc
     rustup
@@ -54,5 +55,6 @@
     gradle
     texliveFull
     net-tools
+    vlc
   ];
 }
