@@ -20,6 +20,7 @@
     ./services/tailscale.nix
     ./services/virtualbox.nix
     ./services/vpn.nix
+    ./services/waydroid.nix
     ./packages/system-packages.nix
     ./users/mark.nix
   ];

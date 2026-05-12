@@ -14,7 +14,7 @@
     onlyoffice-desktopeditors
     pdfarranger
     python314Packages.deemix
-    postman
+    insomnia
     trayscale
     vesktop
     zathura
@@ -36,5 +36,6 @@
     rustlings
     element-desktop
     morgen
+    calligraphy
   ];
 }

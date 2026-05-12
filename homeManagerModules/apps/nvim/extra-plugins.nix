@@ -54,6 +54,7 @@
         require("illuminate").configure({})
       '';
     };
+
     flash = {
       package = pkgs.vimPlugins.flash-nvim;
       setup = ''

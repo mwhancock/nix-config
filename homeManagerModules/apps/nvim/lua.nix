@@ -62,8 +62,6 @@
         vim.opt_local.textwidth = 72
         vim.opt_local.formatoptions = "tcqnj"
         vim.opt_local.autoindent = true
-
-        -- PASTE HOOK: Automatically formats pasted text to 72 chars
         vim.keymap.set("n", "p", "p`[v`]gq", { buffer = true, silent = true, desc = "Paste and auto-format" })
       end,
     })
@@ -76,13 +74,13 @@
       local dashboard = require("alpha.themes.dashboard")
       dashboard.section.header.val = {
         [[                                 __                ]],
-        [[ ___     __    __   __   __   /\_\    ___ ___    ]],
+        [[ ___     __    __   __   __   /\_\   ___ ___    ]],
         [[ /' _ `\ /'__`\/\ \ /\ \ /\ \ \/\ \  /' __` __`\  ]],
         [[ /\ \/\ \/\  __/\ \ \\ \ \ \ \ \ \ \ /\ \/\ \/\ \ ]],
         [[ \ \_\ \_\ \____\\ \____/ \ \_\ \ \_\\ \_\ \_\ \_\]],
         [[  \/_/\/_/\/____/ \/___/    \/_/  \/_/ \/_/\/_/\/_/]],
         [[                                                   ]],
-        [[              -- THE GROOVY EDITOR --              ]],
+        [[               -- THE GROOVY EDITOR --             ]],
       }
       dashboard.section.header.opts.hl = "Keyword"
 
@@ -126,7 +124,6 @@
     -------------------------------------------------------------------------------
     local function export_assignment_pdf()
       if vim.bo.filetype ~= "markdown" then return end
-
       local file = vim.fn.expand('%')
       local pdf = vim.fn.expand('%:r') .. '.pdf'
       local yaml_path = os.getenv("HOME") .. "/Nextcloud/Documents/School/metadata.yaml"
@@ -147,7 +144,6 @@
 
       local stderr_data = {}
       vim.notify("Exporting PDF...", vim.log.levels.INFO)
-
       vim.fn.jobstart(cmd, {
         on_stderr = function(_, data)
           if data then
@@ -161,16 +157,13 @@
             vim.notify("PDF Exported Successfully!", vim.log.levels.INFO)
           else
             local full_error = table.concat(stderr_data, "\n")
-            vim.notify("Export Failed: " .. (full_error:sub(1, 100) or "Unknown Error"), vim.log.levels.ERROR)
-            print("--- PANDOC ERROR LOG ---")
+            vim.notify("Export Failed!", vim.log.levels.ERROR)
             print(full_error)
-            print("------------------------")
           end
         end,
       })
     end
 
-    -- Automatic export on save if PDF already exists
     vim.api.nvim_create_autocmd("BufWritePost", {
       pattern = "*.md",
       callback = function()
@@ -182,73 +175,49 @@
     })
 
     -------------------------------------------------------------------------------
-    -- 5. KEYMAPS & MENU LABELS (WHICH-KEY)
+    -- 5. KEYMAPS & WHICH-KEY
     -------------------------------------------------------------------------------
     local wk = require("which-key")
     wk.add({
-      { "<leader>a", group = "Avante" },
-      { "<leader>b", group = "Buffers" },
-      { "<leader>c", group = "Code" },
-      { "<leader>d", group = "Debug" },
-      { "<leader>e", group = "Explorer" },
-      { "<leader>g", group = "Git" },
-      { "<leader>h", group = "Harpoon" },
-      { "<leader>l", group = "LSP" },
-      { "<leader>m", group = "Minimap" },
       { "<leader>n", group = "Notes" },
       { "<leader>ne", group = "Export" },
-      { "<leader>nep", desc = "Export as PDF" },
-      { "<leader>no", desc = "Open PDF Viewer" },
-      { "<leader>na", desc = "Insert Template" },
-      { "<leader>o", group = "Open" },
-      { "<leader>q", group = "Quit" },
-      { "<leader>r", group = "Rename" },
-      { "<leader>s", group = "Flash" },
-      { "<leader>t", group = "Terminal" },
+      { "<leader>nt", desc = "Toggle Checkbox" },
     })
 
-    -- Keybind Logic
+    -- Checkbox Toggle Logic
     vim.keymap.set("n", "<leader>nt", function()
         local line = vim.api.nvim_get_current_line()
-        local new_line = line
-
-        if line:match("%- %[x%]") then
-            -- If checked, uncheck it
-            new_line = line:gsub("%- %[x%]", "- [ ]")
-        elseif line:match("%- %[ %]") then
-            -- If empty box, check it
-            new_line = line:gsub("%- %[ %]", "- [x]")
-        elseif line:match("^%s*%- ") then
-            -- If just a bullet, add the box
-            new_line = line:gsub("%- ", "- [ ] ", 1)
+        local nl = line
+        if line:match("%%- %%[x%%]") then
+            nl = line:gsub("%%- %%[x%%]", "- [ ]")
+        elseif line:match("%%- %%[ %%]") then
+            nl = line:gsub("%%- %%[ %%]", "- [x]")
+        elseif line:match("^%%s*%%- ") then
+            nl = line:gsub("%%- ", "- [ ] ", 1)
         end
-
-        if new_line ~= line then
-            vim.api.nvim_set_current_line(new_line)
+        if nl ~= line then
+            vim.api.nvim_set_current_line(nl)
         end
     end, { desc = "Toggle Markdown Checkbox" })
 
-    vim.keymap.set("v", "b", [[c**<C-r>"**<Esc>]], {
-      desc = "Bold selection in visual mode",
-      silent = true
-    })
-    vim.keymap.set('n', '<leader>nep', export_assignment_pdf)
+    -- Corrected Visual Bold (using <leader>sb to save your 'b' key)
+    vim.keymap.set("v", "<leader>sb", [[c**<C-r>"**<Esc>]], { desc = "Bold selection", silent = true })
+
+    vim.keymap.set('n', '<leader>nep', export_assignment_pdf, { desc = "Export PDF" })
+    
     vim.keymap.set('n', '<leader>no', function()
       local pdf = vim.fn.expand('%:r') .. '.pdf'
       if vim.fn.filereadable(pdf) == 1 then
-        vim.notify("Opening Zathura...")
         vim.fn.jobstart({"zathura", pdf}, {detach = true})
       else
-        vim.notify("No PDF found. Run <leader>nep first.", vim.log.levels.WARN)
+        vim.notify("No PDF found.", vim.log.levels.WARN)
       end
-    end)
+    end, { desc = "Open PDF" })
 
-    local function insert_template()
-      local lines = { "# ", "" }
-      vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    vim.keymap.set('n', '<leader>na', function()
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, { "# ", "" })
       vim.api.nvim_win_set_cursor(0, {1, 2})
-    end
-    vim.keymap.set('n', '<leader>na', insert_template)
+    end, { desc = "Insert Template" })
 
     -------------------------------------------------------------------------------
     -- 6. DYNAMIC AUTO-WRAPPING
@@ -260,7 +229,7 @@
             local threshold = 110
             local win_width = vim.api.nvim_win_get_width(0)
             local ft = vim.bo.filetype
-            local excluded_ft = { "NvimTree", "neo-tree", "dashboard", "alpha", "avante" }
+            local excluded_ft = { "NvimTree", "neo-tree", "dashboard", "alpha" }
 
             if not vim.tbl_contains(excluded_ft, ft) then
                 if win_width < threshold then
