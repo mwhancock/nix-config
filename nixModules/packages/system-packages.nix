@@ -12,14 +12,20 @@
 
   environment.systemPackages = with pkgs; [
     git
+    fritzing
     gcc
     clang
+    gnumake
+    libsecret
+    pkg-config
     clang-tools
     cmake
     input-remapper
     jdk
     python3
     python312Packages.websockets
+    python311Packages.pyserial
+    python311Packages.paho-mqtt
     cargo
     rustc
     rustup
@@ -56,5 +62,10 @@
     texliveFull
     net-tools
     vlc
+    haskellPackages.kafka
+    python314Packages.kafka-python-ng
+    arduino-ide
+    arduino-language-server
+    arduino-cli
   ];
 }

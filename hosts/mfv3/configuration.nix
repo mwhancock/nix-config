@@ -1,4 +1,4 @@
- {
+{
   lib,
   pkgs,
   inputs,
@@ -55,6 +55,11 @@
       RemainAfterExit = true;
     };
   };
+
+  services.udev.extraRules = ''
+    KERNEL=="ttyUSB[0-9]*", MODE="0660", GROUP="dialout"
+    KERNEL=="ttyACM[0-9]*", MODE="0660", GROUP="dialout"
+  '';
 
   system.stateVersion = "25.11";
 }

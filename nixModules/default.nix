@@ -13,6 +13,7 @@
     ./hardware/power.nix
     ./security/nix-ld.nix
     ./services/flatpak.nix
+    ./services/kafka.nix
     ./services/ollama.nix
     ./services/portal.nix
     ./services/printing.nix
