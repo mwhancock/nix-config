@@ -19,6 +19,7 @@
     usbutils
     vimPlugins.markdown-preview-nvim
     nodejs
+    mosquitto
   ];
 
   home.sessionVariables = {

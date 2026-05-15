@@ -37,5 +37,6 @@
     element-desktop
     morgen
     calligraphy
+    blender
   ];
 }

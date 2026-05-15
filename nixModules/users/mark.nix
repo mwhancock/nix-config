@@ -10,6 +10,8 @@
       "mark"
       "disk"
       "root"
+      "uucp"
+      "dialout"
     ];
   };
 }
