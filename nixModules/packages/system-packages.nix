@@ -63,7 +63,7 @@
     net-tools
     vlc
     haskellPackages.kafka
-    python314Packages.kafka-python-ng
+    python314Packages.kafka-python
     arduino-ide
     arduino-language-server
     arduino-cli
