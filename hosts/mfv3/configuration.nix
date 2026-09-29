@@ -9,15 +9,25 @@
     ../../nixModules
   ];
 
-  nixpkgs.overlays = [inputs.niri.overlays.niri];
+  nixpkgs.overlays = [
+    (final: prev: {
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        (python-final: python-prev: {
+          paho-mqtt = python-prev.paho-mqtt.overridePythonAttrs (old: {
+            doCheck = false;
+          });
+        })
+      ];
+    })
+  ];
 
-  services.displayManager.sessionPackages = [pkgs.niri-unstable];
   environment.shells = with pkgs; [fish];
   programs.fish.enable = true;
+  programs.nixarchy.enable = true;
+  services.displayManager.defaultSession = "omarchy";
   time.timeZone = "America/St_Johns";
   i18n.defaultLocale = "en_CA.UTF-8";
   environment.systemPackages = with pkgs; [
-    niri-unstable
   ];
 
   environment.sessionVariables = lib.mkForce {
@@ -61,5 +71,15 @@
     KERNEL=="ttyACM[0-9]*", MODE="0660", GROUP="dialout"
   '';
 
+  # VM tuning
+  virtualisation.vmVariant = {
+    virtualisation.memorySize = 4096;
+    virtualisation.cores = 4;
+    virtualisation.qemu.options = [ "-enable-kvm" ];
+    users.users.mark.initialPassword = "1234";
+    users.users.root.initialPassword = "1234";
+  };
+
   system.stateVersion = "25.11";
 }
+

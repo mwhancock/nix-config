@@ -21,10 +21,6 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     dsearch = {
       url = "github:AvengeMedia/danksearch";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,16 +28,18 @@
     matugen = {
       url = "github:/InioX/Matugen";
     };
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nvf = {
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
+    opencode = {
+      url = "github:dan-online/opencode-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixarchy = {
+      url = "github:olafkfreund/nixarchy/main";
+      inputs.home-manager.follows = "home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -68,6 +66,7 @@
           {nixpkgs.hostPlatform = "x86_64-linux";}
           ./hosts/mfv3/configuration.nix
           ./nixModules
+          inputs.nixarchy.nixosModules.nixarchy
           agenix.nixosModules.age
           nix-flatpak.nixosModules.nix-flatpak
           {
@@ -78,6 +77,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              sharedModules = [ inputs.nixarchy.homeManagerModules.nixarchy ];
               users.mark = import ./hosts/mfv3/home.nix;
               extraSpecialArgs = {inherit inputs;};
               backupFileExtension = "bak";
