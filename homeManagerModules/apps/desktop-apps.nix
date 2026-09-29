@@ -42,7 +42,6 @@
     freecad
     kicad
     thunderbird
-    bambu-studio
     orca-slicer
     arduino-ide
     inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.default

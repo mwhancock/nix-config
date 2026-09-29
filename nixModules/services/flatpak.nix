@@ -11,6 +11,7 @@
       "dev.aunetx.deezer" 
       "com.calibre_ebook.calibre"
       "app.grayjay.Grayjay"
+      "com.bambulab.BambuStudio"
     ];
     update = {
       onActivation = true;
