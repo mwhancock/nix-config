@@ -65,6 +65,8 @@
         modules = [
           {nixpkgs.hostPlatform = "x86_64-linux";}
           ./hosts/mfv3/configuration.nix
+          disko.nixosModules.disko
+          ./hosts/mfv3/disko-config.nix
           ./nixModules
           inputs.nixarchy.nixosModules.nixarchy
           agenix.nixosModules.age
