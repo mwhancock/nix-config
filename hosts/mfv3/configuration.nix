@@ -75,6 +75,8 @@
     virtualisation.memorySize = 4096;
     virtualisation.cores = 4;
     virtualisation.qemu.options = [ "-enable-kvm" ];
+    users.users.mark.password = "1234";
+    users.users.root.password = "1234";
   };
 
   system.stateVersion = "25.11";
