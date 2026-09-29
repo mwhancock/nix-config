@@ -3,7 +3,7 @@
     zip xz unzip p7zip nmap socat ipcalc traceroute gemini-cli
     fastfetch btop iftop strace ltrace pciutils sysstat usbutils
     nodejs mosquitto yazi aider-chat
-    jellyfin-tui concord aichat bat fzf lazygit starship calibre-tui matcha
+    jellyfin-tui concord aichat bat fzf lazygit starship
   ];
 
   home.sessionVariables = {
