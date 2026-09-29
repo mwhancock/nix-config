@@ -40,6 +40,11 @@
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    opencode = {
+      url = "github:dan-online/opencode-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixarchy = {
       url = "github:olafkfreund/nixarchy/main";
       inputs.home-manager.follows = "home-manager";
