@@ -19,7 +19,7 @@
     ./services/printing.nix
     ./services/ssh.nix
     ./services/tailscale.nix
-    ./services/virtualbox.nix
+    ./services/libvirt.nix
     ./services/vpn.nix
     ./services/waydroid.nix
     ./packages/system-packages.nix
