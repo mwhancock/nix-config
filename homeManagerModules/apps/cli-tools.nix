@@ -1,6 +1,6 @@
 { config, pkgs, ... }: {
   home.packages = with pkgs; [
-    zip xz unzip p7zip nmap socat ipcalc traceroute gemini-cli
+    zip xz unzip p7zip nmap socat ipcalc traceroute antigravity-cli
     fastfetch btop iftop strace ltrace pciutils sysstat usbutils
     nodejs mosquitto yazi aider-chat
     jellyfin-tui concord aichat bat fzf lazygit starship
