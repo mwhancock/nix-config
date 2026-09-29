@@ -40,9 +40,8 @@
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
-      inputs.nixpkgs.follows = "nixpkgs";
+    nixarchy = {
+      url = "github:olafkfreund/nixarchy/main";
     };
   };
   outputs = {
@@ -68,6 +67,7 @@
           {nixpkgs.hostPlatform = "x86_64-linux";}
           ./hosts/mfv3/configuration.nix
           ./nixModules
+          inputs.nixarchy.nixosModules.nixarchy
           agenix.nixosModules.age
           nix-flatpak.nixosModules.nix-flatpak
           {
@@ -78,6 +78,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              sharedModules = [ inputs.nixarchy.homeManagerModules.nixarchy ];
               users.mark = import ./hosts/mfv3/home.nix;
               extraSpecialArgs = {inherit inputs;};
               backupFileExtension = "bak";
