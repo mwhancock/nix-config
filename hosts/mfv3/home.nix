@@ -15,6 +15,7 @@
   home.homeDirectory = "/home/mark";
   home.stateVersion = "25.11";
   programs.home-manager.enable = true;
+  programs.nixarchy.enable = true;
   gtk.gtk4.theme = config.gtk.theme;
   programs.man.enable = false;
 
