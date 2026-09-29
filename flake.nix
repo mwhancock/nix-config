@@ -42,6 +42,8 @@
     };
     nixarchy = {
       url = "github:olafkfreund/nixarchy/main";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
   outputs = {
