@@ -10,7 +10,6 @@
   ];
 
   nixpkgs.overlays = [
-    inputs.niri.overlays.niri
     (final: prev: {
       pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
         (python-final: python-prev: {
@@ -22,14 +21,12 @@
     })
   ];
 
-  services.displayManager.sessionPackages = [pkgs.niri-unstable];
   environment.shells = with pkgs; [fish];
   programs.fish.enable = true;
   programs.nixarchy.enable = true;
   time.timeZone = "America/St_Johns";
   i18n.defaultLocale = "en_CA.UTF-8";
   environment.systemPackages = with pkgs; [
-    niri-unstable
   ];
 
   environment.sessionVariables = lib.mkForce {
