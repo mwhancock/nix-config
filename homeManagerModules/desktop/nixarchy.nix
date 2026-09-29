@@ -2,7 +2,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     plugins = [
-      pkgs.hyprlandPlugins.hyprscroller
+      pkgs.hyprlandPlugins.hyprscrolling
       pkgs.hyprlandPlugins.hyprgrass
     ];
   };
