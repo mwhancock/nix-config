@@ -9,7 +9,18 @@
     ../../nixModules
   ];
 
-  nixpkgs.overlays = [inputs.niri.overlays.niri];
+  nixpkgs.overlays = [
+    inputs.niri.overlays.niri
+    (final: prev: {
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        (python-final: python-prev: {
+          paho-mqtt = python-prev.paho-mqtt.overridePythonAttrs (old: {
+            doCheck = false;
+          });
+        })
+      ];
+    })
+  ];
 
   services.displayManager.sessionPackages = [pkgs.niri-unstable];
   environment.shells = with pkgs; [fish];
