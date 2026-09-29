@@ -38,5 +38,12 @@
     morgen
     calligraphy
     blender
+    firefox
+    freecad
+    kicad
+    thunderbird
+    bambu-studio
+    orca-slicer
+    arduino-ide
   ];
 }
