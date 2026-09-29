@@ -1,30 +1,4 @@
-{
-  programs.ghostty = {
-    enable = true;
-    settings = {
-      #font setting
-      font-size = 12;
-      font-family = "JetBrainsMono Nerd Font";
-
-      #appearance
-      background-opacity = 0.9;
-      background-blur-radius = 15;
-      window-theme = "dark";
-      theme = "Gruvbox Dark Hard";
-      window-decoration = false;
-      window-padding-x = 10;
-      window-padding-y = 10;
-
-      #shell integration
-      shell-integration = "fish";
-
-      cursor-text = "#fe8019";
-
-      #behavior
-      copy-on-select = true;
-      confirm-close-surface = false;
-
-      font-feature = "+calt +liga +dlig";
-    };
-  };
+{ config, pkgs, ... }: {
+  home.packages = [ pkgs.ghostty ];
+  home.file.".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "/home/mark/dotfiles/ghostty/.config/ghostty";
 }

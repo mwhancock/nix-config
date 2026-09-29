@@ -16,7 +16,7 @@
   home.homeDirectory = "/home/mark";
   home.stateVersion = "25.11";
   programs.home-manager.enable = true;
-  programs.quickshell.enable = true;
+  programs.nixarchy.enable = true;
 
   home.file."/home/mark/Nextcloud/Documents/School/metadata.yaml".text = ''
     \usepackage{fontspec}
