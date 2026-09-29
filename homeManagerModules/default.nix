@@ -11,7 +11,6 @@
     ./core/session-vars.nix
     ./core/terminal.nix
     ./core/xdg-overrides.nix
-    ./desktop/nixarchy.nix
     ./scripts/zenBackup.nix
   ];
 }
