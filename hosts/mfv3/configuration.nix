@@ -70,12 +70,13 @@
     KERNEL=="ttyACM[0-9]*", MODE="0660", GROUP="dialout"
   '';
 
-  system.stateVersion = "25.11";
-}
-
   # VM tuning
   virtualisation.vmVariant = {
     virtualisation.memorySize = 4096;
     virtualisation.cores = 4;
     virtualisation.qemu.options = [ "-enable-kvm" ];
   };
+
+  system.stateVersion = "25.11";
+}
+
