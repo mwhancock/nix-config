@@ -6,11 +6,15 @@
 # the strategy `passwordless` points nh at sudo, and the option below removes
 # sudo's credential, so the dialogs stop.
 #
-# environment.variables rather than home.sessionVariables because the value is
-# read by the outer nixarchy-apply process, which is usually a menu-launched
-# desktop entry rather than a shell. nixpkgs writes these through pam_env, so
-# they do reach a graphical session -- but only a *new* one, which is why the
-# first rebuild after this change still prompts three times.
+# environment.sessionVariables, not environment.variables: the value is read by
+# the outer nixarchy-apply process, which is usually a menu-launched desktop
+# entry rather than a shell, and only sessionVariables reaches a graphical
+# session. nixpkgs builds /etc/pam/environment out of sessionVariables --
+# environment.variables only lands in /etc/profile, so a menu would never see it
+# and nh would keep reaching for pkexec.
+#
+# It reaches a *new* session only, which is why the first rebuild after this
+# change still prompts three times; the ones after it do not.
 #
 # Deliberately a weakening of a boundary: anything running as mark can now
 # become root without a prompt. Accepted for a single-user desktop where wheel
@@ -19,5 +23,5 @@
 {
   security.sudo.wheelNeedsPassword = false;
 
-  environment.variables.NH_ELEVATION_STRATEGY = "passwordless";
+  environment.sessionVariables.NH_ELEVATION_STRATEGY = "passwordless";
 }
