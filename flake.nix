@@ -5,8 +5,6 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    disko.url = "github:nix-community/disko";
-    disko.inputs.nixpkgs.follows = "nixpkgs";
 
     zen-backup = {
       url = "github:Ronin-CK/Zen-Backup-Tool";
@@ -46,7 +44,6 @@
     nixpkgs,
     agenix,
     home-manager,
-    disko,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -89,30 +86,6 @@
               useUserPackages = true;
               sharedModules = [ inputs.nixarchy.homeManagerModules.nixarchy ];
               users.mark = import ./hosts/nixos/home.nix;
-              extraSpecialArgs = {inherit inputs;};
-              backupFileExtension = "bak";
-            };
-          }
-        ];
-      };
-
-      # --- Pangolin (Server) ---
-      server = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {inherit inputs;};
-        modules = [
-          disko.nixosModules.disko
-          ./hosts/server/disko-config.nix
-          ./hosts/server/configuration.nix
-          ./nixModules/core/base.nix
-          ./nixModules/core/boot.nix
-
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.mark = import ./hosts/server/home.nix;
               extraSpecialArgs = {inherit inputs;};
               backupFileExtension = "bak";
             };

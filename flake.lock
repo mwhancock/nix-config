@@ -82,26 +82,6 @@
     "disko": {
       "inputs": {
         "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789770686,
-        "narHash": "sha256-uZkBR7yHdIKUFB5SZdfgh1qkGfI3XmYmI/lTiquxbck=",
-        "owner": "nix-community",
-        "repo": "disko",
-        "rev": "725ea35e410ad83be4931d1bff7e090eacaf3563",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "disko",
-        "type": "github"
-      }
-    },
-    "disko_2": {
-      "inputs": {
-        "nixpkgs": [
           "nixarchy",
           "nixpkgs"
         ]
@@ -872,7 +852,7 @@
     "nixarchy": {
       "inputs": {
         "ai-mirror": "ai-mirror",
-        "disko": "disko_2",
+        "disko": "disko",
         "home-manager": [
           "home-manager"
         ],
@@ -1466,7 +1446,6 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
-        "disko": "disko",
         "dsearch": "dsearch",
         "home-manager": "home-manager",
         "matugen": "matugen",
