@@ -59,6 +59,21 @@ in
     vlc
     texliveFull
 
+    # Read-only document viewer. The nixpkgs `zathura` attribute is the wrapper
+    # that already bundles the plugins wanted here, so it needs no options:
+    #   zathura_pdf_mupdf  PDF, and by mimetype also EPUB, MOBI, FictionBook,
+    #                      XPS/OXPS, SVG and plain images
+    #   zathura_cb         CBZ/CBR/CB7/CBT comics
+    #   zathura_djvu       DjVu
+    #   zathura_ps         PostScript
+    # The mupdf backend is the one that makes epub work, so useMupdf stays at
+    # its default of true -- switching to poppler would silently drop epub.
+    #
+    # This is also the binary the yazi config already calls. Its [open] rules
+    # route pdf, epub, cbz/cbr/cb7/cbt, djvu, xps and oxps to `zathura %s`, so
+    # those formats open from the file manager as soon as this is installed.
+    zathura
+
     # Shell and desktop utilities
     wl-clipboard
     grim
