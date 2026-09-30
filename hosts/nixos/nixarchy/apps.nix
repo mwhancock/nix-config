@@ -103,6 +103,7 @@
   # line before the end marker.
   environment.systemPackages = with pkgs; [  #@pkgs-begin
     onlyoffice-desktopeditors  #@pkg onlyoffice-desktopeditors
+    nextcloud-client  #@pkg nextcloud-client
   ];  #@pkgs-end
 }
 
