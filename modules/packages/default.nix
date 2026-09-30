@@ -6,6 +6,11 @@
 # not just archaeology.
 { pkgs, ... }:
 
+let
+  # Not in nixpkgs, so built from source here.
+  gmc = pkgs.callPackage ./gmc.nix { };
+in
+
 {
   programs.steam = {
     enable = true;
@@ -21,6 +26,7 @@
   environment.systemPackages = with pkgs; [
     # Toolchain
     git
+    gmc
     gcc
     clang
     clang-tools
