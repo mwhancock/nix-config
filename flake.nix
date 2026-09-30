@@ -75,6 +75,16 @@
         inherit system;
         specialArgs = {inherit inputs;};
         modules = [
+          # The system modules for this host are ./modules/*, imported by
+          # hosts/nixos/configuration.nix. There is deliberately no nixModules/
+          # directory: it was a second, parallel tree from the mfv3 era that
+          # nothing imported, and it read like it was wired. See the commit that
+          # removed it for the full audit; in short, every service in it was
+          # already live, and three of its files would have broken this machine
+          # (limine, snd-hda-intel model=alc256-asus-aio, and
+          # power-profiles-daemon = false). modules/services/default.nix records
+          # what was kept, what was dropped, and why -- including the WireGuard
+          # key that this repository published to a public remote.
           {nixpkgs.hostPlatform = "x86_64-linux";}
           ./hosts/nixos
           inputs.nixarchy.nixosModules.nixarchy
