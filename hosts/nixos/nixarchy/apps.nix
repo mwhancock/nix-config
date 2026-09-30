@@ -104,6 +104,14 @@
   environment.systemPackages = with pkgs; [  #@pkgs-begin
     onlyoffice-desktopeditors  #@pkg onlyoffice-desktopeditors
     nextcloud-client  #@pkg nextcloud-client
+    jellyfin-tui  #@pkg jellyfin-tui
+    kotlin  #@pkg kotlin
+    kotlin-language-server  #@pkg kotlin-language-server
+    kotlin-interactive-shell  #@pkg kotlin-interactive-shell
+    platformio  #@pkg platformio
+    cargo-pio  #@pkg cargo-pio
+    platformio-core  #@pkg platformio-core
+    rnote  #@pkg rnote
   ];  #@pkgs-end
 }
 
