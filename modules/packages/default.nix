@@ -98,6 +98,20 @@ in
     curl
   ];
 
+  # Fonts are registered with fontconfig, not just put on $PATH, so they are
+  # declared here rather than appended to systemPackages above. This is what
+  # makes them visible to applications that resolve fonts at runtime --
+  # OnlyOffice Desktop Editors in particular, which reads the system fontconfig
+  # config from inside its bubblewrap sandbox (it binds /nix and symlinks the
+  # host's /etc/fonts, so a font package in the store is reachable).
+  #
+  # `inter` is 4.1, the current upstream release, and is already in the binary
+  # cache. It ships Inter.ttc (the whole family, all nine weights) plus
+  # InterVariable.ttf and InterVariable-Italic.ttf.
+  fonts.packages = with pkgs; [
+    inter
+  ];
+
   # ---------------------------------------------------------------------------
   # Deliberately not carried over from hosts/mfv3:
   #
