@@ -7,7 +7,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
-    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     zen-backup = {
       url = "github:Ronin-CK/Zen-Backup-Tool";
@@ -47,7 +46,6 @@
     nixpkgs,
     agenix,
     home-manager,
-    nix-flatpak,
     disko,
     ...
   } @ inputs: let
@@ -59,28 +57,38 @@
 
     nixosConfigurations = {
       # --- Minisforum V3 (Laptop) ---
+      #
+      # Was hosts/mfv3, which imported disko and a disko layout describing
+      # /dev/nvme0n1 as btrfs. This machine is ext4. `nixos` the output name is
+      # unchanged so that `nixos-rebuild switch` and `nh os switch` keep working
+      # against this flake with no extra arguments; what changed is which host
+      # directory it resolves to.
+      #
+      # Three imports are gone, each for a reason recorded at the call site:
+      #   disko.nixosModules.disko + hosts/mfv3/disko-config.nix
+      #     -- the destructive one. See hosts/nixos/configuration.nix.
+      #   nix-flatpak.nixosModules.nix-flatpak
+      #     -- flatpak is nixarchy's to manage.
+      #   agenix.nixosModules.age + age.identityPaths = [ "/home/mark/.ssh/id_ed25519" ]
+      #     -- there are no age.secrets in this repository, so the module does
+      #        nothing, and the identity path it named does not exist on this
+      #        machine (there is no ~/.ssh at all). Reintroduced when there is
+      #        something to decrypt.
       nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {inherit inputs;};
         modules = [
           {nixpkgs.hostPlatform = "x86_64-linux";}
-          ./hosts/mfv3/configuration.nix
-          disko.nixosModules.disko
-          ./hosts/mfv3/disko-config.nix
-          ./nixModules
+          ./hosts/nixos
           inputs.nixarchy.nixosModules.nixarchy
-          agenix.nixosModules.age
-          nix-flatpak.nixosModules.nix-flatpak
-          {
-            age.identityPaths = ["/home/mark/.ssh/id_ed25519"];
-          }
+
           home-manager.nixosModules.home-manager
           {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
               sharedModules = [ inputs.nixarchy.homeManagerModules.nixarchy ];
-              users.mark = import ./hosts/mfv3/home.nix;
+              users.mark = import ./hosts/nixos/home.nix;
               extraSpecialArgs = {inherit inputs;};
               backupFileExtension = "bak";
             };
