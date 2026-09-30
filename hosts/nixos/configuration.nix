@@ -25,6 +25,7 @@
     ./hardware-configuration.nix
     ../../modules/desktop
     ../../modules/packages
+    ../../modules/security
     ../../modules/services
     ../../modules/shell
   ];
