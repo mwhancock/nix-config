@@ -15,6 +15,18 @@
 {
   imports = [
     ./configuration.nix
+
+    # The app selection nixarchy-apply stages into this host directory, built
+    # from ~/.config/nixarchy/{apps,services,advanced}.nix.
+    #
+    # The old /etc/nixos imported the same thing from its root. Importing it
+    # here as well was the one piece of the live configuration the first draft
+    # of hosts/nixos dropped: without it the flake still evaluates and still
+    # builds, and you find out later that 18 apps quietly vanished from the
+    # Omarchy menu. That failure mode is invisible, which is why it is worth
+    # naming rather than just adding the line.
+    ./nixarchy-apps.nix
+
     # home.nix is deliberately NOT here. It is a Home Manager module and is
     # imported by flake.nix through `home-manager.users.mark`. Listing it in a
     # NixOS module list evaluates it against the system option set, where
