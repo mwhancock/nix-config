@@ -1,0 +1,74 @@
+[mgr]
+ratio = [1, 3, 4]
+sort_by = "alphabetical"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+linemode = "size"
+show_hidden = false
+show_symlink = true
+
+[opener]
+edit = [
+    { run = '${EDITOR:-nvim} %s', desc = "Editor", block = true, for = "unix" },
+]
+open = [
+    { run = 'xdg-open %s1', desc = "Open", orphan = true, for = "linux" },
+]
+pdf = [
+    { run = 'zathura %s', desc = "Zathura (Document/Comic Viewer)", orphan = true, for = "unix" },
+]
+media = [
+    { run = 'mpv %s', desc = "MPV Media Player", orphan = true, for = "unix" },
+]
+browser = [
+    { run = 'firefox %s', desc = "Firefox Browser", orphan = true, for = "unix" },
+]
+rnote = [
+    { run = 'rnote %s', desc = "Rnote", orphan = true, for = "unix" },
+]
+qucs-s = [
+    { run = 'qucs-s %s', desc = "Qucs-S", orphan = true, for = "unix" },
+]
+
+
+[open]
+prepend_rules = [
+    # Notes
+    { url = "*.rnote", use = [ "rnote", "open" ] },
+    { mime = "application/rnote", use = [ "rnote", "open" ] },
+
+    # Schematics
+    { url = "*.sch", use = [ "qucs-s", "open" ] },
+
+    # PDFs, EPUBs, and Comics
+    { url = "*.pdf", use = [ "pdf", "open" ] },
+    { url = "*.epub", use = [ "pdf", "open" ] },
+    { url = "*.cbz", use = [ "pdf", "open" ] },
+    { url = "*.cbr", use = [ "pdf", "open" ] },
+    { url = "*.cb7", use = [ "pdf", "open" ] },
+    { url = "*.cbt", use = [ "pdf", "open" ] },
+    { url = "*.djvu", use = [ "pdf", "open" ] },
+    { url = "*.xps", use = [ "pdf", "open" ] },
+    { url = "*.oxps", use = [ "pdf", "open" ] },
+    { mime = "application/pdf", use = [ "pdf", "open" ] },
+    { mime = "application/epub+zip", use = [ "pdf", "open" ] },
+    { mime = "application/vnd.comicbook+zip", use = [ "pdf", "open" ] },
+    { mime = "application/vnd.comicbook-rar", use = [ "pdf", "open" ] },
+    { mime = "application/x-cbr", use = [ "pdf", "open" ] },
+    { mime = "application/x-cbz", use = [ "pdf", "open" ] },
+
+    # Media
+    { mime = "video/*", use = [ "media", "open" ] },
+    { mime = "audio/*", use = [ "media", "open" ] },
+
+    # Text & Code
+    { mime = "text/*", use = [ "edit", "open" ] },
+    { mime = "application/json", use = [ "edit", "open" ] },
+    { mime = "application/*javascript", use = [ "edit", "open" ] },
+    { mime = "application/toml", use = [ "edit", "open" ] },
+    { mime = "application/x-yaml", use = [ "edit", "open" ] },
+
+    # Web
+    { mime = "text/html", use = [ "browser", "open" ] },
+]
