@@ -90,5 +90,11 @@ set -gx EDITOR nvim
 
 # opencode
 fish_add_path /home/mark/.opencode/bin
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# Homebrew, from when this config was written on macOS. Guarded rather than
+# deleted: the path does not exist here, and unguarded it made fish print
+# "Unknown command" on every interactive start.
+if test -x /home/linuxbrew/.linuxbrew/bin/brew
+    eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+end
 

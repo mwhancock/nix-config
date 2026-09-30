@@ -795,22 +795,6 @@
       },
       "original": {
         "owner": "gmodena",
-        "ref": "latest",
-        "repo": "nix-flatpak",
-        "type": "github"
-      }
-    },
-    "nix-flatpak_2": {
-      "locked": {
-        "lastModified": 1767983141,
-        "narHash": "sha256-7ZCulYUD9RmJIDULTRkGLSW1faMpDlPKcbWJLYHoXcs=",
-        "owner": "gmodena",
-        "repo": "nix-flatpak",
-        "rev": "440818969ac2cbd77bfe025e884d0aa528991374",
-        "type": "github"
-      },
-      "original": {
-        "owner": "gmodena",
         "ref": "v0.7.0",
         "repo": "nix-flatpak",
         "type": "github"
@@ -897,7 +881,7 @@
         "hyprland": "hyprland",
         "mcp-servers-nix": "mcp-servers-nix",
         "microvm": "microvm",
-        "nix-flatpak": "nix-flatpak_2",
+        "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nix-skills": "nix-skills",
         "nixarchy-devenv": "nixarchy-devenv",
@@ -1486,7 +1470,6 @@
         "dsearch": "dsearch",
         "home-manager": "home-manager",
         "matugen": "matugen",
-        "nix-flatpak": "nix-flatpak",
         "nixarchy": "nixarchy",
         "nixpkgs": "nixpkgs_3",
         "nvf": "nvf",
