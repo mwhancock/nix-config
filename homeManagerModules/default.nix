@@ -6,6 +6,7 @@
     ./apps/thunar.nix
     ./apps/zathura.nix
     ./core/gtk.nix
+    ./core/fonts.nix
     ./core/git-config.nix
     ./core/shell.nix
     ./core/session-vars.nix

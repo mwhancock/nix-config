@@ -30,6 +30,35 @@ let
   repoDir = "/etc/nixos";
 in
 {
+  # ---------------------------------------------------------------- Imports
+  #
+  # Exactly one file, and not the tree it lives in.
+  #
+  # homeManagerModules/default.nix exists and reads like it is wired, but
+  # nothing imports it: not this file, not flake.nix, not hosts/nixos/default.nix.
+  # home.nix reaches ../../dotfiles directly instead. So the whole of
+  # homeManagerModules/ is currently inert -- its home.packages (OnlyOffice,
+  # Zen Browser, Blender, ...), its fish and neovim wiring, the fontconfig
+  # monospace alias in core/xdg-overrides.nix. All of it is dead code.
+  #
+  # That is worth knowing and it is why this is not
+  #
+  #   imports = [ ../../homeManagerModules ];
+  #
+  # Importing the tree would switch on roughly forty packages and a dozen dotfile
+  # directories that nothing has been running against, on a desktop that works.
+  # Several of them collide with what is live -- desktop-apps.nix installs
+  # onlyoffice-desktopeditors, which nixarchy-apps.nix already installs
+  # system-wide -- and the fish/ghostty entries in there overlap home.nix's own,
+  # which is exactly the collision home.nix documents at length for
+  # ~/.config/fish. Reviving the tree is its own piece of work.
+  #
+  # core/fonts.nix is imported on its own because it has to be live: OnlyOffice
+  # builds its font list by walking directories and ignoring fontconfig, so this
+  # file is the only thing that makes Inter and the rest of the list appear in
+  # it. Nothing else in homeManagerModules/ is needed for that.
+  imports = [ ../../homeManagerModules/core/fonts.nix ];
+
   # ---------------------------------------------------------------- Identity
   #
   # home.stateVersion was genuinely missing, not merely inherited: nixarchy's

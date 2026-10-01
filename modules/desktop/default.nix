@@ -67,7 +67,7 @@
   # configured. Nixarchy does not pick a file manager, so this is still a real
   # decision rather than a conflict.
   programs.thunar = {
-    enable = true;
+    enable = false;
     plugins = with pkgs; [
       thunar-archive-plugin
       thunar-volman
