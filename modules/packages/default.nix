@@ -99,17 +99,53 @@ in
   ];
 
   # Fonts are registered with fontconfig, not just put on $PATH, so they are
-  # declared here rather than appended to systemPackages above. This is what
-  # makes them visible to applications that resolve fonts at runtime --
-  # OnlyOffice Desktop Editors in particular, which reads the system fontconfig
-  # config from inside its bubblewrap sandbox (it binds /nix and symlinks the
-  # host's /etc/fonts, so a font package in the store is reachable).
+  # declared here rather than appended to systemPackages above.
   #
-  # `inter` is 4.1, the current upstream release, and is already in the binary
-  # cache. It ships Inter.ttc (the whole family, all nine weights) plus
-  # InterVariable.ttf and InterVariable-Italic.ttf.
+  # This list is not what makes the fonts reach OnlyOffice -- it could not be.
+  # OnlyOffice does not use fontconfig to build its font list on Linux; it walks
+  # a handful of fixed directories. The mirror of these same packages into
+  # ~/.local/share/fonts is in homeManagerModules/core/fonts.nix, and that is
+  # the half that OnlyOffice actually reads. Both halves are needed: fontconfig
+  # registration here for everything that does it properly (GTK, Qt, browsers,
+  # KiCad, FreeCAD), the mirror for OnlyOffice.
+  #
+  # Nothing here is free-standing cruft. Omarchy and texmf already contribute
+  # Noto, DejaVu, Liberation, FreeFont, URW Gyre and the JetBrains Mono nerd
+  # font through its own fonts.packages, and those are left alone.
+  #
+  # Deliberately NOT included, and why -- this was measured, not guessed:
+  #
+  #   iosevka    571MB across 54 variable fonts. It would more than double the
+  #              footprint of everything else here to add one family.
+  #   fira-sans  99MB / 184 files, almost all of it language variants and
+  #              italics. 184 near-identical entries in a font picker is the
+  #              problem, not the fix.
+  #   ibm-plex   The top-level attribute is a set, not a package. It has no
+  #              share/fonts at all, so nothing would be copied.
+  #   tex-gyre   URW base35 clones, genuinely useful for documents that ask for
+  #              Helvetica/Times/Courier by name. Its files live under
+  #              share/texmf, not share/fonts, so it is outside the mechanism
+  #              in fonts.nix. texliveFull already provides them to LaTeX.
+  #   corefonts  Unfree, so it would need an allowUnfreePredicate. Declined
+  #              until asked. Caladea and Carlito already ship inside OnlyOffice
+  #              and are metric-compatible with Cambria and Calibri.
   fonts.packages = with pkgs; [
+    # Inter 4.1, the current upstream release. Inter.ttc carries the whole
+    # family at all nine weights, so it is one file rather than nine.
     inter
+    # Workhorse document families: a sans, a serif and a mono from one
+    # superfamily, so they share a design and pair with each other.
+    source-sans
+    source-serif
+    source-code-pro
+    # The sans faces that turn up most often in .docx and .pptx files written
+    # elsewhere.
+    roboto
+    lato
+    # A text serif for long-form writing, where source-serif is a bit tight.
+    merriweather
+    # One more mono, on the other side of DejaVu Sans Mono from Hack.
+    hack-font
   ];
 
   # ---------------------------------------------------------------------------

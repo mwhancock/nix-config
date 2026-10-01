@@ -15,7 +15,7 @@
 
   # ── Utility ─────────────────────────────────────────────────────
     # aether.enable = true;  #@ aether
-    android-tools.enable = true;  #@ android-tools
+    # android-tools.enable = true;  #@ android-tools
     # freerdp.enable = true;  #@ freerdp  # Only needed on the machine you connect FROM. Reached by Setup > Remote desktop > Connect to a machine, which tunnels over SSH and opens no port.
     omacalc.enable = true;  #@ omacalc
     omacut.enable = true;  #@ omacut
@@ -112,6 +112,8 @@
     cargo-pio  #@pkg cargo-pio
     platformio-core  #@pkg platformio-core
     rnote  #@pkg rnote
+    localsend  #@pkg localsend
+    jocalsend  #@pkg jocalsend
   ];  #@pkgs-end
 }
 
