@@ -56,7 +56,6 @@ in
 
     # Graphics / games / documents
     godot
-    vlc
     texliveFull
 
     # Read-only document viewer. The nixpkgs `zathura` attribute is the wrapper

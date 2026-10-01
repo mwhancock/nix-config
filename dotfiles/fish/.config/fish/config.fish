@@ -6,6 +6,32 @@ if status is-interactive
     command -v direnv &> /dev/null && direnv hook fish | source
     command -v zoxide &> /dev/null && zoxide init fish | source
 
+    # Omarchy's `zd`, reimplemented in fish.
+    #
+    # Omarchy's fish rc discovers bash function names by sourcing
+    # default/bash/{envs,aliases,functions} in a child bash, then gives fish a
+    # wrapper per name that re-sources ONLY default/bash/functions and calls
+    # back into bash. That is the right call for the fns/ directory, but `zd`,
+    # `sff`, `open` and `n` are defined in default/bash/aliases -- which the
+    # wrapper never sources. So the wrapper's bash has no `zd`, and every call
+    # dies with "zd: command not found". Since the system-wide /etc/fish/
+    # config.fish sources the rc before this file runs, the broken wrapper is
+    # already in place and only this definition replaces it.
+    #
+    # Only `zd` is repaired here. It is the one the `cd` alias points at, so
+    # leaving it broken breaks cd itself, not just directory jumping. sff, open
+    # and n stay broken the same way until upstream splits aliases from
+    # functions in that wrapper.
+    function zd
+        if test (count $argv) -eq 0
+            builtin cd $HOME
+        else if test -d "$argv[1]"
+            builtin cd $argv[1]
+        else
+            z $argv; or return 1
+        end
+    end
+
     # Vi keybindings
     fish_vi_key_bindings
 

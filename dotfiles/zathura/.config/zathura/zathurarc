@@ -1,5 +1,8 @@
-# Load Noctalia Theme (automatically updated with theme changes)
-include noctaliarc
+# Colours are not set here. omarchy's theme-set.d/zathura hook owns them: it
+# rewrites ~/.config/zathura/zathurarc between the markers it writes, so every
+# `omarchy theme set` recolours zathura to match the desktop. Anything set in
+# this file outside those markers survives; colour lines added here would too,
+# but would fight the hook on the next theme change.
 
 # Clipboard integration
 set selection-clipboard clipboard
