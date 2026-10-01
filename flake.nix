@@ -97,7 +97,43 @@
               sharedModules = [ inputs.nixarchy.homeManagerModules.nixarchy ];
               users.mark = import ./hosts/nixos/home.nix;
               extraSpecialArgs = {inherit inputs;};
+
+              # Back up a clashing file instead of aborting the activation.
+              #
+              # With these null (the defaults) Home Manager exits non-zero the
+              # moment a managed file differs from what is on disk, and that
+              # fails the whole home-manager unit: the system switch completes,
+              # but nothing in the home environment is applied.
+              #
+              # It bites on ~/.config/ghostty/config. Omarchy appends
+              # `config-file = ~/.config/omarchy/runtime/ghostty.conf` to that
+              # file at runtime and the managed text does not have it, so HM
+              # sees drift on every activation and always wants to back the
+              # file up -- into the same ~/.config/ghostty/config.bak each time.
+              #
+              # Both options are needed, and the second is easy to miss:
+              #
+              #   backupFileExtension  what to append when moving a file aside.
+              #                       Alone this is NOT enough. It converts the
+              #                       "would be clobbered" failure into an
+              #                       equally fatal "backup .bak already exists"
+              #                       one -- same non-zero exit, next rebuild.
+              #   overwriteBackup      replace an existing backup instead of
+              #                       erroring. This is the half that actually
+              #                       makes an update survive.
+              #
+              # Verified against the activation script's own collision logic
+              # (check-link-targets.sh lines 26-35): with an existing .bak and
+              # differing content, an empty overwrite flag records a collision
+              # and fails, a set flag warns and continues.
+              #
+              # Cost: the backup is overwritten rather than kept, so the
+              # previous version of a dotfile is not recoverable after the next
+              # rebuild. That is the right trade for a handful of dotfiles this
+              # repo can regenerate, and the wrong one for a profile holding
+              # files this flake cannot regenerate.
               backupFileExtension = "bak";
+              overwriteBackup = true;
             };
           }
         ];

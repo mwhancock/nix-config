@@ -26,6 +26,9 @@
 # with no library consumers, so that is a risk taken knowingly. If one ever needs
 # to come back, delete its entry here rather than fighting this.
 #
+# The evince entry shows that assumption being wrong, and the sushi override
+# below is the repair. Prefer to read that before adding a fourth name here.
+#
 # chromium is the case where that cost is NOT worth paying, which is why it is
 # the one omission here. It is in the same nixarchy runtimeDeps list and would
 # shadow exactly as cleanly as these two, but nixpkgs builds Electron out of it:
@@ -59,6 +62,17 @@
           mkdir -p $out
           echo "evince is deliberately not installed on this machine; the PDF viewer is zathura." > $out/README
         '';
+
+        # evince is not a leaf package, and this is the cost of shadowing it.
+        # sushi -- the handler behind Space-to-preview in Nautilus, which is
+        # installed and wanted -- links libevince, and nixpkgs' pkgs set is a
+        # fixed point, so shadowing `evince` silently changed sushi's own
+        # `evince` argument and its build died on "Dependency evince-document-3.0
+        # not found". Rebuilt here against the real library, so the application
+        # stays uninstalled while its libraries remain available to the one
+        # consumer that genuinely needs them. Verified to be the only such
+        # consumer: nothing but sushi references the real evince in the closure.
+        sushi = prev.sushi.override { evince = prev.evince; };
       }
     )
   ];

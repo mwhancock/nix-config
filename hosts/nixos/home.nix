@@ -256,6 +256,36 @@ in
   };
 
   # ---------------------------------------------------------------------------
+  # Vendored out-of-store, not from the store.
+  #
+  #   zathura/
+  #     Vendored because it collides with omarchy's own theming rather than
+  #     because it is inert. The file that matters is zathurarc, and the
+  #     omarchy hook at ~/.config/omarchy/hooks/theme-set.d/zathura rewrites it
+  #     in place, between the markers it writes, on every `omarchy theme set`.
+  #
+  #     Out-of-store for that reason. home.file with a plain `source` would put
+  #     the directory in /nix/store and symlink from there; the hook's `install`
+  #     would then write into the read-only store and fail, leaving zathura
+  #     pinned to whatever colours were baked in at build time. Verified: an
+  #     `install` onto a symlink to a read-only store path cannot land.
+  #
+  #     It also has to be a symlink to the DIRECTORY, not to zathurarc. The hook
+  #     writes with `install`, which replaces a symlinked file rather than
+  #     following it -- so a file-level symlink would be clobbered on the first
+  #     theme change and the settings would stop being tracked. Going through
+  #     the directory symlink writes the real file in the checkout instead.
+  #
+  #     The colours live in the same zathurarc as the settings above, between the
+  #     hook's markers, so a theme change rewrites the block and leaves the
+  #     settings untouched. That is why the file is edited in the checkout and
+  #     not generated: both halves have to survive in one file.
+  home.file.".config/zathura" = {
+    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/zathura/.config/zathura");
+    recursive = true;
+  };
+
+  # ---------------------------------------------------------------------------
   # Deliberately not vendored:
   #
   #   niri/, noctalia/
@@ -274,7 +304,7 @@ in
   #     wrappers around tools that are not being installed yet. Not wired up
   #     until it is clear which are still wanted.
   #
-  #   freecad/, kicad/, qucs/, orcaslicer/, xournalpp/, zathura/, hydralauncher/,
+  #   freecad/, kicad/, qucs/, orcaslicer/, xournalpp/, hydralauncher/,
   #   arduino-ide/, calibre/, calibre-tui/, aider/
   #     Application configuration for programs that ARE installed as packages.
   #     These are per-application config directories whose layouts differ between

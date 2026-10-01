@@ -114,6 +114,13 @@
     rnote  #@pkg rnote
     localsend  #@pkg localsend
     jocalsend  #@pkg jocalsend
+    gaphor  #@pkg gaphor
+    typstPackages.mastermind  #@pkg typstPackages.mastermind
+    umlet  #@pkg umlet
+    modelio  #@pkg modelio
+    visual-paradigm-ce  #@pkg visual-paradigm-ce
+    ngspice  #@pkg ngspice
+    hydralauncher  #@pkg hydralauncher
   ];  #@pkgs-end
 }
 

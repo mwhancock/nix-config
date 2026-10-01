@@ -8,6 +8,35 @@
 
 {
   # ---------------------------------------------------------------------------
+  # Foot, Chromium and Evince are not installed.
+  #
+  # These three are the awkward ones. None of the routes that work for the rest:
+  # they are not nixarchy `preinstalls` (so `preinstallsExclude` cannot name
+  # them), they appear nowhere in this flake, and `programs.nixarchy.package`
+  # cannot be used either -- `runtimeDeps` is a `let` binding inside
+  # pkgs/omarchy/default.nix, not a function argument, so `.override` rejects it
+  # ("called with unexpected argument 'runtimeDeps'"). Nor is the usual-looking
+  # `environment.systemPackages = lib.mkForce (filter ... config
+  # .environment.systemPackages)`: that self-reference is infinite recursion, and
+  # it was tested rather than assumed.
+  #
+  # What does work is the overlay in modules/packages/removed.nix, which
+  # shadows the three nixpkgs attributes with empty packages. nixarchy's
+  # runtimeDeps holds these as ordinary `pkgs` references, so it picks up the
+  # shadowed versions and nothing lands in `environment.systemPackages`.
+  #
+  # foot      The only terminal in `xdg-terminal-exec`'s preference list, so
+  #           removing it without replacing that would break "Open Terminal"
+  #           and anything else shelling out to it. ~/.config/xdg-terminals.list
+  #           points xdg-terminal-exec at ghostty, which is already the terminal
+  #           nixarchy launches and the one ~/.config/ghostty/ configures.
+  # chromium  Not wanted as a browser.
+  # evince    GNOME Document Viewer. PDF reading happens in zathura instead,
+  #           kept in modules/packages/default.nix.
+  #
+  # Nautilus (Files) is deliberately left alone -- it stays.
+
+  # ---------------------------------------------------------------------------
   # Touchpad and touchscreen: NOT SET HERE, ON PURPOSE.
   #
   # Niri's distinguishing input behaviour is natural scrolling plus a
