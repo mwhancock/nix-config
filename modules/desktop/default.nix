@@ -207,6 +207,72 @@
   };
 
   # ---------------------------------------------------------------------------
+  # Login screen: greetd + Noctalia Greeter, not SDDM.
+  #
+  # SDDM cannot pick a session on this machine, and that is the entire reason
+  # for this section. Nixarchy sets sddm.theme = "omarchy", and that theme has
+  # no session picker: in share/sddm/themes/omarchy/Main.qml, sessionIndex is
+  # read once at sddm.login() (line 106) and assigned nowhere in the file. So
+  # the greeter can only ever start whichever session SDDM was configured for,
+  # with no UI to change it. Before niri that was merely a missing feature; after
+  # niri it was a real trap, because a second session existed and could not be
+  # reached.
+  #
+  # Noctalia Greeter does have the picker, plus a colour-scheme toggle, and it
+  # reads the same desktop entries SDDM did -- so every session still shows up.
+  #
+  # programs.nixarchy.displayManager = false is the documented switch for this,
+  # and its own option description names greetd explicitly. Setting
+  # sddm.enable = false directly would also work but fights the mkDefault
+  # instead of using the switch meant for it.
+  #
+  # The nixpkgs module does the rest and none of it is repeated here: it enables
+  # greetd, points default_session.command at noctalia-greeter-session, enables
+  # accounts-daemon for the user avatars, and enables polkit for the optional
+  # appearance sync.
+  programs.nixarchy.displayManager = false;
+
+  services.displayManager.noctalia-greeter = {
+    enable = true;
+
+    settings = {
+      # The picker's label, i.e. the desktop entry's Name= -- "Niri", not
+      # niri.desktop. This is also what makes nixpkgs' programs.niri
+      # mkDefault of displayManager.defaultSession = "niri" agree with the
+      # greeter, so the two paths into the session agree instead of drifting.
+      #
+      # It goes in the TOML settings rather than onto the greetd command line
+      # because TOML quoting is what keeps a name containing spaces from being
+      # re-split by greetd; "Hyprland (uwsm-managed)" as a bare command argument
+      # leaves the VT unusable. pkgs.formats.toml handles the quoting.
+      session.default = "Niri";
+
+      # Skip the user list and open the password step for this account. There is
+      # exactly one human user, so the list is a step that can only be misclicked.
+      user.default = "mark";
+
+      cursor.size = 24;
+    };
+
+    # Omarchy's cursor, so the pointer does not change appearance at the login
+    # boundary. cursorTheme.name rather than settings.cursor.theme, because the
+    # module fills that key in with a mkDefault whenever a package is given --
+    # setting both would be two answers to one question.
+    cursorTheme = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+    };
+  };
+
+  # Appearance is deliberately not pinned here. The greeter will take a
+  # [appearance.palette] from this file and it outranks anything Sync writes, so
+  # hardcoding Gruvbox now would silently win over the Noctalia shell forever
+  # after and would have to be maintained by hand. The supported route is
+  # Settings -> Shell -> Security -> Noctalia Greeter -> Sync Now, with polkit
+  # already enabled above; the greeter then reads wallpaper and palette from
+  # Noctalia the same way the session does.
+
+  # ---------------------------------------------------------------------------
   # Thunar with its archive and volume plugins, which hosts/mfv3/desktop/thunar.nix
   # configured. Nixarchy does not pick a file manager, so this is still a real
   # decision rather than a conflict.
@@ -225,8 +291,11 @@
   #
   #   services.desktopManager.gnome.enable = false   and
   #   services.displayManager.gdm.enable = false      (mfv3/display-manager.nix)
-  #     Nixarchy picks the session and the greeter. Disabling both here would
-  #     leave the machine with no display manager at all.
+  #     No longer true of the greeter. Disabling both would leave the machine
+  #     with no display manager, so at the time they were left off on the
+  #     grounds that "nixarchy picks the session and the greeter". That first
+  #     half no longer holds: the greeter is greetd + Noctalia Greeter, set
+  #     above, with nixarchy's SDDM turned off. The GNOME half still holds.
   #
   #   services.gnome.* (mfv3/gnome.nix)
   #     Excluded GNOME core apps to slim the image. Nixarchy installs what the
