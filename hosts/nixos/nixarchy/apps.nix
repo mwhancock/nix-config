@@ -122,6 +122,7 @@
     ngspice  #@pkg ngspice
     hydralauncher  #@pkg hydralauncher
     noctalia  #@pkg noctalia
+    drawio  #@pkg drawio
   ];  #@pkgs-end
 }
 
