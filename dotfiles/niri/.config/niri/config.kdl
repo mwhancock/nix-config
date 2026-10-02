@@ -428,7 +428,23 @@ window-rule {
     clip-to-geometry true
 }
 
-// Touchscreen gesture configuration (enabled by niri-tablet)
+// Touchscreen gesture configuration (niri-tablet patchset)
+//
+// Requires programs.niri.package to be the patched build -- see
+// modules/packages/niri-tablet.nix. Stock niri rejects all three nodes below
+// and refuses to start on a config that fails to parse, so this block only
+// loads there.
+//
+// Three names differ from the version this config was written against, because
+// the patchset renamed them (patches 0019/0020 derive the extra-finger tier from
+// `fingers` instead of hardcoding it to 4):
+//
+//     tap-4        -> tap-more
+//     swipe-4-down -> swipe-more-down
+//     swipe-4-up   -> swipe-more-up
+//
+// Everything else -- show-touch-points, touchscreen-swipe, hold, and
+// touchscreen-edge-swipe -- is unchanged.
 gestures {
     // Show visual indicator dots during multi-finger gestures
     show-touch-points "gestures"
@@ -444,10 +460,10 @@ gestures {
         // horizontal-swipe "resize-column"
 
         // Quick taps and flicks (fire on finger release):
-        tap          { maximize-column; }
-        tap-4        { spawn-sh "noctalia msg panel-toggle launcher"; }
-        swipe-4-down { close-window; }
-        swipe-4-up   { fullscreen-window; }
+        tap             { maximize-column; }
+        tap-more        { spawn-sh "noctalia msg panel-toggle launcher"; }
+        swipe-more-down { close-window; }
+        swipe-more-up   { fullscreen-window; }
 
         // Press, hold ~400ms, then swipe: moves the active window
         hold {

@@ -286,11 +286,43 @@ in
   };
 
   # ---------------------------------------------------------------------------
-  # Deliberately not vendored:
+  # niri and Noctalia, vendored out-of-store.
   #
-  #   niri/, noctalia/
-  #     Both are EMPTY directories in the dotfiles repo. They are scaffolding
-  #     for the compositor this machine no longer runs.
+  # Both are out-of-store, and Noctalia's reason is not optional: it writes
+  # ~/.config/noctalia/config.json on first run and rewrites it on every
+  # settings change. A plain `source` would put the directory in /nix/store and
+  # symlink from there, so those writes would hit a read-only path and Noctalia
+  # would fail to save anything -- the same failure zathura documents below, for
+  # the same reason. Out-of-store means ~/.config/noctalia IS the checkout
+  # directory, so what Noctalia writes lands in the repo where it can be seen
+  # and committed.
+  #
+  # niri is out-of-store for consistency and editability rather than necessity
+  # -- niri does not write to its config directory -- so the config can be
+  # tweaked live without a rebuild.
+  #
+  # What is NOT vendored is Noctalia's generated config itself. Only
+  # templates.toml is (the list of third-party apps Noctalia themes on startup,
+  # which is how the gruvbox scheme reaches btop, ghostty, bat and the rest).
+  # config.json is Noctalia's to write.
+  #
+  # The niri config needed one edit to be loadable at all; see the comment above
+  # `/* gestures {` in dotfiles/niri/.config/niri/config.kdl. Its touchscreen
+  # gesture block was niri-tablet syntax, and niri 26.04 from nixpkgs rejects all
+  # three nodes and refuses to start on a config that does not parse. It is
+  # commented out, verbatim, so pointing programs.niri.package at that fork and
+  # uncommenting is the whole of restoring it.
+  home.file.".config/niri" = {
+    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/niri/.config/niri");
+    recursive = true;
+  };
+  home.file.".config/noctalia" = {
+    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/noctalia/.config/noctalia");
+    recursive = true;
+  };
+
+  # ---------------------------------------------------------------------------
+  # Deliberately not vendored:
   #
   #   matugen/
   #     The theme generator. The dotfiles carry generated output from it
