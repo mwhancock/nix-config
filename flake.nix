@@ -34,6 +34,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri-tablet = {
+      url = "github:GGEZUS/niri-tablet";
+      flake = false;
+    };
+
     nixarchy = {
       url = "github:olafkfreund/nixarchy/main";
       inputs.home-manager.follows = "home-manager";

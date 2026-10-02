@@ -4,7 +4,7 @@
 # the old repo, or an adjustment for this particular machine. Anything that
 # nixarchy already owns is left to nixarchy -- that is the whole point of
 # running nixarchy rather than a from-scratch Hyprland config.
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   # ---------------------------------------------------------------------------
@@ -90,6 +90,121 @@
   # workspace_swipe_create_new is false rather than true on purpose: niri's
   # strip is spatial, so swiping back always returns to where you came from.
   # Creating a new workspace past the end is not that behaviour.
+
+  # ---------------------------------------------------------------------------
+  # Niri as a second Wayland session, alongside the Nixarchy one.
+  #
+  # This exists because Noctalia was installed (pkgs.noctalia, declared in
+  # hosts/nixos/nixarchy/apps.nix alongside the other plain packages), and
+  # Noctalia is not a session. It ships no .desktop entry because it does not
+  # own a display -- it is a Quickshell shell that draws on top of a compositor
+  # that is already running. So "which shell do I log into" is not a question
+  # Noctalia can answer; the question is which compositor.
+  #
+  # Enabling programs.niri is what turns that into a real choice: the module
+  # writes share/wayland-sessions/niri.desktop, so the greeter gains a "niri"
+  # entry next to "Nixarchy", "Hyprland" and "Hyprland (uwsm)". Nothing is
+  # autostarted and no existing session changes -- niri only runs if chosen.
+  #
+  # The three sessions already on this machine are all the same compositor:
+  #
+  #   Nixarchy          -> omarchy-session, i.e. Hyprland plus Omarchy's config
+  #   Hyprland          -> plain Hyprland
+  #   Hyprland (uwsm)   -> the same, started through uwsm
+  #
+  # which is why Omarchy and Hyprland were never alternatives here. Omarchy is
+  # a config and theme layer over Hyprland, not a separate desktop.
+  #
+  # niri 26.04 from this flake's own pinned nixpkgs. Deliberately NOT enabled:
+  #
+  #   programs.niri.useNautilus
+  #       Would set niri's preferred file manager to Nautilus, overriding
+  #       xdg-user-dir. Nautilus stays (see the note above), but niri's own
+  #       default is left alone: this flake never asked for Nautilus to be the
+  #       opener, and setting it from the niri module would do it as a side
+  #       effect of adding a session.
+  #
+  # Not wired up here, and worth knowing before logging in:
+  #
+  #   ~/.config/niri and ~/.config/noctalia are both wired up, in
+  #   hosts/nixos/home.nix, as out-of-store symlinks to dotfiles/niri and
+  #   dotfiles/noctalia. The second copy of the sentence above was wrong for a
+  #   while: homeManagerModules/apps/ does carry per-app mkOutOfStoreSymlink
+  #   entries, but that whole tree is inert (home.nix imports only
+  #   core/fonts.nix), so they were never deploying anything. The live entries
+  #   went next to the other home.file declarations instead.
+  #
+  #   That config needed a fix before it could load. Its touchscreen gesture
+  #   block (show-touch-points, touchscreen-swipe, touchscreen-edge-swipe) is
+  #   niri-tablet syntax, not upstream niri; stock niri 26.04 rejects all three
+  #   nodes and refuses to start on a config that fails to parse, so the session
+  #   could not boot. It is live again now that programs.niri.package builds
+  #   from the patchset -- with three node names renamed, because the patchset
+  #   renamed them upstream of this config:
+  #
+  #     tap-4          -> tap-more
+  #     swipe-4-down   -> swipe-more-down
+  #     swipe-4-up     -> swipe-more-up
+  #
+  #   Patches 0019 ("derive the tap/flick tier from fingers") and 0020 are what
+  #   did it: the extra-finger binds used to be hardcoded to 4 and are now
+  #   derived from `fingers`, so they are named -more rather than -4. Confirmed
+  #   against the patched parser's struct -- TouchscreenSwipePart has tap_more,
+  #   swipe_more_down, swipe_more_up, swipe_more_left, swipe_more_right -- and
+  #   not just against the fork's example config.
+  #
+  #   There is no bar conflict to solve, contrary to what this comment claimed
+  #   before it was checked. Omarchy's bar is Quickshell, started by
+  #   omarchy-launch-shell, and that is called from the Hyprland config at
+  #   share/omarchy/default/hypr/autostart.lua. Only Hyprland reads that file,
+  #   so in an niri session the Nixarchy bar never starts and Noctalia is the
+  #   only bar.
+  #
+  #   What does cross over is two enabled systemd user units, which start
+  #   regardless of compositor because they are enabled system-wide rather than
+  #   launched from the Hyprland config -- and both are gated on
+  #   ConditionEnvironment=WAYLAND_DISPLAY, which niri also sets:
+  #
+  #     omarchy-sleep-lock.service    runs hyprlock, which cannot lock under
+  #                                 niri. Noctalia has its own lock screen, so
+  #                                 the capability is not lost, but the unit
+  #                                 errors on suspend.
+  #     xdg-desktop-portal-hyprland   the wrong portal backend. niri does
+  #                                 screencast natively, so the cost is small,
+  #                                 but it is not what niri documents.
+  #
+  #   Both are left enabled on purpose. Masking them per session means a drop-in
+  #   keyed on XDG_CURRENT_DESKTOP -- "niri" in niri, "Hyprland" in the Nixarchy
+  #   session -- which works today and is one rename away from silently skipping
+  #   the lock screen in the session that matters. A failing unit in a session
+  #   being trialled is the cheaper mistake. Say so and they can be gated.
+
+  # The patch is here, and only here, because this machine has a touchscreen.
+  #
+  # The digitizer on i2c-PNP0C50:00 (HID 222a:550d) reports
+  #
+  #   ID_INPUT_TOUCHSCREEN=1  ID_INPUT_WIDTH_MM=303  ID_INPUT_HEIGHT_MM=190
+  #
+  # 303x190mm is a 14" 16:10 panel's active area -- 357.6mm diagonal, 14.08" --
+  # and it matches the internal display's own EDID figures (BOE 0x0B7B,
+  # 300x190mm from `hyprctl monitors`) to within rounding. That is a touchscreen
+  # the size of the screen it sits on.
+  #
+  # An earlier version of this comment called it a fingerprint reader, on the
+  # grounds that a digitizer "reporting 303x190mm" was absurdly large for a
+  # fingerprint sensor. That was wrong, and wrong in a way worth recording: the
+  # number was never sanity-checked against what a 14" panel actually measures.
+  # A Goodix fingerprint sensor is on the order of 15x6mm. Nothing about this
+  # device resembles that.
+  #
+  # The reason it matters is not the touchscreen itself -- niri has supported
+  # touch drag-to-move, edge-scroll and hot corners for a long time -- it is the
+  # multi-finger gesture binds in dotfiles/niri/.config/niri/config.kdl, which
+  # need the patchset because upstream has no touchscreen gestures at all.
+  programs.niri = {
+    enable = true;
+    package = pkgs.callPackage ../packages/niri-tablet.nix { niri-tablet = inputs.niri-tablet; };
+  };
 
   # ---------------------------------------------------------------------------
   # Thunar with its archive and volume plugins, which hosts/mfv3/desktop/thunar.nix

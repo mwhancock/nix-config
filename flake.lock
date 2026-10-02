@@ -764,6 +764,22 @@
         "type": "github"
       }
     },
+    "niri-tablet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790205692,
+        "narHash": "sha256-D1eWa5ihhhBh1pUPZgOwleLmtJuIAKR+/x+/3shx5bc=",
+        "owner": "GGEZUS",
+        "repo": "niri-tablet",
+        "rev": "3460625cd090d73feb54d838a8b16ed39c8ae251",
+        "type": "github"
+      },
+      "original": {
+        "owner": "GGEZUS",
+        "repo": "niri-tablet",
+        "type": "github"
+      }
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1767983141,
@@ -1449,6 +1465,7 @@
         "dsearch": "dsearch",
         "home-manager": "home-manager",
         "matugen": "matugen",
+        "niri-tablet": "niri-tablet",
         "nixarchy": "nixarchy",
         "nixpkgs": "nixpkgs_3",
         "nvf": "nvf",

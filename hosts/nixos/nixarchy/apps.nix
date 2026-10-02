@@ -121,6 +121,7 @@
     visual-paradigm-ce  #@pkg visual-paradigm-ce
     ngspice  #@pkg ngspice
     hydralauncher  #@pkg hydralauncher
+    noctalia  #@pkg noctalia
   ];  #@pkgs-end
 }
 
