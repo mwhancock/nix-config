@@ -322,6 +322,56 @@ in
   };
 
   # ---------------------------------------------------------------------------
+  # hyprchromad: stop the restart loop under niri.
+  #
+  # This is a Home Manager service because nixarchy-omatheme defines it under
+  # home-manager.users.<user>, so it can only be overridden here. Setting
+  # systemd.user.services.hyprchromad from a NixOS module would declare a
+  # different option that nothing reads.
+  #
+  # Why it needs capping. The unit is WantedBy=graphical-session.target, so it
+  # starts in every Wayland session, niri included. Its daemon ends by calling
+  # `hyprchroma-state watch-events`, which looks up Hyprland's event socket:
+  #
+  #   signature = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+  #   if not signature or not runtime:
+  #       return None
+  #
+  # Under niri that variable is never set -- there is no Hyprland to set it, and
+  # it is not in the systemd --user manager environment either. So watch-events
+  # returns immediately, every time, with status 0. The unit carries
+  # Restart=always and RestartSec=2 because upstream expects Hyprland to still be
+  # starting at login and to appear shortly; under niri it never will.
+  #
+  # Measured on this machine: 71 restarts in the first 19 minutes of the session,
+  # each cycle consuming ~13.5s of CPU over ~16s of wall clock (systemd's own
+  # "Consumed 13.495s CPU time over 16.255s wall clock time"), with
+  # hyprchroma-state write-file sitting at 88.8% CPU. Tctl held at 68C; stopping
+  # the unit dropped it to 47C in 25 seconds. That is the whole of the fan spinup
+  # on niri -- nothing to do with Noctalia or niri itself.
+  #
+  # Why these numbers. Start rate limiting is the one fix that leaves the
+  # Hyprland session alone. Under Hyprland the daemon succeeds and blocks on the
+  # socket, so it never restarts and the limit is never reached. Under niri it
+  # burns roughly 85s of CPU at login across five attempts, then the unit stays
+  # `failed` and quiet for the rest of the session.
+  #
+  # StartLimitBurst=5 over a 300s window is deliberately generous. systemd's
+  # default limit (5 starts in 10s) never trips here, because each loop cycle
+  # takes ~17s -- longer than the window -- which is why this ran forever. The
+  # window has to exceed one cycle for the counting to work at all, and it has to
+  # leave Hyprland room to appear on a slow login, or a slow Hyprland boot would
+  # trip the limit and lose the theme sync that session is actually getting today.
+  #
+  # The service failing is the intended outcome, not a leftover: there is nothing
+  # for it to do without Hyprland. To get theme sync back on this machine under
+  # Hyprland, drop the block below.
+  systemd.user.services.hyprchromad.Unit = {
+    StartLimitIntervalSec = 300;
+    StartLimitBurst = 5;
+  };
+
+  # ---------------------------------------------------------------------------
   # Deliberately not vendored:
   #
   #   matugen/
