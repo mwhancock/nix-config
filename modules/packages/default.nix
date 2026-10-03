@@ -73,6 +73,17 @@ in
     # those formats open from the file manager as soon as this is installed.
     zathura
 
+    # niri's XWayland. niri is enabled as a session (programs.niri in
+    # modules/desktop/default.nix) and spawns this binary itself; with it
+    # absent niri logs
+    #   WARN niri::utils::xwayland::satellite: error spawning xwayland-satellite
+    #        ... disabling integration
+    # and never sets $DISPLAY, so every X11 client on that session is dead.
+    # Cisco Packet Tracer is one: the nixpkgs wrapper hardcodes
+    # QT_QPA_PLATFORM=xcb, and its AppImage ships only the linuxfb and xcb Qt
+    # platform plugins -- there is no Wayland plugin to fall back to.
+    xwayland-satellite
+
     # Shell and desktop utilities
     wl-clipboard
     grim
@@ -82,6 +93,13 @@ in
     alsa-firmware
     adwaita-icon-theme
     gnome-themes-extra
+    # Provides adw-gtk3-dark, the GTK 3 half of libadwaita. Without it, GTK 3
+    # apps do not follow the theme, and hyprchroma logs
+    # "sync-gtk-theme: adw-gtk3-dark is not installed" on every sync -- once per
+    # restart of the looping hyprchromad unit, so it was writing that warning to
+    # the journal ~140 times an hour. Listed next to the other icon/theme
+    # packages because that is what it is.
+    adw-gtk3
     hicolor-icon-theme
     gvfs
     net-tools
@@ -161,7 +179,10 @@ in
   #       ships its own lock/background/idle handling. Installing Sway's would
   #       fight it.
   #   xwayland-satellite
-  #       Sway's XWayland wrapper. Nixarchy handles XWayland.
+  #       Was dropped here with the reasoning "Nixarchy handles XWayland",
+  #       which is true of Hyprland (it starts Xwayland itself) and irrelevant
+  #       to niri, the session actually in use. It is installed now; see the
+  #       note on the entry in the list above.
   #   dsearch, zen-browser
   #       Not requested.
   #   libsecret
