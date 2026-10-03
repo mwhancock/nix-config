@@ -123,6 +123,8 @@
     hydralauncher  #@pkg hydralauncher
     noctalia  #@pkg noctalia
     drawio  #@pkg drawio
+    cisco-packet-tracer_9  #@pkg cisco-packet-tracer_9
+    nix-search-tv  #@pkg nix-search-tv
   ];  #@pkgs-end
 }
 
