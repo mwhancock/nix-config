@@ -24,6 +24,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/desktop
+    ../../modules/hardware
     ../../modules/packages
     # A directory in imports resolves to its default.nix and nothing else, so a
     # second module in modules/packages has to be named explicitly. This one is

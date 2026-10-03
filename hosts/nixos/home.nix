@@ -301,10 +301,12 @@ in
   # -- niri does not write to its config directory -- so the config can be
   # tweaked live without a rebuild.
   #
-  # What is NOT vendored is Noctalia's generated config itself. Only
-  # templates.toml is (the list of third-party apps Noctalia themes on startup,
-  # which is how the gruvbox scheme reaches btop, ghostty, bat and the rest).
-  # config.json is Noctalia's to write.
+  # What is NOT vendored is Noctalia's generated config itself. Only the two
+  # files that have to exist before Noctalia starts are: templates.toml (the
+  # list of third-party apps Noctalia themes on startup, which is how the
+  # gruvbox scheme reaches btop, ghostty, bat and the rest) and brightness.toml
+  # (per-monitor brightness backends). Everything else Noctalia generates is
+  # Noctalia's to write.
   #
   # The niri config needed one edit to be loadable at all; see the comment above
   # `/* gestures {` in dotfiles/niri/.config/niri/config.kdl. Its touchscreen
@@ -319,6 +321,44 @@ in
   home.file.".config/noctalia" = {
     source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/noctalia/.config/noctalia");
     recursive = true;
+  };
+
+  # ---------------------------------------------------------------------------
+  # Noctalia's settings.toml, so the shell looks the same after a rebuild.
+  #
+  # Settings live in the state dir, not the config dir, so ~/.config/noctalia
+  # being a symlink does nothing for them. Left alone, every setting Noctalia
+  # writes -- bar layout, theme, enabled plugins, the lockscreen widgets, the
+  # wallpaper -- would live in ~/.local/state and be lost to a fresh machine,
+  # and invisible to git.
+  #
+  # This is the one Noctalia file that is NOT out-of-store, and it cannot be:
+  # Noctalia rewrites it atomically on every settings change, through a temp
+  # file and a rename. A symlink into /nix/store would break the rename (the
+  # store is read-only, and the temp file would land somewhere else), which is
+  # exactly the failure mode the out-of-store comments above describe. A store
+  # symlink would also be reverted by every rebuild, discarding whatever changed
+  # in between.
+  #
+  # So the file is linked, not copied, and the link is made the same way the
+  # four above are. A store path as the source would be a copy that every
+  # rebuild overwrites, which would silently discard whatever changed in
+  # between.
+  #
+  # One caveat, since Noctalia writes this file through a temporary file and a
+  # rename: if it does, the symlink is replaced by a regular file and the repo
+  # copy stops tracking changes until the link is recreated. The link is
+  # recreated on the next activation, which restores the committed baseline --
+  # so the file is a baseline, not a live mirror. To move changes back into the
+  # repo by hand:
+  #   cp ~/.local/state/noctalia/settings.toml \
+  #     /etc/nixos/dotfiles/noctalia/.local/state/noctalia/settings.toml
+  #   rm ~/.local/state/noctalia/settings.toml && nixos-rebuild switch
+  #
+  # Edit brightness.toml for brightness; edit this for everything else.
+  # ---------------------------------------------------------------------------
+  home.file.".local/state/noctalia/settings.toml" = {
+    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/noctalia/.local/state/noctalia/settings.toml");
   };
 
   # ---------------------------------------------------------------------------
