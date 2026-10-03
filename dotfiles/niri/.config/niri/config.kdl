@@ -80,6 +80,19 @@ input {
     focus-follows-mouse
 }
 
+// The laptop panel is the only VRR-capable output here; DP-3 (the external
+// PTM15) reports "Variable refresh rate: not supported" and is left alone.
+// Without this block niri takes no `output` entry at all, so it enabled the
+// preferred mode -- 2560x1600 @ 165Hz -- with VRR off, and the panel sat at 165Hz
+// even when nothing was drawing.
+//
+// Only variable-refresh-rate is set. Adding mode/scale/position here would
+// override what niri currently picks automatically; the commented example below
+// carries a 1920x1080@120.030 mode and scale 2, which are not what is in use.
+output "eDP-1" {
+    variable-refresh-rate
+}
+
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
 // The built-in laptop monitor is usually called "eDP-1".
