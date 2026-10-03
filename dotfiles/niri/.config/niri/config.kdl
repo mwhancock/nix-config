@@ -93,6 +93,24 @@ output "eDP-1" {
     variable-refresh-rate
 }
 
+// The external monitor, pinned to scale 1.
+//
+// `niri msg outputs` reports it at scale 1 already, so this is not a fix for
+// anything currently broken -- it is a pin, so that it stays at scale 1. The
+// two panels are 2560x1600 at 1.5 (1707x1066 logical) and 1920x1080; anything
+// that makes DP-3 pick 1.5 would letterbox a 1080p monitor into a 1280x720
+// image, which is worse than the current 1:1.
+//
+// Only scale. Naming the output at all is enough to apply it, and adding a
+// mode or a transform here would override what niri picks on its own -- the
+// reasoning in the eDP-1 block above applies unchanged. Note that iio-niri
+// also drives DP-3's transform through niri's IPC when the accelerometer
+// moves, and that only takes effect if DP-3's scale is not fractional, which
+// is the other reason to fix it here.
+output "DP-3" {
+    scale 1
+}
+
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
 // The built-in laptop monitor is usually called "eDP-1".
@@ -526,8 +544,15 @@ binds {
     Ctrl+Shift+A hotkey-overlay-title="AI Assistant: aichat" { spawn "ghostty" "-e" "aichat"; }
     Ctrl+Shift+D hotkey-overlay-title="Discord Client: Concord" { spawn "ghostty" "-e" "concord"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
-    Mod+Alt+R hotkey-overlay-title="Toggle Auto-Rotate Lock" { spawn "/home/mark/.local/bin/niri-rotate-toggle.sh"; }
-    XF86RotationLockToggle allow-when-locked=true hotkey-overlay-title="Toggle Auto-Rotate Lock" { spawn "/home/mark/.local/bin/niri-rotate-toggle.sh"; }
+    // Auto-rotation. iio-niri owns the accelerometer, so it is the thing that
+    // has the lock state -- these call it directly instead of running a script.
+    // niri-rotate-toggle.sh does not exist on this machine (it never did in this
+    // repo), so these two bindings were dead: pressing them silently did
+    // nothing. iio-niri's IPC needs the monitor named as it appears in
+    // `niri msg outputs`, which is why services.iio-niri in
+    // modules/hardware/tablet.nix passes --monitor eDP-1.
+    Mod+Alt+R hotkey-overlay-title="Toggle Auto-Rotate Lock" { spawn "iio-niri" "msg" "toggle-lock-rotation"; }
+    XF86RotationLockToggle allow-when-locked=true hotkey-overlay-title="Toggle Auto-Rotate Lock" { spawn "iio-niri" "msg" "toggle-lock-rotation"; }
     Mod+Alt+K hotkey-overlay-title="Toggle On-Screen Keyboard" { spawn "/home/mark/.local/bin/toggle-osk"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -717,6 +742,12 @@ binds {
     // Cycling through the presets in reverse order is also possible.
     Mod+Shift+R { switch-preset-column-width-back; }
 
+    // The height toggle stays on Mod+Ctrl+Shift+R, which is niri's own default and
+    // what the comment above `preset-window-heights` documents. It was going to
+    // move to H so this combination could take rotation lock instead, but H is
+    // already move-column-to-monitor-left and niri treats modifier order as
+    // irrelevant, so there was no letter to free up. Rotation lock is on the
+    // two bindings above and on the hardware key, which is enough.
     Mod+Ctrl+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
 
