@@ -125,6 +125,7 @@
     drawio  #@pkg drawio
     cisco-packet-tracer_9  #@pkg cisco-packet-tracer_9
     nix-search-tv  #@pkg nix-search-tv
+    python313Packages.pettingzoo  #@pkg python313Packages.pettingzoo
   ];  #@pkgs-end
 }
 

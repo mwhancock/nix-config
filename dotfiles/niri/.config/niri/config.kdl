@@ -77,7 +77,7 @@ input {
 
     // Focus windows and outputs automatically when moving the mouse into them.
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    focus-follows-mouse
+    focus-follows-mouse max-scroll-amount="0%"
 }
 
 // The laptop panel is the only VRR-capable output here; DP-3 (the external
@@ -825,8 +825,17 @@ binds {
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
-    
-    
+
+    // Manual display rotation, via the niri-rotate script in
+    // hosts/nixos/home.nix. Auto-rotation stays on until
+    // one of these is used: the script locks it before writing the transform,
+    // because iio-niri otherwise reverts a transform set behind its back within
+    // a second. Mod+Shift+X hands control back to the accelerometer.
+    Mod+Shift+A hotkey-overlay-title="Rotate display left" { spawn "niri-rotate" "left"; }
+    Mod+Shift+D hotkey-overlay-title="Rotate display right" { spawn "niri-rotate" "right"; }
+    Mod+Shift+Z hotkey-overlay-title="Reset display rotation" { spawn "niri-rotate" "normal"; }
+    Mod+Shift+X hotkey-overlay-title="Toggle auto-rotation" { spawn "niri-rotate" "toggle"; }
+
 }
 spawn-at-startup "noctalia"
 
