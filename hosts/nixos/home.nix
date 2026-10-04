@@ -324,6 +324,228 @@ in
   };
 
   # ---------------------------------------------------------------------------
+  # niri-rotate: manual display rotation, for the four keybinds that sit at the
+  # bottom of dotfiles/niri/.config/niri/config.kdl.
+  #
+  #   Mod+Shift+A rotate left     Mod+Shift+Z reset to normal
+  #   Mod+Shift+D rotate right    Mod+Shift+X toggle auto-rotation
+  #
+  # WHY A SCRIPT
+  #
+  #   Auto-rotation is iio-niri's, and it works. Overruling it by hand has no
+  #   route through the obvious commands:
+  #
+  #     niri msg action   no rotate action, checked against the 26.04 list
+  #     iio-niri msg      lock-rotation, toggle-lock-rotation, change-monitor,
+  #                      change-transform, ping, stop, print-state
+  #     Noctalia          no rotation control in the installed version
+  #
+  #   niri does expose it one level down, and this wraps that:
+  #   `niri msg output <NAME> transform <T>` changes the output temporarily and
+  #   does not touch config.kdl.
+  #
+  # THE PART THAT IS EASY TO GET WRONG
+  #
+  #   iio-niri reverts any transform set behind its back. A manual
+  #   `niri msg output eDP-1 transform 90` with rotation unlocked is visible for
+  #   well under a second and then snaps back to whatever the accelerometer says,
+  #   which from the keyboard reads as the keybind doing nothing at all. So each
+  #   command locks rotation *before* it writes the transform, and `unlock` is
+  #   how control goes back. Measured: locked, set 90, still 90 four seconds on.
+  #
+  #   `change-transform` is deliberately not used. It rewrites the orientation to
+  #   transform mapping, which is the fix for auto-rotation picking the wrong
+  #   angle, and is not something a manual keybind should be adjusting.
+  #
+  # It lives here rather than in homeManagerModules/scripts/ because that tree is
+  # inert (see the imports comment above): a package added there would build and
+  # never be activated. niri spawns this by bare name, which resolves through
+  # ~/.nix-profile/bin, the first entry in niri's own PATH.
+  #
+  # The script pins absolute tool paths rather than trusting PATH, so it behaves
+  # the same from a keybind, a TTY and a systemd unit. niri spells its transform
+  # field three different ways depending on how it got set -- "normal" from
+  # config.kdl, "Normal" from `niri msg output`, "Flipped90" with no dash for the
+  # mirrored angles -- so values are lowercased once on the way in.
+  home.packages = [
+    (pkgs.writeShellScriptBin "niri-rotate" ''
+      set -euo pipefail
+
+      OUTPUT="''${NIRI_ROTATE_OUTPUT:-eDP-1}"
+      NIRI="${pkgs.niri}/bin/niri"
+      IIO_NIRI="${pkgs.iio-niri}/bin/iio-niri"
+      JQ="${pkgs.jq}/bin/jq"
+      NOTIFY_SEND="${pkgs.libnotify}/bin/notify-send"
+
+      # iio-niri only speaks over its IPC socket, so this doubles as the check
+      # for whether it is running at all. Without it there is nothing to lock and
+      # nothing to fight, and a bare transform is all that is needed.
+      sensor_running() {
+        "$IIO_NIRI" msg ping >/dev/null 2>&1
+      }
+
+      lock_state() {
+        if sensor_running; then
+          "$IIO_NIRI" msg print-state 2>/dev/null \
+            | "$JQ" -r '.response.lock_rotation'
+        else
+          echo "no-sensor"
+        fi
+      }
+
+      current_transform() {
+        local raw
+        raw="$("$NIRI" msg -j outputs \
+          | "$JQ" -er --arg o "$OUTPUT" \
+              'if .[$o] then .[$o].logical.transform
+               else error("no such output: " + $o) end')" || exit 1
+        printf '%s' "$raw" | tr '[:upper:]' '[:lower:]'
+      }
+
+      # Angle and mirror are tracked apart, so left and right step through the
+      # angles without silently dropping a flipped prefix.
+      current_flip() {
+        case "$1" in
+          flipped*) echo flipped ;;
+          *)        echo plain ;;
+        esac
+      }
+
+      current_deg() {
+        local t="''${1#flipped}"
+        t="''${t#-}"
+        case "$t" in
+          normal|"") echo 0 ;;
+          90)         echo 90 ;;
+          180)        echo 180 ;;
+          270)        echo 270 ;;
+          *)          echo "unrecognized transform: $1" >&2; exit 1 ;;
+        esac
+      }
+
+      deg_label() {
+        local t
+        case "$1" in
+          normal)
+            echo "normal"
+            ;;
+          flipped*)
+            t="''${1#flipped}"
+            t="''${t#-}"
+            if [ -z "$t" ]; then
+              echo "flipped"
+            else
+              echo "$t° flipped"
+            fi
+            ;;
+          *)
+            echo "$1°"
+            ;;
+        esac
+      }
+
+      report() {
+        local text lock
+
+        text="Display: $(deg_label "$1")"
+        lock="$(lock_state)"
+        case "$lock" in
+          true)      text="$text  (rotation locked, sensor idle)" ;;
+          false)     text="$text  (auto-rotation active)" ;;
+          no-sensor) text="$text  (iio-niri not running)" ;;
+        esac
+
+        echo "$text"
+        if [ -x "$NOTIFY_SEND" ]; then
+          "$NOTIFY_SEND" --expire-time=2000 niri-rotate "$text" >/dev/null 2>&1 || true
+        fi
+      }
+
+      set_transform() {
+        if sensor_running; then
+          # Lock first. Writing the transform while iio-niri is still live just
+          # races it and loses.
+          "$IIO_NIRI" msg lock-rotation true >/dev/null
+        fi
+        "$NIRI" msg output "$OUTPUT" transform "$1"
+        report "$1"
+      }
+
+      step() {
+        # $1 is the number of degrees to add to the current transform.
+        local transform flip deg next
+
+        transform="$(current_transform)"
+        flip="$(current_flip "$transform")"
+        deg="$(current_deg "$transform")"
+        next=$(( (deg + $1) % 360 ))
+
+        if [ "$flip" = flipped ]; then
+          set_transform "flipped-$next"
+        elif [ "$next" -eq 0 ]; then
+          set_transform normal
+        else
+          set_transform "$next"
+        fi
+      }
+
+      case "''${1:-}" in
+        left)
+          step 90
+          ;;
+        right)
+          step 270
+          ;;
+        normal)
+          set_transform normal
+          ;;
+        cycle)
+          case "$(current_deg "$(current_transform)")" in
+            270) set_transform normal ;;
+            *)   step 90 ;;
+          esac
+          ;;
+        lock)
+          if ! sensor_running; then
+            echo "iio-niri is not running, nothing to lock"
+            exit 0
+          fi
+          "$IIO_NIRI" msg lock-rotation true >/dev/null
+          report "$(current_transform)"
+          ;;
+        unlock)
+          if ! sensor_running; then
+            echo "iio-niri is not running"
+            exit 0
+          fi
+          "$IIO_NIRI" msg lock-rotation false >/dev/null
+          # Reset to normal on the way out. Unlocking while the panel is sideways
+          # would otherwise leave the last manual transform on screen until the
+          # next orientation change, which reads as the unlock not having worked.
+          "$NIRI" msg output "$OUTPUT" transform normal
+          report "$(current_transform)"
+          ;;
+        toggle)
+          if [ "$(lock_state)" = true ]; then
+            "$0" unlock
+          else
+            "$0" lock
+          fi
+          ;;
+        status)
+          echo "output:    $OUTPUT"
+          echo "transform: $(current_transform)"
+          echo "locked:    $(lock_state)"
+          ;;
+        *)
+          echo "usage: niri-rotate left|right|normal|cycle|lock|unlock|toggle|status" >&2
+          exit 2
+          ;;
+      esac
+    '')
+  ];
+
+  # ---------------------------------------------------------------------------
   # Noctalia's settings.toml, so the shell looks the same after a rebuild.
   #
   # Settings live in the state dir, not the config dir, so ~/.config/noctalia
