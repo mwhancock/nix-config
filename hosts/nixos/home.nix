@@ -718,7 +718,7 @@ in
     };
 
     Service = {
-      ExecStartPre = "${pkgs.coreutils}/bin/sh -c 'test -n \"$$NIRI_SOCKET\"'";
+      ExecStartPre = "${pkgs.runtimeShell} -c 'test -n \"$$NIRI_SOCKET\"'";
       ExecStart = "${pkgs.callPackage ../../modules/packages/niri-solo-width.nix { }}/bin/niri-solo-width";
       Type = "simple";
       Restart = "on-failure";
