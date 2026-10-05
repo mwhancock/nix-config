@@ -24,6 +24,13 @@ in
   };
 
   environment.systemPackages = with pkgs; [
+    # Niri solo-width daemon: a lone tiled window expands to full width, and
+    # shrinks to a share when peers appear. Niri has no config for this, so the
+    # behaviour lives in a user service instead -- see
+    # systemd.user.services.niri-solo-width in hosts/nixos/home.nix for why,
+    # and for the measurements taken against the running compositor.
+    (callPackage ./niri-solo-width.nix { })
+
     # Toolchain
     git
     gmc

@@ -80,7 +80,7 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
-// The laptop panel is the only VRR-capable output here; DP-2 (the external
+// The laptop panel is the only VRR-capable output here; DP-3 (the external
 // PTM15) reports "Variable refresh rate: not supported" and is left alone.
 // Without this block niri takes no `output` entry at all, so it enabled the
 // preferred mode -- 2560x1600 @ 165Hz -- with VRR off, and the panel sat at 165Hz
@@ -98,27 +98,16 @@ output "eDP-1" {
 // `niri msg outputs` reports it at scale 1 already, so this is not a fix for
 // anything currently broken -- it is a pin, so that it stays at scale 1. The
 // two panels are 2560x1600 at 1.5 (1707x1066 logical) and 1920x1080; anything
-// that makes this pick 1.5 would letterbox a 1080p monitor into a 1280x720
+// that makes DP-3 pick 1.5 would letterbox a 1080p monitor into a 1280x720
 // image, which is worse than the current 1:1.
 //
 // Only scale. Naming the output at all is enough to apply it, and adding a
 // mode or a transform here would override what niri picks on its own -- the
 // reasoning in the eDP-1 block above applies unchanged. Note that iio-niri
-// also drives this output's transform through niri's IPC when the
-// accelerometer moves, and that only takes effect if its scale is not
-// fractional, which is the other reason to fix it here.
-//
-// The connector is DP-2, not DP-3. This block used to name DP-3, which matches
-// nothing niri can see -- `niri msg outputs` lists only eDP-1 and DP-2 -- so it
-// was inert, and the pin existed only on paper. DP-2 is what the external
-// PTM15 enumerates as on this machine; the PNP(WFK) "demoset-1" string in
-// `niri msg outputs` is the EDID identity of that same panel.
-//
-// A stale connector name fails silently. niri does not warn about an output
-// block that matches no connected output, so this stayed wrong through
-// reconnects and dock swaps without any visible sign. Re-check the name with
-// `niri msg outputs` if the external monitor is ever replaced or moved.
-output "DP-2" {
+// also drives DP-3's transform through niri's IPC when the accelerometer
+// moves, and that only takes effect if DP-3's scale is not fractional, which
+// is the other reason to fix it here.
+output "DP-3" {
     scale 1
 }
 
@@ -348,23 +337,6 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // You can also set this to null to disable saving screenshots to disk.
 // screenshot-path null
-
-// Cursor theme and size.
-//
-// This block is not cosmetic: without it niri uses xcursor-theme "default",
-// and no theme by that name is installed here (the icon dirs hold Adwaita,
-// Yaru and the Bibata family, plus hicolor). Every themed lookup then fails
-// with "error loading xcursor <name>@<size>: no default icon" in the journal,
-// and niri falls back to its built-in 64x64 arrow -- a fixed *physical* pixel
-// image, not a logical one. That is what made the cursor look oversized on the
-// external monitor; see the note on the DP-2 block below.
-//
-// Naming a real theme also lets niri load a correctly-sized image per output,
-// so the cursor tracks each panel's scale instead of being one fixed bitmap.
-cursor {
-    xcursor-theme "Adwaita"
-    xcursor-size 24
-}
 
 // Animation settings.
 // The wiki explains how to configure individual animations:

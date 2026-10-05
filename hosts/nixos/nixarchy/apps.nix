@@ -51,7 +51,7 @@
     # edge.enable = true;  #@ edge  # unfree
     firefox.enable = true;  #@ firefox  # A NixOS module, so policies and extensions are declarative too.
       firefox.settings = { };  #@ firefox.settings
-    # zen.enable = true;  #@ zen
+    zen.enable = true;  #@ zen
 
   # ── Development ─────────────────────────────────────────────────
     # bun.enable = true;  #@ bun
@@ -126,6 +126,7 @@
     cisco-packet-tracer_9  #@pkg cisco-packet-tracer_9
     nix-search-tv  #@pkg nix-search-tv
     python313Packages.pettingzoo  #@pkg python313Packages.pettingzoo
+    fladder  #@pkg fladder
   ];  #@pkgs-end
 }
 

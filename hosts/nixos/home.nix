@@ -658,4 +658,73 @@ in
   #
   #   ghostty/.config/ghostty/config
   #     Replaced by the inline config above, for the two broken lines.
+
+  # ---------------------------------------------------------------------------
+  # niri-solo-width: full width when a workspace holds one window.
+  #
+  # This is the behaviour the old Omarchy/Hyprland desktop had for free and niri
+  # does not have at all:
+  #
+  #   new window on an empty workspace -> full width
+  #   another window opens            -> both shrink to 50%
+  #   all the others close             -> expand again
+  #
+  # Niri cannot express this in its config. Its scrolling layout resolves a
+  # column width as (working_width - gaps) * proportion, with no special case
+  # for a column that is alone on the workspace -- see resolve_column_width in
+  # src/layout/scrolling.rs. So default-column-width { proportion 0.5; } holds a
+  # lone window at half the screen forever.
+  #
+  #   window-rule { open-maximized true }
+  #
+  # looks like the answer and is not. Measured on this machine before writing
+  # any of this: with one window alone it goes full width, and when a peer opens
+  # beside it the maximized column stays full width (1675px) while the new
+  # window takes 829px. They overlap instead of splitting. Maximized state also
+  # has no tie to window count -- set_maximized in scrolling.rs only clears on
+  # an explicit request or on leaving tabbed display, so it never demotes on its
+  # own.
+  #
+  # Hyprland had no such rule because its scrolling layout did this itself.
+  # ~/.config/hypr/hyprforge/state.json records scrolling:column_width 0.5, and
+  # that layout widens a lone window to fill the workspace.
+  #
+  # So this runs the missing half as a daemon. It watches niri's IPC event
+  # stream and applies the width itself, only on the transition, so a width set
+  # by hand is never overwritten just because a window opened somewhere else.
+  #
+  # Why it is addressed by window id. The obvious call is SetColumnWidth, but it
+  # takes no id and only ever affects the *focused* column -- so reaching the
+  # others through it would mean repeatedly stealing focus. SetWindowWidth takes
+  # an id, and layout.rs routes it to scrolling.set_window_width for a tiled
+  # window, which finds the owning column by id. Focus is never moved. Verified
+  # live: window 21 was resized to 1888px by id while window 22 kept focus.
+  #
+  # Started only in an niri session. It needs NIRI_SOCKET, which only niri sets,
+  # and under Hyprland there is no such socket to connect to -- without this gate
+  # the unit would restart-loop on every Hyprland login, the same failure mode
+  # hyprchromad has above. ExecStartPre exits non-zero when NIRI_SOCKET is
+  # unset, and Restart=on-failure means that ends as `failed`, quiet, for the
+  # rest of the session.
+  systemd.user.services.niri-solo-width = {
+    # Gated on the desktop being niri, not merely on a Wayland session existing:
+    # Hyprland sessions set WAYLAND_DISPLAY too, and there is no NIRI_SOCKET
+    # there, so this test is the only thing standing between this unit and the
+    # restart-loop hyprchromad documents above.
+    Unit = {
+      Description = "Expand a lone niri window to full width, and shrink it back when peers appear";
+      PartOf = [ "graphical-session.target" ];
+      ConditionEnvironment = "XDG_CURRENT_DESKTOP=niri";
+    };
+
+    Service = {
+      ExecStartPre = "${pkgs.coreutils}/bin/sh -c 'test -n \"$$NIRI_SOCKET\"'";
+      ExecStart = "${pkgs.callPackage ../../modules/packages/niri-solo-width.nix { }}/bin/niri-solo-width";
+      Type = "simple";
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 }
