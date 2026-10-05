@@ -127,6 +127,8 @@
     nix-search-tv  #@pkg nix-search-tv
     python313Packages.pettingzoo  #@pkg python313Packages.pettingzoo
     fladder  #@pkg fladder
+    gearlever  #@pkg gearlever
+    libass  #@pkg libass
   ];  #@pkgs-end
 }
 
