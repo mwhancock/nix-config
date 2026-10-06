@@ -287,6 +287,52 @@
   services.tumbler.enable = true;
 
   # ---------------------------------------------------------------------------
+  # A polkit authentication agent, because without one no polkit prompt on this
+  # machine can be answered at all.
+  #
+  # Checked before adding it, not assumed:
+  #
+  #   pkcheck --action-id org.freedesktop.policykit.exec --allow-user-interaction
+  #   -> result=auth_admin
+  #      Authorization requires authentication but no agent is available.  (exit 2)
+  #
+  # polkitd was running and its rules were fine; nothing had ever registered with
+  # it. Nixarchy installs no agent, niri starts none, and Noctalia has no polkit
+  # code at all (zero hits for the string in the binary). So anything that needed
+  # authentication was failing outright instead of prompting -- quietly, because
+  # nothing in this session asks for root often enough to notice.
+  #
+  # hyprpolkitagent rather than polkit-gnome: it is Qt/QML, so it follows the
+  # same theme as the Noctalia shell -- and Noctalia themes Qt as well as GTK
+  # (templates.toml lists the qt/qt5ct/qt6ct templates), so either toolkit would
+  # match; this one is also what niri sessions normally run. The name is
+  # misleading -- it is a polkit agent that shares authorship with Hyprland,
+  # not a Hyprland plugin, and it needs nothing from the compositor.
+  #
+  # Launched as a systemd *user* unit, which is what the package ships:
+  #
+  #   libexec/hyprpolkitagent          the binary, and the only executable --
+  #                                     there is no $out/bin, so nothing here
+  #                                     is runnable by name and the niri config
+  #                                     does not spawn it
+  #   lib/systemd/user/hyprpolkitagent.service
+  #                                     WantedBy=graphical-session.target,
+  #                                     ConditionEnvironment=WAYLAND_DISPLAY
+  #   share/dbus-1/services/org.hyprland.hyprpolkitagent.service
+  #                                     D-Bus activation onto that unit
+  #
+  # graphical-session.target is genuinely active in the niri session
+  # (`systemctl --user is-active graphical-session.target` -> active), so
+  # WantedBy is not a dead symlink there. The D-Bus file is not what starts it:
+  # agents register with polkitd by connecting to it, and nothing asks for
+  # org.hyprland.hyprpolkitagent by name.
+  systemd.packages = [ pkgs.hyprpolkitagent ];
+  systemd.user.services.hyprpolkitagent = {
+    enable = true;
+    wantedBy = [ "graphical-session.target" ];
+  };
+
+  # ---------------------------------------------------------------------------
   # Not carried over:
   #
   #   services.desktopManager.gnome.enable = false   and

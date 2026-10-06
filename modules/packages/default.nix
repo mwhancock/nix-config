@@ -23,6 +23,26 @@ in
     binfmt = true;
   };
 
+  # Libraries supplied to foreign binaries -- anything downloaded as a tarball
+  # rather than built by Nix -- through NIX_LD_LIBRARY_PATH. nixarchy ships the
+  # curated base set; a plain assignment here merges with it, so nothing already
+  # covered is lost (do not lib.mkForce this option).
+  #
+  # libxrender and libxtst are the two DT_NEEDED entries of the JetBrains
+  # Runtime's libawt_xawt.so that the base set does not carry. The Kotlin
+  # Compose plugin downloads that JBR into ~/.cache/JetBrains and runs the app
+  # on it, so without them AWT dies at startup with
+  #   libXrender.so.1: cannot open shared object file
+  # The other X libs in the same .so -- libX11, libXext, libXi -- are already
+  # in the base set.
+  #
+  # NIX_LD_LIBRARY_PATH is read at login: rebuild, then log out and back in
+  # before retrying the run.
+  programs.nix-ld.libraries = with pkgs; [
+    libxrender
+    libxtst
+  ];
+
   environment.systemPackages = with pkgs; [
     # Niri solo-width daemon: a lone tiled window expands to full width, and
     # shrinks to a share when peers appear. Niri has no config for this, so the
