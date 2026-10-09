@@ -106,7 +106,11 @@
     # qemu groups are not applied to non-root accounts automatically.
     #
     # hosts/mfv3 also listed "root". Deliberately not carried over.
-    extraGroups = [ "wheel" "networkmanager" ];
+    #
+    # "dialout" owns /dev/ttyACM0 (mode 660, root:dialout), which is what
+    # avrdude opens when the Arduino IDE uploads. Without it the upload fails
+    # with "cannot open port /dev/ttyACM0: Permission denied".
+    extraGroups = [ "wheel" "networkmanager" "dialout" ];
   };
 
   # No password is declared here. The account's password was set with `passwd`

@@ -333,6 +333,29 @@
   };
 
   # ---------------------------------------------------------------------------
+  # Power button: suspend, which is also a lock.
+  #
+  # Nixarchy sets services.logind.settings.Login.HandlePowerKey to
+  # lib.mkDefault "ignore" so that Omarchy's own power menu owns the button
+  # (see its modules/nixos.nix, "Omarchy binds the power button to its own
+  # power menu"). On this machine that leaves the hardware button doing
+  # nothing, and the default session is niri where the menu is not what you
+  # reach for.
+  #
+  # This is a plain assignment, which outranks nixarchy's mkDefault, and the
+  # value is "suspend" rather than "poweroff" for a reason that also makes it a
+  # lock: no lock command runs here. In the niri session Noctalia watches
+  # logind's PrepareForSleep and locks the screen before suspend or hibernate
+  # (its [lockscreen].lock_before_suspend, true by default, set explicitly in
+  # the vendored state file). In the Hyprland/Nixarchy session
+  # omarchy-sleep-lock.service holds the delay inhibitor and does the same
+  # thing. Either way a suspend behind a locked screen is what the button does.
+  #
+  # Long-press handling is untouched -- on this system it is "ignore", so a
+  # held button cannot power the machine off by accident.
+  services.logind.settings.Login.HandlePowerKey = "suspend";
+
+  # ---------------------------------------------------------------------------
   # Not carried over:
   #
   #   services.desktopManager.gnome.enable = false   and

@@ -63,7 +63,7 @@
       git-lfs.settings = { };  #@ git-lfs.settings
     # go.enable = true;  #@ go  # mise use --global go@latest downloads a toolchain outside Nix. This is nixpkgs' go, rebuilt with the system.
     java.enable = true;  #@ java
-    # nodejs.enable = true;  #@ nodejs  # mise' prebuilt Node is dynamically linked against paths NixOS does not have, so it often will not execute at all. This one does.
+    nodejs.enable = true;  #@ nodejs  # mise' prebuilt Node is dynamically linked against paths NixOS does not have, so it often will not execute at all. This one does.
     # ocaml.enable = true;  #@ ocaml
     php.enable = true;  #@ php
     python.enable = true;  #@ python  # Already on the system as a runtime dependency of Omarchy's own scripts, so this row shows dim on a stock install. Select it to say so in your configuration rather than relying on that. 

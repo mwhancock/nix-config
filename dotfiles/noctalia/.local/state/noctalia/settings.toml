@@ -1,5 +1,14 @@
 config_version = 14
 
+# Explicit so a power-button press (services.logind.settings.Login
+# HandlePowerKey = "suspend", in modules/desktop/default.nix) always ends in a
+# locked screen: Noctalia watches logind's PrepareForSleep and locks before
+# suspend/hibernate. These match the compiled defaults; stating them removes
+# any dependence on a later release changing one.
+[lockscreen]
+enabled = true
+lock_before_suspend = true
+
 [bar.default]
 background_opacity = 0.84999998100101948
 center = [ "clock", "media", "bar_2" ]
@@ -12,6 +21,10 @@ start = [ "workspaces" ]
 
 [control_center]
 width = 1050
+
+[location]
+latitude = 47.539332000000002
+longitude = -52.742058
 
 [lockscreen_widgets]
 enabled = false
