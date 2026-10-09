@@ -129,6 +129,7 @@
     fladder  #@pkg fladder
     gearlever  #@pkg gearlever
     libass  #@pkg libass
+    orca-slicer  #@pkg orca-slicer
   ];  #@pkgs-end
 }
 
