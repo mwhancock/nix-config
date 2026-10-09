@@ -28,6 +28,14 @@ let
   # This must agree with programs.nixarchy.flake in hosts/nixos/default.nix,
   # which is where nixos-rebuild and nh os switch will look for this flake.
   repoDir = "/etc/nixos";
+
+  # The on-screen keyboard supervisor, addressed by store path so the user
+  # service below does not depend on PATH. See
+  # modules/packages/sysboard-ctl.nix for what it does and how it detects a
+  # keyboard.
+  sysboardCtl = pkgs.callPackage ../../modules/packages/sysboard-ctl.nix {
+    sysboard = pkgs.callPackage ../../modules/packages/sysboard.nix { };
+  };
 in
 {
   # ---------------------------------------------------------------- Imports
@@ -227,6 +235,26 @@ in
       mouse-scroll-multiplier = precision:0.5,discrete:1
     '';
   };
+
+  # On-screen keyboard, for the tablet on its own.
+  #
+  # sysboard's built-in default is height=500, which is 500 *logical* pixels --
+  # 750 of this panel's physical ones, roughly 70% of the screen. 320 leaves
+  # the focused window most of its space and still gives full-size keys. Margin
+  # stays at the upstream 10. layout=full is the standard QWERTY board; the
+  # other shipped option is the narrower mobile one, in the same directory in
+  # the nixpkgs-less install, so this is the single knob to change if the board
+  # feels too wide.
+  #
+  # A plain home.file, not out-of-store: sysboard only ever reads this file, it
+  # does not rewrite it the way noctalia rewrites its own config, so a
+  # read-only store symlink is correct here.
+  home.file.".config/sys64/board/config.conf".text = ''
+    [main]
+    margin=10
+    height=320
+    layout=full
+  '';
 
   # ---------------------------------------------------------------------------
   # Vendored as-is. No conflicts found with nixarchy.
@@ -720,6 +748,43 @@ in
     Service = {
       ExecStartPre = "${pkgs.runtimeShell} -c 'test -n \"$$NIRI_SOCKET\"'";
       ExecStart = "${pkgs.callPackage ../../modules/packages/niri-solo-width.nix { }}/bin/niri-solo-width";
+      Type = "simple";
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  # ---------------------------------------------------------------------------
+  # sysboard-ctl: the on-screen keyboard, but only with no keyboard attached.
+  #
+  # sysboard shows itself when the compositor activates a text field and hides
+  # when focus leaves it -- that half is niri's and sysboard's own, over
+  # zwp_input_method_v2, and it works here. What no sysboard option covers is
+  # "do not do any of that when the user is already typing on a real keyboard".
+  #
+  # So sysboard is not started at all while a keyboard is present, and this unit
+  # is the thing that runs to make that decision. The supervisor, its detection
+  # rule and the reason it is a process gate rather than a signal are in
+  # modules/packages/sysboard-ctl.nix.
+  #
+  # Gated on a Wayland session rather than on niri specifically. sysboard talks
+  # zwp_input_method_v2, which is a compositor-agnostic protocol and one niri
+  # advertises; there is no NIRI_SOCKET to test for here the way niri-solo-width
+  # tests, and none is needed. ConditionEnvironment with no value tests that the
+  # variable is set at all, which is only true once a compositor is up -- so the
+  # unit waits for the session rather than racing it, and under a bare TTY it
+  # simply does not start.
+  systemd.user.services.sysboard-ctl = {
+    Unit = {
+      Description = "Run the sysboard on-screen keyboard only while no real keyboard is attached";
+      PartOf = [ "graphical-session.target" ];
+      ConditionEnvironment = "WAYLAND_DISPLAY";
+    };
+
+    Service = {
+      ExecStart = "${sysboardCtl}/bin/sysboard-ctl";
       Type = "simple";
       Restart = "on-failure";
       RestartSec = 2;

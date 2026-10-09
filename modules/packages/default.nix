@@ -9,6 +9,12 @@
 let
   # Not in nixpkgs, so built from source here.
   gmc = pkgs.callPackage ./gmc.nix { };
+
+  # sysboard: the GTK4 on-screen keyboard, also built from source. sysboard-ctl
+  # is the supervisor that runs it only while no keyboard is attached; it takes
+  # the sysboard binary as an argument, so bind it once here and share it.
+  sysboard = pkgs.callPackage ./sysboard.nix { };
+  sysboard-ctl = pkgs.callPackage ./sysboard-ctl.nix { inherit sysboard; };
 in
 
 {
@@ -50,6 +56,13 @@ in
     # systemd.user.services.niri-solo-width in hosts/nixos/home.nix for why,
     # and for the measurements taken against the running compositor.
     (callPackage ./niri-solo-width.nix { })
+
+    # On-screen keyboard for the tablet, plus the supervisor that gates it on
+    # no real keyboard being attached. Started as a user service -- see
+    # systemd.user.services.sysboard-ctl in hosts/nixos/home.nix for why the
+    # gating is external to sysboard.
+    sysboard
+    sysboard-ctl
 
     # Toolchain
     git
