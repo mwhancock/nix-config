@@ -8,7 +8,7 @@
     # virtualisation.waydroid.enable = true;  #@ waydroid  # Android apps in a container on your own kernel. No CPU emulation, so it is fast -- and ARM-only apps will not run without a translation layer (libhoudini/libndk) that Waydroid does not ship and nixpkgs does not package. Needs the binder kernel module, which mainline has and a custom kernel may not, and ships without the Play Store. For apps that refuse to run in a container at all, scrcpy mirrors a real phone instead.
 
     # ── Desktop ──────────────────────────────────────
-    # services.flatpak.enable = true;  #@ flatpak  # For software nixpkgs does not carry. Then: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    services.flatpak.enable = true;  #@ flatpak  # For software nixpkgs does not carry. Then: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     # programs.nixarchy.services.open-webui.enable = true;  #@ open-webui  # A browser chat window over the models this machine already runs. Needs an Ollama -- programs.nixarchy.localAi.enable is the one that puts a model on the machine -- and refuses to build without one rather than showing you an empty model list. Stays on loopback: the first visitor to reach it becomes the administrator, so open the firewall only after you have logged in once.
     # programs.nixarchy.services.syncthing.enable = true;  #@ syncthing  # Syncs folders between your machines. Bundled because it runs as you, and upstream cannot know which user that is.
 
@@ -32,4 +32,28 @@
     # with it.
     # programs.nixarchy.flatpaks.apps.geforce-now.enable = true;  #@ geforce-now  # Streams games from NVIDIA's servers. Not in nixpkgs and not packageable: a proprietary binary NVIDIA ships as a Flatpak. Not on Flathub either -- it comes from NVIDIA's own repository, which enabling this adds. — from GeForceNOW, not Flathub
 
+    # Slicers, from Flathub instead of nixpkgs.
+    #
+    # Bambu Studio: the nixpkgs build is unfree, so it is on no binary cache
+    # and must be compiled from source -- a huge C++ build that exhausted this
+    # machine's RAM and got the rebuild OOM-killed.
+    #
+    # OrcaSlicer: the nixpkgs build aborts on startup here (the proprietary
+    # bambu networking plugin it downloads at runtime has a C++ ABI mismatch);
+    # the Flatpak ships its own consistent stack.
+    #
+    # Both come prebuilt, so nothing compiles here. Flathub is already the
+    # default remote, so no remote line is needed.
+    services.flatpak.packages = [
+      "com.bambulab.BambuStudio"
+      "com.orcaslicer.OrcaSlicer"
+    ];
+
+    # The open-bamboo-networking plugin is deployed by home-manager as a symlink
+    # into /nix/store, which a Flatpak sandbox cannot see by default, so
+    # OrcaSlicer would fail to load it. Exposing the store read-only lets that
+    # symlink resolve. Nothing else is pulled in from the store: the plugin's
+    # NEEDED libraries (openssl, curl, zlib, libstdc++, libc) are all already
+    # loaded by the app from its runtime, so the dynamic loader reuses those.
+    services.flatpak.overrides."com.orcaslicer.OrcaSlicer".Context.filesystems = [ "/nix/store:ro" ];
 }

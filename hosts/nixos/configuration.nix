@@ -52,6 +52,29 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # ------------------------------------------------------- Build resources
+  #
+  # Parallelism is capped deliberately. The nixpkgs defaults (`max-jobs =
+  # auto`, `cores = 0`) let one large C++ derivation -- bambu-studio,
+  # orca-slicer, a browser -- spawn one compiler per core. Sixteen of them
+  # exhausted this machine's 31 GiB and had systemd-oomd kill the whole
+  # terminal mid-rebuild. Four of each keeps the peak well inside RAM:
+  # builds are slower, not fatal.
+  nix.settings.max-jobs = 4;
+  nix.settings.cores = 4;
+
+  # Disk-backed swap under the RAM-only zram device. zram gives no real
+  # headroom under memory pressure -- its pages live in RAM -- so a large
+  # build could still OOM; this adds capacity. Priority 1 keeps zram (the
+  # nixarchy default, priority 5) in front of it. 16 GiB on /; the number is
+  # MiB. hardware-configuration.nix ships `swapDevices = [ ];`, and list
+  # options merge, so this is the whole list.
+  swapDevices = [{
+    device = "/swapfile";
+    size = 16384;
+    priority = 1;
+  }];
+
   # ---------------------------------------------------------------- Nixarchy
   #
   # `user` is what puts mark in the `input` group (dictation, game controllers).

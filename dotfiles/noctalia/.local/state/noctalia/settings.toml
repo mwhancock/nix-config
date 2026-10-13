@@ -1,14 +1,5 @@
 config_version = 14
 
-# Explicit so a power-button press (services.logind.settings.Login
-# HandlePowerKey = "suspend", in modules/desktop/default.nix) always ends in a
-# locked screen: Noctalia watches logind's PrepareForSleep and locks before
-# suspend/hibernate. These match the compiled defaults; stating them removes
-# any dependence on a later release changing one.
-[lockscreen]
-enabled = true
-lock_before_suspend = true
-
 [bar.default]
 background_opacity = 0.84999998100101948
 center = [ "clock", "media", "bar_2" ]
@@ -22,9 +13,32 @@ start = [ "workspaces" ]
 [control_center]
 width = 1050
 
+[idle]
+behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
+pre_action_fade_seconds = 5
+
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = false
+    timeout = 600.0
+
+    [idle.behavior.lock-and-suspend]
+    action = "lock_and_suspend"
+    enabled = true
+    timeout = 900.0
+
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = false
+    timeout = 610.0
+
 [location]
 latitude = 47.539332000000002
 longitude = -52.742058
+
+[lockscreen]
+enabled = true
+lock_before_suspend = true
 
 [lockscreen_widgets]
 enabled = false
@@ -140,6 +154,41 @@ screen_time_enabled = true
     [shell.screenshot]
     confirm_region = true
     remember_last_region = true
+
+    [[shell.session.actions]]
+    action = "lock"
+    countdown_seconds = 0.0
+    enabled = false
+    shortcut = "1"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "logout"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "2"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "lock_and_suspend"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "3"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "reboot"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "4"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "shutdown"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "5"
+    variant = "destructive"
 
 [theme]
 builtin = "Gruvbox"
