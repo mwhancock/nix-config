@@ -129,7 +129,11 @@
     fladder  #@pkg fladder
     gearlever  #@pkg gearlever
     libass  #@pkg libass
-    orca-slicer  #@pkg orca-slicer
+    # orca-slicer  #@pkg orca-slicer  # startup problems with the Nix build (proprietary bambu plugin ABI mismatch); installed from Flathub instead -- see services.nix.
+    # bambu-studio  #@pkg bambu-studio  # unfree -> on no binary cache, so it compiles from source; a huge C++ build that OOM-killed this machine mid-rebuild. Installed from Flathub instead -- see services.nix.
+    bazaar  #@pkg bazaar
+    gram  #@pkg gram
+    blender  #@pkg blender
   ];  #@pkgs-end
 }
 

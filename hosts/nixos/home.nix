@@ -11,7 +11,7 @@
 # Nothing here redefines a nixarchy option. programs.nixarchy.neovim is set to
 # "adopt" in hosts/nixos/configuration.nix so that nixarchy reports the gruvbox
 # collision instead of silently keeping its own theme.
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   dotfiles = ../../dotfiles;
@@ -65,7 +65,65 @@ in
   # builds its font list by walking directories and ignoring fontconfig, so this
   # file is the only thing that makes Inter and the rest of the list appear in
   # it. Nothing else in homeManagerModules/ is needed for that.
-  imports = [ ../../homeManagerModules/core/fonts.nix ];
+  imports = [
+    ../../homeManagerModules/core/fonts.nix
+    inputs.open-bamboo-networking.hmModules.open-bamboo-networking
+  ];
+
+  # ---------------------------------------------------- Bambu network plugin
+  #
+  # OrcaSlicer's Bambu networking plugin is a proprietary blob it downloads at
+  # runtime. That blob aborts the app on startup on this machine (SIGABRT /
+  # "free(): invalid size" inside std::locale::~_Impl -- a C++ ABI mismatch
+  # against the Nix-built OrcaSlicer; upstream bambulab/BambuStudio#3652).
+  #
+  # open-bamboo-networking is an open-source drop-in replacement with the same
+  # dlsym ABI and filename. The flake module above builds it and links it into
+  # the slicer's plugins/ dir. OrcaSlicer.conf also has to name the plugin
+  # version it expects; that file is mutable app state, so it is patched by the
+  # activation script below rather than managed as a store symlink.
+  #
+  # OrcaSlicer is now the Flathub build, whose ~/.config is redirected to its
+  # per-app data dir, so configDir points there rather than at ~/.config/
+  # OrcaSlicer (which belonged to the Nix build). The module deploys the plugin
+  # as a store symlink, so the sandbox has to be able to read /nix/store -- see
+  # the override in nixarchy/services.nix.
+  programs.openBambooNetworking = {
+    enable = true;
+    orcaSlicer = {
+      enable = true;
+      obnVersion = "02.03.00.62";
+      configDir = "${config.home.homeDirectory}/.var/app/com.orcaslicer.OrcaSlicer/config/OrcaSlicer";
+    };
+  };
+
+  # Point OrcaSlicer at the open plugin. Runs every activation but only rewrites
+  # the conf when it actually disagrees, backing the old one up to .bak. The
+  # version is read from the same option the module built the .so from, so the
+  # two cannot drift.
+  home.activation.openBambuNetworkingOrcaConf = let
+    cfg = config.programs.openBambooNetworking.orcaSlicer;
+  in
+    lib.hm.dag.entryAfter ["writeBoundary"] ''
+      CONF=${lib.escapeShellArg "${cfg.configDir}/OrcaSlicer.conf"}
+      if [ ! -e "$CONF" ]; then
+        echo "open-bamboo-networking: $CONF does not exist yet; launch OrcaSlicer once, then re-run the rebuild"
+      else
+        NEEDS_PATCH=$(${pkgs.jq}/bin/jq -r --arg ver ${lib.escapeShellArg cfg.obnVersion} \
+          '(.app.installed_networking != "true") or (.app.network_plugin_version != $ver)' "$CONF")
+        if [ "$NEEDS_PATCH" = "true" ]; then
+          $DRY_RUN_CMD cp -f "$CONF" "$CONF.bak"
+          TMP=$(mktemp)
+          ${pkgs.jq}/bin/jq --arg ver ${lib.escapeShellArg cfg.obnVersion} \
+            '.app.installed_networking = "true"
+             | .app.network_plugin_version = $ver
+             | .app.network_plugin_remind_later = "true"' "$CONF" > "$TMP"
+          cat "$TMP" > "$CONF"
+          rm -f "$TMP"
+          echo "open-bamboo-networking: patched $CONF (backup: $CONF.bak)"
+        fi
+      fi
+    '';
 
   # ---------------------------------------------------------------- Identity
   #

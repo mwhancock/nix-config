@@ -34,6 +34,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Drop-in replacement for the proprietary bambu_networking plugin, which
+    # aborts OrcaSlicer on NixOS (C++ ABI mismatch on startup). Its
+    # home-manager module builds the open plugin and links it into
+    # ~/.config/OrcaSlicer/plugins. See hosts/nixos/home.nix.
+    open-bamboo-networking = {
+      url = "git+https://git.tjkeller.xyz/open-bamboo-network-plugin-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     niri-tablet = {
       url = "github:GGEZUS/niri-tablet";
       flake = false;
