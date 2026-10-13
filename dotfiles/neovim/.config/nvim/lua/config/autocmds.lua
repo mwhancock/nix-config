@@ -30,7 +30,7 @@ vim.api.nvim_create_autocmd("FileType", {
   group = augroup("markdown_settings"),
   pattern = { "markdown", "md", "pandoc" },
   desc = "Configure markdown textwidth and formatting",
-  callback = function()
+  callback = function(args)
     vim.opt_local.spell = false
     vim.opt_local.textwidth = 88
     vim.opt_local.colorcolumn = "89"
@@ -38,6 +38,9 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
     vim.opt_local.formatoptions:append("t")
+
+    -- Logseq-style list editing for this buffer. See config/outliner.lua.
+    pcall(require("config.outliner").attach, args.buf)
   end,
 })
 
