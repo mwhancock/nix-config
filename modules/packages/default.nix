@@ -4,7 +4,7 @@
 # actually asked for. Everything below that was NOT chosen is listed at the
 # bottom with the reason, so a later "why isn't X here" has an answer that is
 # not just archaeology.
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 let
   # Not in nixpkgs, so built from source here.
@@ -153,6 +153,15 @@ in
     # From the live system's own packages list in /etc/nixos.
     neovim
     curl
+
+    # WinApps: launch Windows apps (Word, Excel, ...) from the Linux desktop
+    # as if native. The package bundles FreeRDP 3, dialog, netcat and friends,
+    # and wraps `winapps`/`winapps-setup` with LIBVIRT_DEFAULT_URI set. It needs
+    # a running Windows VM called RDPWindows (see the WinApps libvirt docs);
+    # until that VM exists the binaries are installed but have nothing to talk
+    # to. winapps-launcher adds the system-tray app launcher.
+    inputs.winapps.packages.${pkgs.system}.winapps
+    inputs.winapps.packages.${pkgs.system}.winapps-launcher
   ];
 
   # Fonts are registered with fontconfig, not just put on $PATH, so they are

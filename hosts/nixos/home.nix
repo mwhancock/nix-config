@@ -162,6 +162,12 @@ in
     '';
   };
 
+  # Binaries installed by `cargo install` land in ~/.cargo/bin. Prepend it so
+  # esp-generate and friends are callable by name.
+  home.sessionPath = [
+    "$HOME/.cargo/bin"
+  ];
+
   # "adopt" rather than the "theme-only" default.
   #
   # The dotfiles below install a real ~/.config/nvim containing gruvbox. Either
@@ -454,6 +460,11 @@ in
   # config.kdl, "Normal" from `niri msg output`, "Flipped90" with no dash for the
   # mirrored angles -- so values are lowercased once on the way in.
   home.packages = [
+    # The exporter behind Neovim's <leader>op / <leader>od keymaps. It was
+    # referenced by the keymaps but never wired up, so the export always failed
+    # with ENOENT: 'md-export'. See modules/packages/md-export.nix.
+    (pkgs.callPackage ../../modules/packages/md-export.nix { })
+
     (pkgs.writeShellScriptBin "niri-rotate" ''
       set -euo pipefail
 
