@@ -134,6 +134,7 @@
     bazaar  #@pkg bazaar
     gram  #@pkg gram
     blender  #@pkg blender
+    insomnia  #@pkg insomnia
   ];  #@pkgs-end
 }
 

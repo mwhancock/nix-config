@@ -52,6 +52,9 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  nix.settings.substituters = [ "https://winapps.cachix.org" ];
+  nix.settings.trusted-public-keys = [ "winapps.cachix.org-1:HI82jWrXZsQRar/PChgIx1unmuEsiQMQq+zt05CD36g=" ];
+
   # ------------------------------------------------------- Build resources
   #
   # Parallelism is capped deliberately. The nixpkgs defaults (`max-jobs =

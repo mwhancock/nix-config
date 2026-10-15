@@ -34,6 +34,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Run Windows apps (Microsoft Word etc.) inside a KVM/libvirt Windows VM,
+    # surfaced as native launchers via FreeRDP. See modules/packages/default.nix
+    # and the WinApps libvirt guide for the VM half.
+    winapps = {
+      url = "github:winapps-org/winapps";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Drop-in replacement for the proprietary bambu_networking plugin, which
     # aborts OrcaSlicer on NixOS (C++ ABI mismatch on startup). Its
     # home-manager module builds the open plugin and links it into
