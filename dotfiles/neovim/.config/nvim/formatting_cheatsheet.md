@@ -241,7 +241,14 @@ $$\begin{aligned}
 |:---|:---|:---|
 | `<leader>op` | **PDF** | Pandoc + Typst engine (renders Mermaid SVG & LaTeX) |
 | `<leader>od` | **DOCX** | Pandoc native Word OMML equations & embedded diagrams |
+| `<leader>ol` | **Live PDF** | Toggle re-export on save (Zathura reloads it automatically) |
+| `<leader>om` | **Mermaid** | Format the ```` ```mermaid ```` blocks in the buffer (`mermaidfmt`) |
 | Terminal CLI | PDF or DOCX | `md-export input.md [pdf\|docx] [output]` |
+
+> **Live PDF**: with `<leader>ol` on (the default), saving a Markdown file that
+> already has a PDF beside it re-exports that PDF in the background. Open it in
+> Zathura and it reloads on every `:w` — write on the left, read on the right.
+> The first PDF still comes from `<leader>op`; `:MdLiveExport off` disables it.
 
 ---
 
