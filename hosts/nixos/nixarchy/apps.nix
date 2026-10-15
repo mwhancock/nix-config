@@ -135,6 +135,7 @@
     gram  #@pkg gram
     blender  #@pkg blender
     insomnia  #@pkg insomnia
+    probe-rs-tools  #@pkg probe-rs-tools
   ];  #@pkgs-end
 }
 
