@@ -465,6 +465,12 @@ in
     # with ENOENT: 'md-export'. See modules/packages/md-export.nix.
     (pkgs.callPackage ../../modules/packages/md-export.nix { })
 
+    # mermaidfmt, behind Neovim's <leader>om keymap, which formats the
+    # ```mermaid fences in the current buffer on demand. Not in nixpkgs; see
+    # modules/packages/mermaid-formatter.nix for why it is fetched from npm and
+    # why it is deliberately not wired into format-on-save.
+    (pkgs.callPackage ../../modules/packages/mermaid-formatter.nix { })
+
     (pkgs.writeShellScriptBin "niri-rotate" ''
       set -euo pipefail
 
