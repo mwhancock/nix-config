@@ -13,6 +13,13 @@
   # would source every tool twice on every interactive shell.
   programs.fish.enable = true;
 
+  # The editor every session inherits. sessionVariables is what reaches a
+  # graphical session through PAM -- niri spawns TUIs like yazi directly from
+  # the compositor, and those never pass through fish where config.fish
+  # exports nvim. Value is "nvim": there is no "neovim" binary for $EDITOR to
+  # resolve to.
+  environment.sessionVariables.EDITOR = "nvim";
+
   # The login shell is set in hosts/nixos/default.nix, so the account definition
   # stays in one place.
   environment.systemPackages = with pkgs; [
