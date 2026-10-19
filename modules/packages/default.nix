@@ -98,6 +98,12 @@ in
     godot
     texliveFull
 
+    # mermaid-cli (mmdc): renders ```mermaid fences for Neovim's diagram.nvim
+    # plugin (dotfiles/neovim/.config/nvim/lua/plugins/diagram.lua) and the
+    # mermaid step inside md-export. The nixpkgs wrapper bundles its own
+    # Chromium for Puppeteer, so no browser needs to be on PATH.
+    mermaid-cli
+
     # Read-only document viewer. The nixpkgs `zathura` attribute is the wrapper
     # that already bundles the plugins wanted here, so it needs no options:
     #   zathura_pdf_mupdf  PDF, and by mimetype also EPUB, MOBI, FictionBook,
