@@ -543,6 +543,152 @@ in
     fi
   '';
 
+  # mermaid-mmdc.json, the palette Neovim's mermaid rendering renders with.
+  #
+  # Same shape as the sysboard hook above: Omarchy runs every script in
+  # theme-set.d/ after `omarchy theme set` (invoked as `bash "$hook"`, so the
+  # store symlink needs no exec bit) with the theme slug as $1, and each theme
+  # ships a colors.toml. diagram.nvim passes this JSON to mmdc via -c, so
+  # mermaid diagram colours follow every `omarchy theme set` the same way
+  # ghostty, hyprland and sysboard do. Wallpaper cycling within a theme does
+  # not fire the hook -- and does not recolour anything else either.
+  #
+  # The output JSON is deliberately NOT a home.file: the hook writes it and it
+  # must stay writable; a store symlink would make the write fail and pin
+  # diagrams to whatever palette was baked in at build time.
+  home.file.".config/omarchy/hooks/theme-set.d/mermaid-mmdc".text = ''
+    #!/usr/bin/env bash
+    # Tie Neovim's mermaid rendering (diagram.nvim) to Omarchy's theme engine.
+    #
+    # Omarchy runs every script in ~/.config/omarchy/hooks/theme-set.d/ after a
+    # theme change, passing the theme slug as $1. By the time hooks run,
+    # omarchy-theme-set has already swapped the merged palette (stock theme plus
+    # any user overlay) into ~/.local/state/omarchy/current/theme/, so that
+    # colors.toml is the live truth -- the same file the shell itself consumes.
+    #
+    # This reads it and regenerates ~/.config/omarchy/mermaid-mmdc.json, the
+    # mermaid-cli (mmdc) config that lua/plugins/diagram.lua passes via -c.
+    # Diagram colours therefore follow every `omarchy theme set`, the same way
+    # ghostty, hyprland and zathura do. Cycling the wallpaper within a theme
+    # does not fire this hook -- and does not recolour anything else either;
+    # the palette belongs to the theme, not the image.
+    #
+    # The JSON is a mermaid "base" theme: themeVariables are the knobs mermaid.js
+    # exposes for custom palettes. Written atomically; an unusable palette leaves
+    # the previous good file in place rather than half-recolouring diagrams.
+
+    set -euo pipefail
+
+    COLORS_TOML="$HOME/.local/state/omarchy/current/theme/colors.toml"
+    [[ -f $COLORS_TOML ]] || exit 0
+
+    OUT="$HOME/.config/omarchy/mermaid-mmdc.json"
+
+    color() {
+      # Read one key from colors.toml. The file is a flat `key = "#rrggbb"` list,
+      # so a single anchored match is enough and needs no TOML parser.
+      local key=$1 default=''${2:-} value
+      value=$(sed -n "s/^''${key}[[:space:]]*=[[:space:]]*[\"']\{0,1\}\(#[[:xdigit:]]\{6\}\|#[A-Za-z0-9]\{12\}\|#[A-Za-z0-9]\{16\}\).*/\1/p" \
+        "$COLORS_TOML" | head -1)
+      printf '%s' "''${value:-$default}"
+    }
+
+    # Skip writing a partial palette. A theme with an unusual colors.toml should
+    # leave the last good mermaid-mmdc.json in place rather than half-recolour it.
+    mode=$(sed -n 's/^mode[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' "$COLORS_TOML" | head -1)
+    background=$(color background)
+    foreground=$(color foreground)
+    accent=$(color accent)
+    red=$(color red)
+    green=$(color green)
+    yellow=$(color yellow)
+
+    for v in background foreground accent red yellow green; do
+      [[ -n ''${!v} ]] || exit 0
+    done
+
+    dark_background=$(color dark_background "$background")
+    darker_background=$(color darker_background "$background")
+    lighter_background=$(color lighter_background "$background")
+    selection=$(color selection "$lighter_background")
+    dark_foreground=$(color dark_foreground "$foreground")
+    bright_foreground=$(color bright_foreground "$foreground")
+    muted=$(color muted "$dark_foreground")
+    blue=$(color blue "$accent")
+    magenta=$(color magenta "$red")
+    cyan=$(color cyan "$green")
+    orange=$(color orange "$yellow")
+
+    # Mermaid's darkMode flag switches a few built-in defaults (pie charts, class
+    # diagrams) that themeVariables alone do not reach.
+    if [[ $mode == light ]]; then
+      dark_mode=false
+    else
+      dark_mode=true
+    fi
+
+    mkdir -p "$(dirname "$OUT")"
+
+    tmp=$(mktemp)
+    if jq -n \
+      --arg bg "$background" \
+      --arg dark_bg "$dark_background" \
+      --arg darker_bg "$darker_background" \
+      --arg lighter_bg "$lighter_background" \
+      --arg sel "$selection" \
+      --arg fg "$foreground" \
+      --arg dark_fg "$dark_foreground" \
+      --arg bright_fg "$bright_foreground" \
+      --arg muted "$muted" \
+      --arg accent "$accent" \
+      --arg red "$red" \
+      --arg green "$green" \
+      --arg yellow "$yellow" \
+      --arg blue "$blue" \
+      --arg magenta "$magenta" \
+      --arg cyan "$cyan" \
+      --arg orange "$orange" \
+      --argjson dark_mode "$dark_mode" \
+      '{
+        theme: "base",
+        themeVariables: {
+          darkMode: $dark_mode,
+          background: $bg,
+          mainBkg: $lighter_bg,
+          nodeBorder: $accent,
+          clusterBkg: $darker_bg,
+          clusterBorder: $dark_fg,
+          titleColor: $bright_fg,
+          edgeLabelBackground: $bg,
+          textColor: $fg,
+          lineColor: $muted,
+          primaryColor: $lighter_bg,
+          primaryTextColor: $fg,
+          primaryBorderColor: $accent,
+          secondaryColor: $sel,
+          secondaryTextColor: $fg,
+          secondaryBorderColor: $green,
+          tertiaryColor: $dark_bg,
+          tertiaryTextColor: $fg,
+          tertiaryBorderColor: $magenta,
+          noteBkgColor: $yellow,
+          noteTextColor: $bg,
+          noteBorderColor: $yellow,
+          errorBkgColor: $red,
+          errorTextColor: $bg,
+          git0: $green,
+          git1: $blue,
+          git2: $magenta,
+          git3: $orange,
+          git4: $cyan,
+          git5: $yellow
+        }
+      }' >"$tmp"; then
+      install -m 644 "$tmp" "$OUT"
+    fi
+    rm -f "$tmp"
+  '';
+
   # ---------------------------------------------------------------------------
   # Vendored as-is. No conflicts found with nixarchy.
   home.file.".config/yazi" = {
