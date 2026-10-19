@@ -136,6 +136,7 @@
     blender  #@pkg blender
     insomnia  #@pkg insomnia
     probe-rs-tools  #@pkg probe-rs-tools
+    unityhub  #@pkg unityhub
   ];  #@pkgs-end
 }
 
