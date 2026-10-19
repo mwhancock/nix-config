@@ -19,7 +19,16 @@ return {
     -- The magick luarock is only used by image.nvim's :ImageInfo command;
     -- dimensions are parsed natively and the kitty backend needs no rock.
     -- lazy.nvim's rocks installer is disabled globally in config/lazy.lua.
-    { "3rd/image.nvim", opts = {} },
+    {
+      "3rd/image.nvim",
+      opts = {
+        -- image.nvim's default squeezes any image past 50% of the window
+        -- height, which halved mermaid's text on screen (an ER diagram's
+        -- 13px glyphs were drawn at ~8px). Let diagrams use the full window;
+        -- the 100% window caps still stop them overflowing it.
+        max_height_window_percentage = 100,
+      },
+    },
   },
   ft = { "markdown" },
   opts = function()
@@ -32,6 +41,13 @@ return {
           -- Transparent page so the diagram floats over the buffer background
           -- at any theme; the palette itself lives in the -c config below.
           background = "transparent",
+          -- mmdc fit-shrinks wide diagrams onto its ~784px page, taking mermaid's
+          -- 16px text down to ~13px before image.nvim even sees it. Rasterizing
+          -- at 2x doubles the text pixels, so diagrams land at roughly terminal
+          -- font size instead of a smudge. Raise/lower to taste; clear
+          -- ~/.cache/nvim/diagram-cache/mermaid afterwards -- the cache keys on
+          -- diagram source only, not on these flags.
+          scale = 2,
           cli_args = {
             -- -c (lowercase) is mermaid's theme config; -C is --cssFile.
             -- No --no-sandbox: nixpkgs' mermaid-cli wrapper already points
