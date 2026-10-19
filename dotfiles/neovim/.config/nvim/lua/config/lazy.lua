@@ -49,6 +49,12 @@ require("lazy").setup({
     version = false,
   },
   install = { colorscheme = { "noctalia", "habamax" } },
+  -- image.nvim ships a rockspec, so lazy.nvim tries to build the optional
+  -- `magick` luarock via hererocks -- which fails on NixOS (no system luarocks).
+  -- Only :ImageInfo needs that rock; disable rocks support globally.
+  -- This must be a top-level lazy option: rockspec package detection is gated
+  -- on it, so a per-plugin `rocks = { enabled = false }` in a spec has no effect.
+  rocks = { enabled = false },
   checker = {
     enabled = true,
     notify = false,
