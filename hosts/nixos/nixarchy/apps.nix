@@ -6,7 +6,7 @@
   # ── Service ─────────────────────────────────────────────────────
     # _1password.enable = true;  #@ _1password  # unfree — Needs the module, not the package: unlocking requires a setuid helper that only programs._1password-gui installs. Set `settings.polkitPolicyOwners = [ "yourname" ]`. 
     #   _1password.settings = { };  #@ _1password.settings
-    bitwarden.enable = true;  #@ bitwarden
+    # bitwarden.enable = true;  #@ bitwarden
     # dropbox.enable = true;  #@ dropbox  # unfree
     # nordvpn.enable = true;  #@ nordvpn  # unfree
     # once.enable = true;  #@ once
@@ -82,7 +82,7 @@
     # zed.enable = true;  #@ zed
 
   # ── Gaming ──────────────────────────────────────────────────────
-    heroic.enable = true;  #@ heroic
+    # heroic.enable = true;  #@ heroic
     lutris.enable = true;  #@ lutris
     # minecraft.enable = true;  #@ minecraft
     # retroarch.enable = true;  #@ retroarch  # Ships 13 free cores. For more -- including snes9x, genesis-plus-gx, mame and dolphin, which nixpkgs marks unfree -- set allowUnfree and override the package:   apps.retroarch.package =     pkgs.retroarch.withCores (c: [ c.snes9x c.mame c.dolphin ]); 
@@ -122,7 +122,7 @@
     ngspice  #@pkg ngspice
     hydralauncher  #@pkg hydralauncher
     noctalia  #@pkg noctalia
-    drawio  #@pkg drawio
+    # drawio  #@pkg drawio  # Electron, so every nixpkgs bump rebuilt it against chromium; installed from Flathub instead -- see services.nix.
     cisco-packet-tracer_9  #@pkg cisco-packet-tracer_9
     nix-search-tv  #@pkg nix-search-tv
     python313Packages.pettingzoo  #@pkg python313Packages.pettingzoo
@@ -137,6 +137,10 @@
     insomnia  #@pkg insomnia
     probe-rs-tools  #@pkg probe-rs-tools
     unityhub  #@pkg unityhub
+    calibre  #@pkg calibre
+    typstPackages.calendaring  #@pkg typstPackages.calendaring
+    feh  #@pkg feh
+    openscad  #@pkg openscad
   ];  #@pkgs-end
 }
 

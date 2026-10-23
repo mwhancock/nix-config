@@ -15,6 +15,12 @@ let
   # the sysboard binary as an argument, so bind it once here and share it.
   sysboard = pkgs.callPackage ./sysboard.nix { };
   sysboard-ctl = pkgs.callPackage ./sysboard-ctl.nix { inherit sysboard; };
+
+  # LumineCapture: Wayland screenshot/annotation tool with OCR, built from the
+  # flake's git input since it is not in nixpkgs.
+  lumineCapture = pkgs.callPackage ./lumine-capture.nix {
+    lumine-capture = inputs.lumine-capture;
+  };
 in
 
 {
@@ -135,6 +141,10 @@ in
     grim
     slurp
     swappy
+    # LumineCapture, bound to SUPER+P (see ~/.config/hypr/bindings.lua).
+    # grim/slurp/swappy stay: they back the PRINT-key flow and omarchy's
+    # capture scripts.
+    lumineCapture
     alsa-tools
     alsa-firmware
     adwaita-icon-theme

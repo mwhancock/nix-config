@@ -44,9 +44,21 @@
     #
     # Both come prebuilt, so nothing compiles here. Flathub is already the
     # default remote, so no remote line is needed.
+    #
+    # The rest are Electron apps moved out of nixpkgs for the same reason:
+    # nixpkgs builds Electron out of chromium, so an update rebuilt the whole
+    # Electron tree locally. The Flatpaks carry their own Electron runtime and
+    # never compile here.
     services.flatpak.packages = [
       "com.bambulab.BambuStudio"
       "com.orcaslicer.OrcaSlicer"
+      "com.heroicgameslauncher.hgl"
+      "com.bitwarden.desktop"
+      "com.jgraph.drawio.desktop"
+      # Not an app anyone launches here: this is mermaid-cli's renderer.
+      # modules/packages/removed.nix points the nixpkgs `chromium` attribute at
+      # a shim that runs this Flatpak, so updates never compile Chromium.
+      "org.chromium.Chromium"
     ];
 
     # The open-bamboo-networking plugin is deployed by home-manager as a symlink
@@ -55,5 +67,11 @@
     # symlink resolve. Nothing else is pulled in from the store: the plugin's
     # NEEDED libraries (openssl, curl, zlib, libstdc++, libc) are all already
     # loaded by the app from its runtime, so the dynamic loader reuses those.
-    services.flatpak.overrides."com.orcaslicer.OrcaSlicer".Context.filesystems = [ "/nix/store:ro" ];
+    services.flatpak.overrides.settings."com.orcaslicer.OrcaSlicer".Context.filesystems = [ "/nix/store:ro" ];
+
+    # Same reason: mermaid-cli loads its own index.html from /nix/store, and the
+    # Flatpak sandbox cannot see that path without this. Puppeteer's side of the
+    # arrangement (TCP transport instead of a pipe) is in
+    # modules/packages/removed.nix.
+    services.flatpak.overrides.settings."org.chromium.Chromium".Context.filesystems = [ "/nix/store:ro" ];
 }
