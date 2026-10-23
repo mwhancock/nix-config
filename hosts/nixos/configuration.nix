@@ -30,6 +30,10 @@
     # second module in modules/packages has to be named explicitly. This one is
     # an overlay that keeps a few applications uninstalled -- see the file.
     ../../modules/packages/removed.nix
+    # Overlays working around packages that do not build on the current
+    # nixpkgs pin. Delete each once the upstream fix is in the pin -- see the
+    # file.
+    ../../modules/packages/nixpkgs-pin-fixes.nix
     ../../modules/security
     ../../modules/services
     ../../modules/shell
@@ -100,7 +104,13 @@
   # it ran services.ollama with ollama-vulkan and auto-loaded four models at
   # activation. nixarchy's localAi provides the same daemon plus the opencode
   # and nvim integrations, and the live system already had it enabled.
-  programs.nixarchy.localAi.enable = true;
+  programs.nixarchy.localAi = {
+    enable = true;
+    contextWindow = 65536;
+    acceleration = "vulkan";
+  };
+
+  services.ollama.environmentVariables.OLLAMA_IGPU_ENABLE = "1";
 
   hardware.amdgpu.opencl.enable = true;
 

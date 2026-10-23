@@ -3,7 +3,7 @@
 #
 # This is a blunt instrument and that is a real cost. It shadows the attribute
 # for everything in this machine, not only for the one list that wanted the app
-# gone. It is here because for these two there is no narrower route:
+# gone. It is here because for these there is no narrower route:
 #
 #   - They are not nixarchy `preinstalls`, so `preinstallsExclude` cannot name
 #     them. That option is the right answer for libreoffice, obs-studio,
@@ -21,33 +21,66 @@
 # nothing is symlinked into /run/current-system/sw/bin and no desktop entry is
 # installed. The real packages drop out of the system closure.
 #
-# The risk this accepts: anything else that wants one of these two as a working
-# package gets an empty directory instead. Both are leaf desktop applications
-# with no library consumers, so that is a risk taken knowingly. If one ever needs
-# to come back, delete its entry here rather than fighting this.
+# The risk this accepts: anything else that wants one of these as a working
+# package gets an empty directory instead. foot and evince are leaf desktop
+# applications with no library consumers, so that is a risk taken knowingly. If
+# one ever needs to come back, delete its entry here rather than fighting this.
 #
 # The evince entry shows that assumption being wrong, and the sushi override
 # below is the repair. Prefer to read that before adding a fourth name here.
 #
-# chromium is the case where that cost is NOT worth paying, which is why it is
-# the one omission here. It is in the same nixarchy runtimeDeps list and would
-# shadow exactly as cleanly as these two, but nixpkgs builds Electron out of it:
-# pkgs/development/tools/electron/common.nix does `chromium.override { ... }`.
-# Heroic and Bitwarden Desktop are both enabled in ~/.config/nixarchy/apps.nix
-# and both are Electron apps, so shadowing chromium does not remove a browser --
-# it makes the whole system fail to evaluate. Verified, not inferred:
-# `heroic-2.22.3` and `bitwarden-desktop-2026.9.0` both reference
-# electron-43.6.0 in the current closure.
+# chromium used to be the one omission here, and for a hard reason: nixpkgs
+# builds Electron out of it (pkgs/development/tools/electron/common.nix does
+# `chromium.override { ... }`), and Heroic and Bitwarden Desktop were both
+# Electron apps installed from nixpkgs, so shadowing chromium made the whole
+# system fail to evaluate.
 #
-# So chromium stays installed as an Electron build input. The cost is disk, and a
-# `chromium` binary that nothing launches. Removing it means giving up Heroic and
-# Bitwarden, which is a worse trade than the disk.
+# They are Flatpaks now -- Heroic, Bitwarden and draw.io all live in
+# hosts/nixos/nixarchy/services.nix -- so Electron has no consumer left in this
+# closure. What still needs a browser engine is mermaid-cli: its wrapper sets
+# PUPPETEER_EXECUTABLE_PATH from the `chromium` argument, and mmdc is what
+# md-export and diagram.nvim render mermaid with.
+#
+# So `chromium` here is a shim, not the nixpkgs package: a two-line script that
+# runs the org.chromium.Chromium Flatpak. mermaid-cli gets that shim plus a
+# Puppeteer config that makes it talk to the Flatpak over a TCP DevTools port
+# (`pipe: false`), because the Flatpak sandbox cannot receive the file
+# descriptors Puppeteer's default pipe transport uses, and grants the sandbox
+# read-only /nix/store so Chromium can load mermaid-cli's own index.html. The
+# Flatpak override that grants that is in services.nix, next to the package.
+#
+# Net effect: no nixpkgs Chromium is built or installed, the browser comes from
+# Flathub, and an update never compiles Chromium again.
 { pkgs, ... }:
 
 {
   nixpkgs.overlays = [
     (
       final: prev: {
+        # Browser shim: the nixpkgs Chromium attribute now points at the
+        # Flathub app, so nothing in the closure builds or carries Chromium
+        # itself. Both names are provided because omarchy's scripts and
+        # desktop-file code use both. See the header for the mermaid detail.
+        chromium =
+          let
+            shim = prev.runCommand "chromium-flatpak" { } ''
+              mkdir -p $out/bin
+              cat > $out/bin/chromium <<'EOF'
+              #!/bin/sh
+              exec ${prev.flatpak}/bin/flatpak run --command=chromium org.chromium.Chromium "$@"
+              EOF
+              chmod +x $out/bin/chromium
+              ln -s chromium $out/bin/chromium-browser
+            '';
+          in
+          shim
+          // {
+            meta = (shim.meta or { }) // {
+              mainProgram = "chromium";
+              description = "Chromium, run from its Flathub Flatpak";
+            };
+          };
+
         # Terminal. Replaced by ghostty, which was already nixarchy's terminal.
         # ~/.config/xdg-terminals.list points xdg-terminal-exec there, because
         # foot.desktop was the only entry in xdg-terminal-exec's preference list
@@ -73,6 +106,31 @@
         # consumer that genuinely needs them. Verified to be the only such
         # consumer: nothing but sushi references the real evince in the closure.
         sushi = prev.sushi.override { evince = prev.evince; };
+
+        # mermaid-cli builds its wrapper with `lib.getExe chromium`, so it gets
+        # the shim above, and the appended -p points every mmdc invocation at
+        # the Puppeteer config that switches the transport to a TCP port and
+        # grants the flags the Flatpak needs. Without this the wrapper defaults
+        # to Puppeteer's pipe transport, which does not cross the Flatpak
+        # sandbox boundary.
+        mermaid-cli =
+          let
+            puppeteerConfig = prev.writeText "mmdc-puppeteer.json" (
+              builtins.toJSON {
+                executablePath = "${final.chromium}/bin/chromium";
+                pipe = false;
+                args = [
+                  "--no-sandbox"
+                  "--disable-gpu"
+                ];
+              }
+            );
+          in
+          (prev.mermaid-cli.override { chromium = final.chromium; }).overrideAttrs (old: {
+            postFixup = (old.postFixup or "") + ''
+              wrapProgram $out/bin/mmdc --add-flags "-p ${puppeteerConfig}"
+            '';
+          });
       }
     )
   ];

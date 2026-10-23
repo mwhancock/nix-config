@@ -6,10 +6,6 @@
     jellyfin-tui concord aichat bat fzf lazygit starship
   ];
 
-  home.sessionVariables = {
-    PUPPETEER_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
-  };
-
   home.file.".config/yazi".source = config.lib.file.mkOutOfStoreSymlink "/home/mark/dotfiles/yazi/.config/yazi";
   home.file.".config/aider".source = config.lib.file.mkOutOfStoreSymlink "/home/mark/dotfiles/aider/.config/aider";
   home.file.".config/bat".source = config.lib.file.mkOutOfStoreSymlink "/home/mark/dotfiles/bat/.config/bat";
