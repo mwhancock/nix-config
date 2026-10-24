@@ -120,7 +120,7 @@
     modelio  #@pkg modelio
     visual-paradigm-ce  #@pkg visual-paradigm-ce
     ngspice  #@pkg ngspice
-    hydralauncher  #@pkg hydralauncher
+    # hydralauncher  #@pkg hydralauncher  # Electron app rebuilt against chromium on every nixpkgs bump; running the upstream 4.2.0 AppImage from ~/AppImages instead.
     noctalia  #@pkg noctalia
     # drawio  #@pkg drawio  # Electron, so every nixpkgs bump rebuilt it against chromium; installed from Flathub instead -- see services.nix.
     cisco-packet-tracer_9  #@pkg cisco-packet-tracer_9
