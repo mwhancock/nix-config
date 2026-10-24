@@ -98,6 +98,11 @@
     flake = "/etc/nixos";
   };
 
+  services.udev.packages = with pkgs; [
+    platformio-core.udev
+    openocd # optional, but useful if you use hardware debuggers
+  ];
+
   # ----------------------------------------------------------- Local AI
   #
   # Kept per the migration review. The old services/ollama.nix is NOT imported:
@@ -111,6 +116,8 @@
   };
 
   services.ollama.environmentVariables.OLLAMA_IGPU_ENABLE = "1";
+# Extended timeout for slow integrated graphics workloads
+services.ollama.environmentVariables.OLLAMA_KEEP_ALIVE = "1h";
 
   hardware.amdgpu.opencl.enable = true;
 
