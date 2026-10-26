@@ -48,11 +48,42 @@ in
   # The other X libs in the same .so -- libX11, libXext, libXi -- are already
   # in the base set.
   #
+  # libtinfo and libstdc++ are for foreign binaries generally; most toolchains
+  # that are not built by Nix expect those two by name.
+  #
+  # NOTE: Unity is NOT served by this list. Unity Hub ships as a buildFHSEnv
+  # sandbox (bubblewrap), and the Editor it launches inherits that sandbox,
+  # where /lib64 is the FHS glibc loader rather than nix-ld. NIX_LD_LIBRARY_PATH
+  # is therefore ignored there. The missing Unity libraries are added to the
+  # Hub's FHS environment by the overlay below instead.
+  #
   # NIX_LD_LIBRARY_PATH is read at login: rebuild, then log out and back in
   # before retrying the run.
   programs.nix-ld.libraries = with pkgs; [
     libxrender
     libxtst
+    libtinfo
+    gccNGPackages.libstdcxx
+  ];
+
+  # Unity Hub runs both itself and the Editor it launches inside a
+  # buildFHSEnv sandbox. That sandbox carries libstdc++ but not libtinfo, so
+  # the Editor's UnityShaderCompiler helper dies at startup with
+  #   libtinfo.so.6: cannot open shared object file
+  # and Unity reports the shader-compiler IPC timeout (0x80000008 Timed out).
+  # extraPkgs puts a package's libraries into the FHS environment's
+  # /usr/lib64, which is where the sandboxed glibc looks. Use `libtinfo`, not
+  # `ncurses`: plain ncurses only ships a libtinfo.so.6 *alias* to
+  # libncursesw.so.6, whose SONAME is libncursesw.so.6, so ldconfig (which
+  # indexes by SONAME) never puts libtinfo.so.6 in the cache and the loader
+  # still fails. libtinfo is the ncurses build with a real termlib, and its
+  # libtinfo.so.6 has SONAME libtinfo.so.6.
+  nixpkgs.overlays = [
+    (final: prev: {
+      unityhub = prev.unityhub.override {
+        extraPkgs = p: [ p.libtinfo ];
+      };
+    })
   ];
 
   environment.systemPackages = with pkgs; [
