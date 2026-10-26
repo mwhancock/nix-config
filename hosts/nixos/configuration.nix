@@ -116,8 +116,8 @@
   };
 
   services.ollama.environmentVariables.OLLAMA_IGPU_ENABLE = "1";
-# Extended timeout for slow integrated graphics workloads
-services.ollama.environmentVariables.OLLAMA_KEEP_ALIVE = "1h";
+# Extended timeout for slow integrated graphics workloads (override nixarchy default of "30m")
+services.ollama.environmentVariables.OLLAMA_KEEP_ALIVE = lib.mkForce "1h";
 
   hardware.amdgpu.opencl.enable = true;
 
