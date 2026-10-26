@@ -141,6 +141,13 @@
     typstPackages.calendaring  #@pkg typstPackages.calendaring
     feh  #@pkg feh
     openscad  #@pkg openscad
+    python313Packages.pyserial  #@pkg python313Packages.pyserial
+    antigravity-cli  #@pkg antigravity-cli
+    kikit  #@pkg kikit
+    concord-tui  #@pkg concord-tui
+    mysql-workbench  #@pkg mysql-workbench
+    mysql84  #@pkg mysql84
+    mysql_jdbc  #@pkg mysql_jdbc
   ];  #@pkgs-end
 }
 
