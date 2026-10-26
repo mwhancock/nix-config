@@ -1,4 +1,4 @@
-config_version = 14
+config_version = 15
 
 [bar.default]
 background_opacity = 0.84999998100101948
@@ -84,6 +84,7 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-login-box@DP-3", "lock
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -111,6 +112,7 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-login-box@DP-3", "lock
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -138,6 +140,7 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-login-box@DP-3", "lock
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
