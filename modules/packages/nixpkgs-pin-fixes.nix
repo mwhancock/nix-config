@@ -70,6 +70,25 @@
             ) old.makeWrapperArgs;
           });
 
+        # udiskie's test_is_valid caches a password with a one-second keyring
+        # timeout, then asserts the cache is still non-empty after a delete and
+        # a re-add:
+        #
+        #   AssertionError: <udiskie.cache.PasswordCache object ...> is not true
+        #
+        # A whole-machine rebuild puts this test on the same cores as niri's
+        # and quickshell's check phases, and if more than a second passes
+        # between the write and the check the key has expired by design. The
+        # same sequence passes when run by hand on this kernel, so it is a
+        # scheduling flake, not a keyutils or kernel change. Disable that one
+        # test and keep the other thirteen. nixarchy adds its own (stale,
+        # harmless) test_list_keys entry on top; this is the test that fails.
+        # Drop the entry once the test has a timeout that survives a parallel
+        # build.
+        udiskie = prev.udiskie.overridePythonAttrs (old: {
+          disabledTests = (old.disabledTests or [ ]) ++ [ "test_is_valid" ];
+        });
+
         # pyopenjtalk-plus fails one test under Cython 3.3: the generated type
         # check raises "Expected str, got int" before the package's own
         # "must be str" check, so the test's regex no longer matches.
