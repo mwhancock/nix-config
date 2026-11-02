@@ -1015,6 +1015,56 @@ in
           ;;
       esac
     '')
+
+    # rust-analyzer, because the one that ships with rustup cannot start here.
+    #
+    # Neovim already turns rust support on. dotfiles/neovim/.config/nvim/
+    # lua/config/lazy.lua imports lazyvim.plugins.extras.lang.rust, so
+    # rustaceanvim is installed and attaches on ft=rust. What was missing is the
+    # binary. The only rust-analyzer on PATH is rustup's proxy at
+    # /run/current-system/sw/bin/rust-analyzer, and the active toolchain carries
+    # no rust-analyzer component:
+    #
+    #   $ rust-analyzer --version
+    #   error: `rust-analyzer` is unavailable for the active toolchain
+    #   error: infinite recursion detected
+    #
+    # The proxy falls back to itself until rustup gives up. rustaceanvim's
+    # exepath("rust-analyzer") still finds something executable, spawns it, and
+    # the client dies before it attaches -- with no error in :Lazy or :Mason,
+    # which is why this reads as "rust-analyzer is not enabled".
+    #
+    # The nixpkgs build is a standalone binary, so it shadows the proxy instead
+    # of depending on it. Home Manager's profile sits ahead of
+    # /run/current-system/sw/bin on PATH, which is what makes the shadowing
+    # work; putting this in environment.systemPackages would instead collide
+    # with rustup's rust-analyzer symlink in the same bin directory. rustc and
+    # cargo still come from rustup, and rust-analyzer finds the toolchain via
+    # `rustc --print sysroot`, so project rust-toolchain.toml overrides keep
+    # working.
+    #
+    # The alternative is `rustup component add rust-analyzer`. Rejected: that is
+    # imperative user state no file in this repo records, and it has to be
+    # repeated for every toolchain that gets added to ~/.rustup.
+    pkgs.rust-analyzer
+
+    # marksman, for Neovim's markdown LSP, for the same kind of reason.
+    #
+    # Mason's marksman is a self-contained .NET binary, and it aborts before it
+    # reads a single file because it cannot find libicu:
+    #
+    #   Process terminated. Couldn't find a valid ICU package installed on the
+    #   system. Please install libicu (or icu-libs) ...
+    #
+    # The language server never starts, so markdown gets treesitter highlighting
+    # and nothing else -- no link completion, no "go to heading", no rename. The
+    # nixpkgs build links against this system's ICU and starts normally.
+    #
+    # lua/plugins/languages.lua sets `marksman = { mason = false }` so Neovim
+    # picks this one off PATH instead of mason's copy. Adding ICU to a
+    # buildFHSEnv for a server that nixpkgs already packages properly would be
+    # the wrong trade.
+    pkgs.marksman
   ];
 
   # ---------------------------------------------------------------------------
