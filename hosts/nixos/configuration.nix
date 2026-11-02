@@ -36,6 +36,9 @@
     ../../modules/packages/nixpkgs-pin-fixes.nix
     ../../modules/security
     ../../modules/services
+    # The LAMP stack for the school database course. A directory import
+    # resolves to default.nix only, so this file has to be named.
+    ../../modules/services/lamp.nix
     ../../modules/shell
   ];
 

@@ -152,6 +152,9 @@
     typstPackages.crossregex  #@pkg typstPackages.crossregex
     crosswords  #@pkg crosswords
     crosspatch  #@pkg crosspatch
+    apacheHttpd_2_4  #@pkg apacheHttpd_2_4
+    mariadb  #@pkg mariadb
+    dbeaver-bin  #@pkg dbeaver-bin
   ];  #@pkgs-end
 }
 
