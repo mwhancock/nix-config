@@ -120,6 +120,11 @@ in
     python3
     nh
     nixd
+    # Linter for the Nix language server wired up in Neovim. LazyVim's nix extra
+    # runs statix on every .nix buffer through nvim-lint, and with nothing on PATH
+    # every save printed "Error running statix: ENOENT". nixfmt (the formatter the
+    # same extra uses) already comes in from elsewhere.
+    statix
 
     # Embedded / electronics
     arduino-cli
