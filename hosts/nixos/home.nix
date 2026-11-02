@@ -1236,4 +1236,54 @@ in
 
     Install.WantedBy = [ "graphical-session.target" ];
   };
+
+  # ---------------------------------------------------------------------------
+  # Removable media: mount on plug, and give it a stable name in $HOME.
+  #
+  # udisks2 is already running system-wide, but it is only a mechanism: it
+  # answers requests and emits a DBus signal when a drive appears, and nothing
+  # was listening. So a plugged stick stayed unmounted until something asked for
+  # it by name, which is why yazi -- which can only browse mounted filesystems
+  # -- had no way to see one. udiskie is that listener: it mounts removable
+  # filesystems as the logged-in user the moment udisks2 reports them, with no
+  # sudo, no polkit prompt (the local active session is already authorised) and
+  # no fstab entry, since /dev/sdX names are not stable across reboots.
+  #
+  # Where it lands is not configurable. udisks2 owns the mount point for
+  # removable media and always chooses /run/media/$USER/<label>; the one NixOS
+  # knob, services.udisks2.mountOnMedia, moves that to /media, which is worse.
+  # Mounting under $HOME would mean bypassing udisks2 entirely and mounting
+  # udev devices by hand. So the filesystem stays where udisks2 puts it, and
+  # ~/Usb below is the convenience layer: one stable entry in the home
+  # directory, which is what yazi opens in, rather than a path to remember.
+  #
+  # --no-tray because udiskie's tray icon is a GTK/XEmbed status icon and this
+  # session (niri + Noctalia) has no tray host for it -- without the flag it
+  # either draws nothing or sits waiting on one. --no-file-manager because
+  # udiskie would otherwise launch a GUI file manager on mount; yazi is the
+  # file manager here and the notification already says what appeared.
+  # --notify is the "where did it go" half: it names the mount point when a
+  # device is mounted, so the directory is discoverable without opening yazi.
+  systemd.user.services.udiskie = {
+    Unit = {
+      Description = "Mount removable media as it is plugged in";
+      PartOf = [ "graphical-session.target" ];
+    };
+
+    Service = {
+      ExecStart = "${pkgs.udiskie}/bin/udiskie --automount --notify --no-tray --no-file-manager";
+      Type = "simple";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  # Out-of-store, not a copied directory: this has to be a symlink to the live
+  # /run/media/mark, or Home Manager would snapshot whatever happened to be
+  # mounted at activation time. The target is created by udisks2 on first mount
+  # and survives normal use, so the link is resolvable whenever a device is
+  # attached and shows an empty directory when none is.
+  home.file."Usb".source = config.lib.file.mkOutOfStoreSymlink "/run/media/mark";
 }
