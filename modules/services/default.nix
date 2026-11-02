@@ -128,6 +128,82 @@
   #     Was already enable = false.
 
   # ---------------------------------------------------------------------------
+  # Samba, for getting files to and from the Windows machine without the USB
+  # stick. That stick is fine -- it passes a hash-verified 8 GiB write and raw
+  # writes at 64/200/236 GiB here -- but on that Windows box it alternates
+  # between "cannot find the file specified" and not enumerating at all, which
+  # is a link/enumeration problem on the Windows side, not a filesystem one.
+  # Moving bytes over the network sidesteps it entirely.
+  #
+  # Two shares, deliberately:
+  #
+  #   home      /home/mark, read only. Browse and pull anything without being
+  #             able to delete it from Explorer by accident.
+  #   transfer  /home/mark/Transfer, read-write, for the other direction.
+  #
+  # User authentication, not guest. Windows 10/11 refuse unauthenticated SMB
+  # ("your organization's security policies block unauthenticated guest
+  # access") unless AllowInsecureGuestAuth is turned on in the registry, so a
+  # guest share would look like another broken device. The password is not in
+  # this repository: Samba keeps it in /var/lib/samba/private/passdb.tdb, which
+  # survives rebuilds. Set it once with
+  #
+  #   sudo smbpasswd -a mark
+  #
+  # server signing = mandatory because Windows 11 24H2 and Server 2025 require
+  # SMB signing on the client by default; without it the connection is refused
+  # during negotiation.
+  #
+  # hosts allow/deny is the real access control: openFirewall opens 445 to
+  # every interface, and this restricts who may use it to the private ranges
+  # (the WiFi here is 192.168.2.0/24) plus localhost. Change or drop it if the
+  # Windows machine is ever on a public address -- do not leave 445 open to the
+  # internet.
+  services.samba = {
+    enable = true;
+    openFirewall = true;
+
+    settings = {
+      global = {
+        workgroup = "WORKGROUP";
+        "server string" = "nixarchy";
+        "netbios name" = "NIXOS";
+        security = "user";
+        "map to guest" = "Never";
+        "server signing" = "mandatory";
+        "hosts allow" = "192.168. 10. 127.0.0.1";
+        "hosts deny" = "0.0.0.0/0";
+
+        # No printers on this machine, and leaving these at their defaults makes
+        # Samba advertise the CUPS queues it finds.
+        "load printers" = "no";
+        printing = "bsd";
+        "printcap name" = "/dev/null";
+        "disable spoolss" = "yes";
+      };
+
+      home = {
+        path = "/home/mark";
+        browseable = "yes";
+        "read only" = "yes";
+        "guest ok" = "no";
+        "valid users" = "mark";
+      };
+
+      transfer = {
+        path = "/home/mark/Transfer";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "no";
+        "valid users" = "mark";
+        "force user" = "mark";
+        "create mask" = "0644";
+        "directory mask" = "0755";
+      };
+    };
+  };
+
+  # ---------------------------------------------------------------------------
   # The WireGuard key that was committed to this repository.
   #
   # This is not a note about tidiness. nixModules/services/vpn.nix contained a

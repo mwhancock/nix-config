@@ -148,6 +148,10 @@
     mysql-workbench  #@pkg mysql-workbench
     mysql84  #@pkg mysql84
     mysql_jdbc  #@pkg mysql_jdbc
+    d2  #@pkg d2
+    typstPackages.crossregex  #@pkg typstPackages.crossregex
+    crosswords  #@pkg crosswords
+    crosspatch  #@pkg crosspatch
   ];  #@pkgs-end
 }
 
