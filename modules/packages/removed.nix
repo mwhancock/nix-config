@@ -75,6 +75,10 @@
           in
           shim
           // {
+            # nixarchy's omarchy package (chromium-flags) names itself after
+            # `chromium.version`, so the shim has to carry one. Taken from the
+            # real nixpkgs package: reading the attribute evaluates no build.
+            version = prev.chromium.version;
             meta = (shim.meta or { }) // {
               mainProgram = "chromium";
               description = "Chromium, run from its Flathub Flatpak";
