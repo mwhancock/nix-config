@@ -155,6 +155,9 @@
     apacheHttpd_2_4  #@pkg apacheHttpd_2_4
     mariadb  #@pkg mariadb
     dbeaver-bin  #@pkg dbeaver-bin
+    adminer  #@pkg adminer
+    gh  #@pkg gh
+    trayscale  #@pkg trayscale
   ];  #@pkgs-end
 }
 
