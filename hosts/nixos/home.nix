@@ -716,6 +716,21 @@ in
     recursive = true;
   };
 
+  # OpenCode's global instructions -- the "ask before changing anything"
+  # working agreement. Managed rather than left as an unmanaged file, so it is
+  # backed up here and appears on any other Nix machine this flake builds.
+  #
+  # opencode.json next door is deliberately NOT managed: it holds provider and
+  # API settings that are machine-specific.
+  #
+  # A plain store symlink, not out-of-store: OpenCode only reads this file, it
+  # never writes it back, so read-only is correct and the deployed policy is
+  # exactly what is committed. Edit the copy in dotfiles/ and rebuild to change
+  # the agreement.
+  home.file.".config/opencode/AGENTS.md" = {
+    source = dotfiles + "/opencode/.config/opencode/AGENTS.md";
+  };
+
   # ---------------------------------------------------------------------------
   # Vendored out-of-store, not from the store.
   #
