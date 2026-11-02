@@ -19,7 +19,27 @@
   # Kept. Also in the live system's own configuration.nix, so this is a
   # no-op relative to what is already running.
   services.printing.enable = true;
+
+  # SSH is reachable over the tailnet only, not the LAN.
+  #
+  # services.openssh.openFirewall defaults to true, which adds
+  #
+  #   -A nixos-fw -p tcp -m tcp --dport 22 -j nixos-fw-accept
+  #
+  # with no interface match, so 22 was accepted from every network this laptop
+  # joins -- cafe WiFi included -- with PasswordAuthentication at its default of
+  # true. Tailscale already authenticates both ends and encrypts the transport,
+  # so that exposure buys nothing.
+  #
+  # Note services.tailscale.openFirewall is NOT what makes this work: in this
+  # nixpkgs it only opens the UDP tunnel port (41641), which tailscaled already
+  # accepts at runtime from its own ts-input chain. Trusting the interface is
+  # what keeps `ssh mark@100.122.14.34` reachable, and it is written out here
+  # rather than relying on tailscaled's runtime rule, so inbound SSH on the
+  # tailnet does not depend on the order tailscaled and the firewall start.
   services.openssh.enable = true;
+  services.openssh.openFirewall = false;
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
   # ---------------------------------------------------------------------------
   # CPU power management: auto-cpufreq, and why PPD had to go.
