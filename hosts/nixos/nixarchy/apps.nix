@@ -157,6 +157,7 @@
     dbeaver-bin  #@pkg dbeaver-bin
     adminer  #@pkg adminer
     gh  #@pkg gh
+    gradle  #@pkg gradle
   ];  #@pkgs-end
 }
 
