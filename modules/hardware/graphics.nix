@@ -26,10 +26,29 @@
 # integration -- gets the same benefit. extraPackages merges into the driver
 # environment rather than replacing it, so mesa and the AMD/ROCm libraries
 # already in it are unaffected.
-{ pkgs, ... }:
+#
+# The variable is the second half of the fix: having libGL.so.1 in the driver
+# environment is necessary but not sufficient, because the JVM reads
+# LD_LIBRARY_PATH and nothing on this system points it at /run/opengl-driver.
+# That is what `./gradlew :desktopApp:run` -- and any IDE launch of main() --
+# inherits, so it is set for the session rather than per command.
+#
+# environment.sessionVariables does NOT merge a list across definitions: the
+# PipeWire module assigns its JACK library to the same variable, and a second
+# assignment either conflicts outright or, with mkForce, silently drops JACK.
+# So the two are spelled out together here; the JACK entry mirrors exactly what
+# services.pipewire.jack would have set on its own.
+{ config, lib, pkgs, ... }:
 
+let
+  jackLibrary = lib.optional config.services.pipewire.jack.enable
+    "${config.services.pipewire.package.jack}/lib";
+in
 {
   hardware.graphics.extraPackages = with pkgs; [
     libglvnd
   ];
+
+  environment.sessionVariables.LD_LIBRARY_PATH =
+    lib.mkForce ([ "/run/opengl-driver/lib" ] ++ jackLibrary);
 }
