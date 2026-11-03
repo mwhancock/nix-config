@@ -157,7 +157,9 @@
     dbeaver-bin  #@pkg dbeaver-bin
     adminer  #@pkg adminer
     gh  #@pkg gh
-    trayscale  #@pkg trayscale
+    tscli  #@pkg tscli
+    tailscale-gui  #@pkg tailscale-gui
+    odoo19  #@pkg odoo19
   ];  #@pkgs-end
 }
 
