@@ -157,7 +157,6 @@
     dbeaver-bin  #@pkg dbeaver-bin
     adminer  #@pkg adminer
     gh  #@pkg gh
-    odoo19  #@pkg odoo19
   ];  #@pkgs-end
 }
 
