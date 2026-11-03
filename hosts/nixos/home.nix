@@ -1351,4 +1351,33 @@ in
   # and survives normal use, so the link is resolvable whenever a device is
   # attached and shows an empty directory when none is.
   home.file."Usb".source = config.lib.file.mkOutOfStoreSymlink "/run/media/mark";
+
+  # ---------------------------------------------------------------------------
+  # Odoo: a window onto the home server, not a local install.
+  #
+  # The Odoo instance runs on the home server (odoo.mountdoom.win), so nothing
+  # Odoo-related belongs in this machine's closure. The nixpkgs package is the
+  # server -- a Python application with no .desktop file -- which is why it
+  # never appeared in the menu, only as `odoo` on PATH, and why it was dropped
+  # from the selection. There is no official desktop client; Odoo is a web app,
+  # and every third-party "desktop app" is a webview wrapper.
+  #
+  # So the entry below is the wrapper: chromium --app opens a chrome-less window
+  # with no tabs or address bar, which is what the platform installers on
+  # Windows do. It shares the default chromium profile, so the session cookie
+  # is the same one a normal browser tab would have and a login survives
+  # restarts. --class pins the Wayland app_id (and X11 WM_CLASS) to "Odoo" so
+  # the compositor's window rules and the taskbar can group it; StartupWMClass
+  # matches that same string, otherwise the launcher would show a second,
+  # generic entry while it is open.
+  xdg.desktopEntries.odoo = {
+    name = "Odoo";
+    genericName = "ERP and CRM";
+    comment = "Odoo on the home server (odoo.mountdoom.win)";
+    exec = "${pkgs.chromium}/bin/chromium --app=https://odoo.mountdoom.win --class=Odoo";
+    icon = "applications-office";
+    categories = [ "Office" "Network" ];
+    startupNotify = true;
+    settings.StartupWMClass = "Odoo";
+  };
 }
