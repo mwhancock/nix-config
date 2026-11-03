@@ -1,0 +1,8 @@
+{
+  "nixpkgs": {
+    "expr": "(builtins.getFlake \"/etc/nixos\").inputs.nixpkgs"
+  },
+  "nixos": {
+    "expr": "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.nixos"
+  }
+}

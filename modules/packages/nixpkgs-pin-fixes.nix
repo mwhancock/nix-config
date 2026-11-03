@@ -6,6 +6,39 @@
 { lib, ... }:
 
 {
+  # gtk2 (attribute `gtk+`) is marked broken on this pin while its removal is
+  # staged for NixOS 27.05 (NixOS/nixpkgs#410814). onlyoffice-desktopeditors
+  # still lists gtk2 in buildInputs -- it is one of the prebuilt .deb's runtime
+  # libraries -- so the whole system closure refuses to evaluate:
+  #
+  #   error: Refusing to evaluate package 'gtk+-2.24.33' ... because it has problems:
+  #   - broken: gtk2 will be removed ...
+  #
+  # Nothing in this configuration can migrate onlyoffice off gtk2, and dropping
+  # the package would be a bigger change than the warning is worth. Warn rather
+  # than fail, so evaluation succeeds and the notice keeps appearing at every
+  # rebuild until the pin carries an onlyoffice that has dropped the dependency.
+  # Delete this block then.
+  #
+  # mkDefault is load-bearing. nixpkgs.config is merged by a custom type that
+  # discards every definition below the highest priority, so a plain
+  # `nixpkgs.config = { ... }` here would silently drop nixarchy's own
+  # `lib.mkDefault { allowUnfree = true; }` and every unfree app (jocalsend,
+  # the browsers) would start failing licence checks. At the same priority the
+  # two definitions are merged instead.
+  nixpkgs.config = lib.mkDefault {
+    problems.handlers."gtk+".broken = "warn";
+
+    # pybars3 0.9.7 is flagged for CVE-2026-119716 (code injection through
+    # bracketed path segments in a Handlebars template). It reaches the closure
+    # only through kikit, which uses it for panelization templates it reads
+    # from the user's own config -- exploiting the CVE needs a template from an
+    # untrusted source, and there is no fixed pybars3 release to move to.
+    # Permit that one derivation rather than disabling kikit; remove the entry
+    # once nixpkgs carries a fix or kikit drops the dependency.
+    permittedInsecurePackages = [ "python3.14-pybars3-0.9.7" ];
+  };
+
   nixpkgs.overlays = [
     (
       final: prev:
