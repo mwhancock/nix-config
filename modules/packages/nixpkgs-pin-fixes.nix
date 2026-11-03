@@ -36,7 +36,17 @@
     # untrusted source, and there is no fixed pybars3 release to move to.
     # Permit that one derivation rather than disabling kikit; remove the entry
     # once nixpkgs carries a fix or kikit drops the dependency.
-    permittedInsecurePackages = [ "python3.14-pybars3-0.9.7" ];
+    # pypdf2 3.0.1 is flagged for CVE-2026-27024, -27025, -27628, -27888,
+    # -28351 and -33699 (malicious PDFs crash or execute code in the parser).
+    # It reaches the closure only through odoo19's buildInputs, and pypdf2 is
+    # abandoned upstream in favour of pypdf with no fixed release to move to,
+    # so the version cannot be bumped here. Odoo only parses PDFs uploaded to
+    # the user's own instance, which is the same trust boundary as kikit above.
+    # Remove the entry once nixpkgs carries an odoo that uses pypdf.
+    permittedInsecurePackages = [
+      "python3.14-pybars3-0.9.7"
+      "python3.12-pypdf2-3.0.1"
+    ];
   };
 
   nixpkgs.overlays = [
