@@ -59,6 +59,7 @@
       # modules/packages/removed.nix points the nixpkgs `chromium` attribute at
       # a shim that runs this Flatpak, so updates never compile Chromium.
       "org.chromium.Chromium"
+      "com.invoiceninja.InvoiceNinja"
     ];
 
     # The open-bamboo-networking plugin is deployed by home-manager as a symlink
