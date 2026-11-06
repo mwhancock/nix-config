@@ -543,6 +543,79 @@ in
     fi
   '';
 
+  # Saber on Linux reads its accent color from the KDE/GTK palette stored in
+  # ~/.config/kdeglobals, specifically [Colors:View] DecorationHover. Omarchy
+  # does not set that key to its own accent, so Saber ends up with a dark
+  # on-primary brown instead of the theme accent. This hook patches kdeglobals
+  # to Omarchy's active `accent` colour after every `omarchy theme set`, so
+  # Saber follows the same theme as the rest of the desktop.
+  home.file.".config/omarchy/hooks/theme-set.d/saber".text = ''
+    #!/usr/bin/env bash
+    # Tie Saber's accent color to Omarchy's theme engine.
+    #
+    # Omarchy runs every script in ~/.config/omarchy/hooks/theme-set.d/ after a
+    # theme change. By that point the merged palette is already available at
+    # ~/.local/state/omarchy/current/theme/colors.toml.
+
+    set -euo pipefail
+
+    COLORS_TOML="$HOME/.local/state/omarchy/current/theme/colors.toml"
+    [[ -f $COLORS_TOML ]] || exit 0
+
+    KDEGLOBALS="$HOME/.config/kdeglobals"
+    [[ -f $KDEGLOBALS ]] || exit 0
+
+    accent=$(sed -n 's/^accent[[:space:]]*=[[:space:]]*[^#]*\(#[[:xdigit:]]\{6\}\).*/\1/p' "$COLORS_TOML" | head -1)
+    [[ -n $accent ]] || exit 0
+
+    # Convert #rrggbb to decimal r,g,b.
+    r=$((16#''${accent:1:2}))
+    g=$((16#''${accent:3:2}))
+    b=$((16#''${accent:5:2}))
+
+    # Patch the KDE globals file that Saber reads for its accent seed.
+    python3 - "$KDEGLOBALS" "$r,$g,$b" <<'PY'
+    import re, sys
+    path, rgb = sys.argv[1], sys.argv[2]
+    with open(path) as f:
+        text = f.read()
+    new_text = text
+    for key in ("DecorationHover", "DecorationFocus"):
+        new_text = re.sub(
+            rf"(\[Colors:View\][\s\S]*?{key}=)[0-9,]+",
+            rf"\g<1>{rgb}",
+            new_text,
+        )
+    if new_text != text:
+        with open(path, "w") as f:
+            f.write(new_text)
+    PY
+  '';
+
+  # Re-apply the Saber accent after each Home Manager activation, because
+  # nixarchy's own kdeglobals generation would otherwise clobber it.
+  home.activation.saberAccent = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    ${pkgs.bash}/bin/bash "${config.home.homeDirectory}/.config/omarchy/hooks/theme-set.d/saber" || true
+  '';
+
+  # If something else (nixarchy, a manual theme change, etc.) rewrites
+  # kdeglobals after activation, patch it again so Saber keeps the right accent.
+  systemd.user.services.saber-accent = {
+    Unit.Description = "Apply Omarchy accent to kdeglobals for Saber";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash ${config.home.homeDirectory}/.config/omarchy/hooks/theme-set.d/saber";
+    };
+  };
+
+  systemd.user.paths.saber-accent = {
+    Unit.Description = "Watch kdeglobals for Saber accent sync";
+    Path = {
+      PathModified = "${config.home.homeDirectory}/.config/kdeglobals";
+    };
+    Install.WantedBy = [ "paths.target" ];
+  };
+
   # mermaid-mmdc.json, the palette Neovim's mermaid rendering renders with.
   #
   # Same shape as the sysboard hook above: Omarchy runs every script in

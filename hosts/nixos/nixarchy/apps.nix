@@ -158,6 +158,7 @@
     adminer  #@pkg adminer
     gh  #@pkg gh
     gradle  #@pkg gradle
+    saber  #@pkg saber
   ];  #@pkgs-end
 }
 

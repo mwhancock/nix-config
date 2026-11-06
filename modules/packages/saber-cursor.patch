@@ -1,0 +1,189 @@
+--- a/lib/components/canvas/canvas_gesture_detector.dart	2026-11-04 15:10:32.720831495 -0330
++++ b/lib/components/canvas/canvas_gesture_detector.dart	2026-11-04 15:12:43.824899973 -0330
+@@ -422,8 +422,13 @@
+     final isStylus =
+         event.kind == PointerDeviceKind.stylus ||
+         event.kind == PointerDeviceKind.invertedStylus;
+-    if (isStylus && event is PointerDownEvent) {
+-      _detectStylusButton(event);
++    if (isStylus) {
++      _updateCursorPosition(event, inBounds: true);
++      if (event is PointerDownEvent) {
++        _detectStylusButton(event);
++      }
++    } else {
++      _updateCursorPosition(event, inBounds: false);
+     }
+ 
+     final double? pressure;
+@@ -453,8 +458,14 @@
+ 
+   var stylusButtonWasPressed = false;
+ 
++  /// Notifies the position of the stylus/mouse cursor over the canvas.
++  final ValueNotifier<Offset?> cursorPositionNotifier = ValueNotifier(null);
++
+   void _listenerPointerHoverEvent(PointerEvent event) {
+-    if (event.kind != .stylus && event.kind != .invertedStylus) return;
++    if (event.kind != .stylus && event.kind != .invertedStylus) {
++      _updateCursorPosition(event, inBounds: false);
++      return;
++    }
+ 
+     // Apparently flutter synthesizes a hover event on pointer down,
+     // so these are used to detect when hovering ends
+@@ -464,6 +475,7 @@
+       widget.onHovering();
+     }
+ 
++    _updateCursorPosition(event, inBounds: true);
+     _detectStylusButton(event);
+   }
+ 
+@@ -476,12 +488,17 @@
+     }
+   }
+ 
++  void _updateCursorPosition(PointerEvent event, {required bool inBounds}) {
++    cursorPositionNotifier.value = inBounds ? event.localPosition : null;
++  }
++
+   void _listenerPointerUpEvent(PointerEvent event) {
+     widget.updatePointerData(event.kind, null);
+     if (stylusButtonWasPressed) {
+       stylusButtonWasPressed = false;
+       widget.onStylusButtonChanged(false);
+     }
++    _updateCursorPosition(event, inBounds: false);
+   }
+ 
+   @override
+@@ -490,54 +507,83 @@
+ 
+     return Stack(
+       children: [
+-        Listener(
+-          onPointerDown: _listenerPointerEvent,
+-          onPointerMove: _listenerPointerEvent,
+-          onPointerUp: _listenerPointerUpEvent,
+-          onPointerHover: _listenerPointerHoverEvent,
+-          child: GestureDetector(
+-            child: LayoutBuilder(
+-              builder: (BuildContext context, BoxConstraints containerBounds) {
+-                this.containerBounds = containerBounds;
+-
+-                return InteractiveCanvasViewer.builder(
+-                  minScale: zoomLockedValue ?? CanvasGestureDetector.kMinScale,
+-                  maxScale: zoomLockedValue ?? CanvasGestureDetector.kMaxScale,
+-                  panEnabled: !singleFingerPanLock,
+-                  panAxis: axisAlignedPanLock ? PanAxis.aligned : PanAxis.free,
+-
+-                  // Smoother scrolling fling gesture than the default
+-                  interactionEndFrictionCoefficient: 0.1,
+-
+-                  // we need a non-zero boundary margin so we can zoom out
+-                  // past the size of the page (for minScale < 1)
+-                  boundaryMargin: .symmetric(
+-                    vertical: 0,
+-                    horizontal: screenSize.width * 2,
+-                  ),
+-
+-                  transformationController: widget._transformationController,
+-
+-                  isDrawGesture: widget.isDrawGesture,
+-                  onInteractionEnd: widget.onInteractionEnd,
+-                  onDrawStart: widget.onDrawStart,
+-                  onDrawUpdate: widget.onDrawUpdate,
+-                  onDrawEnd: widget.onDrawEnd,
+-
+-                  builder: (BuildContext context, Quad viewport) {
+-                    return _PagesBuilder(
+-                      pages: widget.pages,
+-                      pageBuilder: widget.pageBuilder,
+-                      placeholderPageBuilder: widget.placeholderPageBuilder,
+-                      boundingBox: _axisAlignedBoundingBox(viewport),
+-                      containerWidth: containerBounds.maxWidth,
+-                    );
+-                  },
+-                );
+-              },
++        MouseRegion(
++          cursor: SystemMouseCursors.none,
++          onExit: (_) => cursorPositionNotifier.value = null,
++          child: Listener(
++            behavior: HitTestBehavior.translucent,
++            onPointerDown: _listenerPointerEvent,
++            onPointerMove: _listenerPointerEvent,
++            onPointerUp: _listenerPointerUpEvent,
++            onPointerHover: _listenerPointerHoverEvent,
++            child: GestureDetector(
++              child: LayoutBuilder(
++                builder: (BuildContext context, BoxConstraints containerBounds) {
++                  this.containerBounds = containerBounds;
++
++                  return InteractiveCanvasViewer.builder(
++                    minScale: zoomLockedValue ?? CanvasGestureDetector.kMinScale,
++                    maxScale: zoomLockedValue ?? CanvasGestureDetector.kMaxScale,
++                    panEnabled: !singleFingerPanLock,
++                    panAxis: axisAlignedPanLock ? PanAxis.aligned : PanAxis.free,
++
++                    // Smoother scrolling fling gesture than the default
++                    interactionEndFrictionCoefficient: 0.1,
++
++                    // we need a non-zero boundary margin so we can zoom out
++                    // past the size of the page (for minScale < 1)
++                    boundaryMargin: .symmetric(
++                      vertical: 0,
++                      horizontal: screenSize.width * 2,
++                    ),
++
++                    transformationController: widget._transformationController,
++
++                    isDrawGesture: widget.isDrawGesture,
++                    onInteractionEnd: widget.onInteractionEnd,
++                    onDrawStart: widget.onDrawStart,
++                    onDrawUpdate: widget.onDrawUpdate,
++                    onDrawEnd: widget.onDrawEnd,
++
++                    builder: (BuildContext context, Quad viewport) {
++                      return _PagesBuilder(
++                        pages: widget.pages,
++                        pageBuilder: widget.pageBuilder,
++                        placeholderPageBuilder: widget.placeholderPageBuilder,
++                        boundingBox: _axisAlignedBoundingBox(viewport),
++                        containerWidth: containerBounds.maxWidth,
++                      );
++                    },
++                  );
++                },
++              ),
+             ),
+           ),
+         ),
++        ValueListenableBuilder<Offset?>(
++          valueListenable: cursorPositionNotifier,
++          builder: (context, cursorPosition, child) {
++            if (cursorPosition == null) return const SizedBox.shrink();
++            return Positioned(
++              left: cursorPosition.dx - 4,
++              top: cursorPosition.dy - 4,
++              child: IgnorePointer(
++                child: Container(
++                  width: 8,
++                  height: 8,
++                  decoration: BoxDecoration(
++                    color: const Color(0x80000000),
++                    shape: BoxShape.circle,
++                    border: Border.all(
++                      color: const Color(0xB3FFFFFF),
++                      width: 1,
++                    ),
++                  ),
++                ),
++              ),
++            );
++          },
++        ),
+         Positioned.fill(
+           child: CanvasHud(
+             transformationController: widget._transformationController,

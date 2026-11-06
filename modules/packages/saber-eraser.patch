@@ -1,0 +1,15 @@
+--- a/lib/pages/editor/editor.dart	2026-11-04 15:10:32.727738787 -0330
++++ b/lib/pages/editor/editor.dart	2026-11-04 15:10:32.731307381 -0330
+@@ -538,6 +538,12 @@
+     final position = page.renderBox!.globalToLocal(details.focalPoint);
+     history.canRedo = false;
+ 
++    // If the stylus button is pressed (including the inverted stylus rear
++    // eraser), switch to the Eraser tool for this gesture.
++    if (stylusButtonWasPressed && currentTool is! Eraser) {
++      currentTool = Eraser();
++    }
++
+     if (currentTool is Pen) {
+       (currentTool as Pen).onDragStart(
+         position,
