@@ -6,6 +6,10 @@ vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 
+-- ftplugins override the globals above per buffer (Arduino asks for 2 spaces,
+-- Go and Make for real tabs, ...). after/plugin/four-space-indent.lua puts them
+-- back to 4 spaces once those scripts have run, for every filetype.
+
 -- Dynamic text wrapping depending on window size
 vim.opt.wrap = true
 vim.opt.linebreak = true
