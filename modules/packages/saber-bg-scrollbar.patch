@@ -1,0 +1,111 @@
+--- a/lib/components/toolbar/editor_bottom_sheet.dart	2026-11-04 21:20:51.520132433 -0330
++++ b/lib/components/toolbar/editor_bottom_sheet.dart	2026-11-04 21:33:31.394915474 -0330
+@@ -57,6 +57,14 @@
+ class _EditorBottomSheetState extends State<EditorBottomSheet> {
+   static const imageBoxFits = <BoxFit>[.fill, .cover, .contain];
+ 
++  final ScrollController _bgPatternScrollController = ScrollController();
++
++  @override
++  void dispose() {
++    _bgPatternScrollController.dispose();
++    super.dispose();
++  }
++
+   @override
+   Widget build(BuildContext context) {
+     final page = widget.coreInfo.pages.getOrNull(widget.currentPageIndex ?? -1);
+@@ -192,48 +200,53 @@
+             ),
+             SizedBox(
+               height: previewSize.height,
+-              child: ListView.separated(
+-                scrollDirection: Axis.horizontal,
+-                itemCount: CanvasBackgroundPattern.values.length,
+-                separatorBuilder: (_, _) => const SizedBox(width: 8),
+-                itemBuilder: (context, index) {
+-                  final backgroundPattern =
+-                      CanvasBackgroundPattern.values[index];
+-                  return InkWell(
+-                    borderRadius: const .all(.circular(8)),
+-                    onTap: () => setState(() {
+-                      widget.setBackgroundPattern(backgroundPattern);
+-                    }),
+-                    child: Stack(
+-                      children: [
+-                        CanvasBackgroundPreview(
+-                          selected:
+-                              widget.coreInfo.backgroundPattern ==
+-                              backgroundPattern,
+-                          invert: widget.invert,
+-                          backgroundColor:
+-                              widget.coreInfo.backgroundColor ??
+-                              InnerCanvas.defaultBackgroundColor,
+-                          backgroundPattern: backgroundPattern,
+-                          backgroundImage: null, // focus on background pattern
+-                          pageSize: pageSize,
+-                          lineHeight: widget.coreInfo.lineHeight,
+-                          lineThickness: widget.coreInfo.lineThickness,
+-                        ),
+-                        Positioned(
+-                          bottom: previewSize.height * 0.1,
+-                          left: 0,
+-                          right: 0,
+-                          child: Center(
+-                            child: _PermanentTooltip(
+-                              text: backgroundPattern.localizedName,
++              child: Scrollbar(
++                thumbVisibility: true,
++                controller: _bgPatternScrollController,
++                child: ListView.separated(
++                  controller: _bgPatternScrollController,
++                  scrollDirection: Axis.horizontal,
++                  itemCount: CanvasBackgroundPattern.values.length,
++                  separatorBuilder: (_, _) => const SizedBox(width: 8),
++                  itemBuilder: (context, index) {
++                    final backgroundPattern =
++                        CanvasBackgroundPattern.values[index];
++                    return InkWell(
++                      borderRadius: const .all(.circular(8)),
++                      onTap: () => setState(() {
++                        widget.setBackgroundPattern(backgroundPattern);
++                      }),
++                      child: Stack(
++                        children: [
++                          CanvasBackgroundPreview(
++                            selected:
++                                widget.coreInfo.backgroundPattern ==
++                                backgroundPattern,
++                            invert: widget.invert,
++                            backgroundColor:
++                                widget.coreInfo.backgroundColor ??
++                                InnerCanvas.defaultBackgroundColor,
++                            backgroundPattern: backgroundPattern,
++                            backgroundImage: null, // focus on background pattern
++                            pageSize: pageSize,
++                            lineHeight: widget.coreInfo.lineHeight,
++                            lineThickness: widget.coreInfo.lineThickness,
++                          ),
++                          Positioned(
++                            bottom: previewSize.height * 0.1,
++                            left: 0,
++                            right: 0,
++                            child: Center(
++                              child: _PermanentTooltip(
++                                text: backgroundPattern.localizedName,
++                              ),
+                             ),
+                           ),
+-                        ),
+-                      ],
+-                    ),
+-                  );
+-                },
++                        ],
++                      ),
++                    );
++                  },
++                ),
+               ),
+             ),
+             const SizedBox(height: 16),

@@ -150,6 +150,19 @@
             nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.python3Packages.python ];
             buildInputs = lib.remove prev.python3Packages.python old.buildInputs;
           });
+
+        # Saber 1.35.0 (current nixpkgs) is built with Flutter 3.44, which does
+        # not distinguish stylus input from touch on Linux. Saber 1.36.0 updated
+        # to Flutter 3.47 and gained Linux stylus pressure/button support
+        # (saber-notes/saber#1805, flutter/flutter#186831). nixpkgs has not
+        # caught up, so build 1.37.1 from source until it does. Two small
+        # patches are applied on top: a custom stylus cursor dot and a fix for
+        # rear-eraser styluses that don't generate hover events.
+        saber =
+          if lib.versionAtLeast prev.saber.version "1.36.0" then
+            prev.saber
+          else
+            final.callPackage ./saber.nix { };
       }
     )
   ];
