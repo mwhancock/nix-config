@@ -158,7 +158,9 @@
     adminer  #@pkg adminer
     gh  #@pkg gh
     gradle  #@pkg gradle
+    matcha  #@pkg matcha
     saber  #@pkg saber
+    affine  #@pkg affine
   ];  #@pkgs-end
 }
 

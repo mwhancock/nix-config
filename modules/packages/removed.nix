@@ -37,7 +37,15 @@
 #
 # They are Flatpaks now -- Heroic, Bitwarden and draw.io all live in
 # hosts/nixos/nixarchy/services.nix -- so Electron has no consumer left in this
-# closure. What still needs a browser engine is mermaid-cli: its wrapper sets
+# closure that is not already handled below.
+#
+# `affine` is an Electron app that is still installed from nixpkgs (it is not
+# on Flathub). The default `electron` attribute builds from chromium source,
+# which the shim above breaks, so affine is overridden to use the prebuilt
+# `electron-bin` instead. That keeps Chromium out of the build while keeping
+# the package.
+#
+# What still needs a browser engine is mermaid-cli: its wrapper sets
 # PUPPETEER_EXECUTABLE_PATH from the `chromium` argument, and mmdc is what
 # md-export and diagram.nvim render mermaid with.
 #
@@ -84,6 +92,12 @@
               description = "Chromium, run from its Flathub Flatpak";
             };
           };
+
+        # Electron app still installed from nixpkgs. The default `electron`
+        # attribute builds from chromium source and calls `chromium.override`,
+        # which fails once `chromium` is the Flatpak shim above. Force the
+        # prebuilt binary electron so no Chromium compilation happens.
+        affine = prev.affine.override { electron = prev.electron-bin; };
 
         # Terminal. Replaced by ghostty, which was already nixarchy's terminal.
         # ~/.config/xdg-terminals.list points xdg-terminal-exec there, because
