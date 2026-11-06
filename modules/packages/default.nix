@@ -212,8 +212,13 @@ in
     # a running Windows VM called RDPWindows (see the WinApps libvirt docs);
     # until that VM exists the binaries are installed but have nothing to talk
     # to. winapps-launcher adds the system-tray app launcher.
-    inputs.winapps.packages.${pkgs.system}.winapps
-    inputs.winapps.packages.${pkgs.system}.winapps-launcher
+    inputs.winapps.packages.${pkgs.stdenv.hostPlatform.system}.winapps
+    inputs.winapps.packages.${pkgs.stdenv.hostPlatform.system}.winapps-launcher
+
+    # Remote desktop client for the WinApps VM: VNC to the dockur/noVNC port
+    # when keyboard input through the browser is flaky, and RDP once Windows is
+    # fully set up.
+    remmina
   ];
 
   # Fonts are registered with fontconfig, not just put on $PATH, so they are
