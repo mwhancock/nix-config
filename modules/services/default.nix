@@ -7,10 +7,19 @@
 {
   # Kept. NOTE the group addition is additive to the base list in
   # hosts/nixos/configuration.nix; NixOS merges list options, so this does not
-  # replace it.
+  # replace it. docker and kvm are for WinApps.
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
-  users.users.mark.extraGroups = [ "libvirtd" ];
+  users.users.mark.extraGroups = [ "libvirtd" "docker" "kvm" ];
+
+  # WinApps runs Windows in a Docker container and uses RDP to launch
+  # applications as if they were native. Docker is the recommended backend
+  # (Docker/Podman/libvirt); it automates the Windows installation and the
+  # RDP port forwarding. The iptables modules are required by dockur/windows
+  # for host->container folder sharing to work.
+  virtualisation.docker.enable = true;
+  virtualisation.docker.autoPrune.enable = true;
+  boot.kernelModules = [ "ip_tables" "iptable_nat" ];
 
   # Kept.
   services.tailscale.enable = true;
