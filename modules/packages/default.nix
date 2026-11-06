@@ -83,6 +83,26 @@ in
       unityhub = prev.unityhub.override {
         extraPkgs = p: [ p.libtinfo ];
       };
+
+      # Packet Tracer 9 ships Qt 6.8 and, under XWayland, renders its UI at
+      # 100% -- on this 1.5x panel its menus and toolbar come out about
+      # two-thirds the size of every native app. Qt 6 dropped the two DPI
+      # variables Packet Tracer's own main.cpp sets (QT_DEVICE_PIXEL_RATIO and
+      # QT_AUTO_SCREEN_SCALE_FACTOR are not in the bundled libQt6Gui), so the
+      # only lever left is QT_SCALE_FACTOR, which Qt applies as-is on top of
+      # whatever scale it already computed. 1.5 is the panel's niri scale, so
+      # Packet Tracer ends up the same physical size as everything else.
+      #
+      # Wrapped rather than overridden in a .desktop file so the variable is
+      # set however the app is started: menu, .pka association or terminal.
+      cisco-packet-tracer_9 = prev.symlinkJoin {
+        name = "cisco-packet-tracer-9-scaled";
+        paths = [ prev.cisco-packet-tracer_9 ];
+        nativeBuildInputs = [ prev.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/packettracer9 --set QT_SCALE_FACTOR 1.5
+        '';
+      };
     })
   ];
 
