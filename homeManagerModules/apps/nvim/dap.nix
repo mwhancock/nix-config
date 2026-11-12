@@ -8,7 +8,7 @@
     # 1. SYSTEM DEPENDENCIES
     extraPackages = with pkgs; [ 
       lldb          # For C/C++ debugging
-      jdk           # For Java labs
+      jdk25         # For Java labs
       netcoredbg    # (Optional) if you do any C#
     ];
 

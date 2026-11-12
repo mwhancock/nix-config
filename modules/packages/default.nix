@@ -134,7 +134,11 @@ in
     rustc
     rustup
     clippy
-    jdk
+    # JDK 25 machine-wide. Gradle 9.1+ is the first Gradle that can run on a
+    # JDK 25 daemon, so Java projects pin it through their own wrapper. The
+    # `gradle` CLI stays as declared in hosts/nixos/nixarchy/apps.nix; its
+    # wrapper keeps a private JDK 21, so it keeps working either way.
+    jdk25
     maven
     gradle
     python3
