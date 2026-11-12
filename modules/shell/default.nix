@@ -26,6 +26,11 @@
     fish
     starship
     direnv
+    # Not another direnv: this is the `use flake` and cached `use nix`
+    # implementations. They are shell functions that have to be sourced, which
+    # is what hosts/nixos/home.nix does with its direnvrc below. Plain direnv
+    # alone re-runs nix-shell on every cd and caches nothing.
+    nix-direnv
     zoxide
     eza
     bat

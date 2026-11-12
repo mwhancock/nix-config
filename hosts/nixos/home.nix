@@ -154,11 +154,14 @@ in
     '';
   };
 
-  # Binaries installed by `cargo install` land in ~/.cargo/bin. Prepend it so
-  # esp-generate and friends are callable by name.
-  home.sessionPath = [
-    "$HOME/.cargo/bin"
-  ];
+  # nix-direnv's functions (`use flake`, and a `use nix` that caches) are not
+  # built into direnv; they have to be sourced from its direnvrc. Wired here
+  # rather than by enabling programs.direnv, which would also add its own
+  # `direnv hook fish` on top of the one the dotfiles already run from
+  # config.fish -- one owner per hook, same as the shell setup above.
+  xdg.configFile."direnv/direnvrc".text = ''
+    source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
+  '';
 
   # "adopt" rather than the "theme-only" default.
   #
@@ -1096,38 +1099,6 @@ in
           ;;
       esac
     '')
-
-    # rust-analyzer, because the one that ships with rustup cannot start here.
-    #
-    # Neovim already turns rust support on. dotfiles/neovim/.config/nvim/
-    # lua/config/lazy.lua imports lazyvim.plugins.extras.lang.rust, so
-    # rustaceanvim is installed and attaches on ft=rust. What was missing is the
-    # binary. The only rust-analyzer on PATH is rustup's proxy at
-    # /run/current-system/sw/bin/rust-analyzer, and the active toolchain carries
-    # no rust-analyzer component:
-    #
-    #   $ rust-analyzer --version
-    #   error: `rust-analyzer` is unavailable for the active toolchain
-    #   error: infinite recursion detected
-    #
-    # The proxy falls back to itself until rustup gives up. rustaceanvim's
-    # exepath("rust-analyzer") still finds something executable, spawns it, and
-    # the client dies before it attaches -- with no error in :Lazy or :Mason,
-    # which is why this reads as "rust-analyzer is not enabled".
-    #
-    # The nixpkgs build is a standalone binary, so it shadows the proxy instead
-    # of depending on it. Home Manager's profile sits ahead of
-    # /run/current-system/sw/bin on PATH, which is what makes the shadowing
-    # work; putting this in environment.systemPackages would instead collide
-    # with rustup's rust-analyzer symlink in the same bin directory. rustc and
-    # cargo still come from rustup, and rust-analyzer finds the toolchain via
-    # `rustc --print sysroot`, so project rust-toolchain.toml overrides keep
-    # working.
-    #
-    # The alternative is `rustup component add rust-analyzer`. Rejected: that is
-    # imperative user state no file in this repo records, and it has to be
-    # repeated for every toolchain that gets added to ~/.rustup.
-    pkgs.rust-analyzer
 
     # marksman, for Neovim's markdown LSP, for the same kind of reason.
     #
