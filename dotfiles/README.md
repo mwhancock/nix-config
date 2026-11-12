@@ -1,2 +1,0 @@
-# dotfles
-My Arch dotfiles
