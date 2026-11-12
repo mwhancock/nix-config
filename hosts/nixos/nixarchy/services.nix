@@ -55,11 +55,33 @@
       "com.heroicgameslauncher.hgl"
       "com.bitwarden.desktop"
       "com.jgraph.drawio.desktop"
+      # Kotlin/KMP work. Flathub carries the official JetBrains build of the
+      # free Community edition, and it tracks releases faster than nixpkgs:
+      # 2026.3 here, against 2026.2.4 for the unfree Ultimate (which this flake
+      # does not allow) and a from-source 2025.3.4 for intellij-idea-oss that
+      # no binary cache serves. Prebuilt, so nothing compiles here.
+      "com.jetbrains.IntelliJ-IDEA-Community"
       # Not an app anyone launches here: this is mermaid-cli's renderer.
       # modules/packages/removed.nix points the nixpkgs `chromium` attribute at
       # a shim that runs this Flatpak, so updates never compile Chromium.
       "org.chromium.Chromium"
     ];
+
+    # IntelliJ itself is Wayland-native (it bundles JBR 25, which has a Wayland
+    # AWT toolkit), but the program it *runs* is not: Gradle forks the project's
+    # own JDK, and OpenJDK 21 only speaks X11. With nothing but the Wayland
+    # socket the sandbox sets no DISPLAY and mounts no /tmp/.X11-unix, so every
+    # Compose app launched from the IDE dies before it draws:
+    #
+    #   java.awt.HeadlessException
+    #     at sun.java2d.HeadlessGraphicsEnvironment.getDefaultScreenDevice
+    #
+    # Granting X11 gives the forked JVM XWayland to talk to; the IDE keeps
+    # using Wayland. The wrapper's documented alternative, adding
+    # -Dawt.toolkit.name=WLToolkit to the run configuration, needs a JVM with
+    # that toolkit (JBR 25), which would mean moving the Gradle daemon to
+    # Java 25 -- Gradle 8.14 does not support that.
+    services.flatpak.overrides.settings."com.jetbrains.IntelliJ-IDEA-Community".Context.sockets = [ "x11" ];
 
     # The open-bamboo-networking plugin is deployed by home-manager as a symlink
     # into /nix/store, which a Flatpak sandbox cannot see by default, so
