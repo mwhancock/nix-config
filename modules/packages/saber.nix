@@ -6,6 +6,7 @@
 , orc
 , webkitgtk_4_1
 , autoPatchelfHook
+, makeWrapper
 , libxmu
 , jdk
 , zlib
@@ -159,7 +160,10 @@ flutterPackages.stable.buildFlutterApplication {
       };
   };
 
-  nativeBuildInputs = [ autoPatchelfHook ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+    makeWrapper
+  ];
 
   buildInputs = [
     gst_all_1.gstreamer
@@ -185,6 +189,11 @@ flutterPackages.stable.buildFlutterApplication {
     install -Dm0644 flatpak/com.adilhanney.saber.desktop $out/share/applications/saber.desktop
     install -Dm0644 assets/icon/icon.svg $out/share/icons/hicolor/scalable/apps/com.adilhanney.saber.svg
     install -Dm0644 flatpak/com.adilhanney.saber.metainfo.xml -t $out/share/metainfo
+
+    # Flutter's Linux GTK embedder does not reliably recognise stylus/tablet
+    # events under native Wayland. Running through XWayland (GDK_BACKEND=x11)
+    # restores pressure, hover, and button support.
+    wrapProgram $out/bin/saber --set GDK_BACKEND x11
   '';
 
   preFixup = ''

@@ -155,9 +155,13 @@
         # not distinguish stylus input from touch on Linux. Saber 1.36.0 updated
         # to Flutter 3.47 and gained Linux stylus pressure/button support
         # (saber-notes/saber#1805, flutter/flutter#186831). nixpkgs has not
-        # caught up, so build 1.37.1 from source until it does. Two small
-        # patches are applied on top: a custom stylus cursor dot and a fix for
-        # rear-eraser styluses that don't generate hover events.
+        # caught up, so build 1.37.1 from source until it does.
+        #
+        # Patches on top add a custom stylus cursor dot, fix rear-eraser
+        # styluses, disable Impeller for smooth strokes, add a scrollbar to the
+        # background pattern selector, and force the app to run under XWayland
+        # (GDK_BACKEND=x11) because Flutter's Linux GTK embedder does not
+        # reliably deliver stylus/tablet events under native Wayland.
         saber =
           if lib.versionAtLeast prev.saber.version "1.36.0" then
             prev.saber
