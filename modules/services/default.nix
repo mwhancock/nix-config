@@ -51,6 +51,48 @@
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
   # ---------------------------------------------------------------------------
+  # Proton Mail Bridge. Proton has no public IMAP; Bridge decrypts the mailbox
+  # locally and serves it as IMAP 127.0.0.1:1143 and SMTP 127.0.0.1:1025, both
+  # STARTTLS. Matcha connects to those ports as a "custom" provider.
+  #
+  # The module runs the binary as a systemd *user* service under
+  # graphical-session.target with --noninteractive. It also puts the package on
+  # PATH. Credentials are kept in the secret service, which is gnome-keyring
+  # here and already running, so no `path = [ pkgs.gnome-keyring ]` is needed.
+  #
+  # The first login is interactive and cannot be done by --noninteractive:
+  #   systemctl --user stop protonmail-bridge
+  #   protonmail-bridge --cli     # login, then `info` for the client password
+  #   systemctl --user start protonmail-bridge
+  services.protonmail-bridge.enable = true;
+
+  # The stock unit starts Bridge at graphical-session.target, which can be
+  # before gnome-keyring has an unlocked collection. Bridge treats three
+  # failed keychain probes as a corrupt vault and WIPES it, and Restart=always
+  # burns those three probes in about a second -- that is exactly what happened
+  # on the first start here. Wait for an unlocked secrets collection before
+  # handing over to Bridge, and space restarts out so a slow keyring can never
+  # trigger the wipe.
+  systemd.user.services.protonmail-bridge.serviceConfig = {
+    RestartSec = "10s";
+    ExecStartPre = "${pkgs.writeShellScript "wait-for-keyring" ''
+      for _ in $(seq 1 30); do
+        if ${pkgs.glib}/bin/gdbus call --session \
+             --dest org.freedesktop.secrets \
+             --object-path /org/freedesktop/secrets/collection/login \
+             --method org.freedesktop.DBus.Properties.Get \
+             org.freedesktop.Secret.Collection Locked 2>/dev/null \
+           | grep -q false; then
+          exit 0
+        fi
+        sleep 2
+      done
+      echo "gnome-keyring login collection not unlocked after 60s" >&2
+      exit 1
+    ''}";
+  };
+
+  # ---------------------------------------------------------------------------
   # CPU power management: auto-cpufreq, and why PPD had to go.
   #
   # These two cannot both run. This is not a "two daemons fight" soft warning,
