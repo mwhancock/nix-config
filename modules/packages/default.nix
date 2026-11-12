@@ -122,25 +122,14 @@ in
     sysboard-ctl
 
     # Toolchain
+    #
+    # No language toolchain is installed system-wide. Every project declares
+    # its own: the base shells live in ~/dotfiles/devshells (rust, java,
+    # kotlin, cc, node, python) and a project imports the one it needs. What
+    # stays here is used at the prompt or by the desktop rather than to build
+    # a particular repository.
     git
     gmc
-    gcc
-    clang
-    clang-tools
-    cmake
-    gnumake
-    pkg-config
-    cargo
-    rustc
-    rustup
-    clippy
-    # JDK 25 machine-wide. Gradle 9.1+ is the first Gradle that can run on a
-    # JDK 25 daemon, so Java projects pin it through their own wrapper. The
-    # `gradle` CLI stays as declared in hosts/nixos/nixarchy/apps.nix; its
-    # wrapper keeps a private JDK 21, so it keeps working either way.
-    jdk25
-    maven
-    gradle
     python3
     nh
     nixd

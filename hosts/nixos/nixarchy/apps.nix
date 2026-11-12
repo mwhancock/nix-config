@@ -62,12 +62,12 @@
     git-lfs.enable = true;  #@ git-lfs  # Installs git-lfs and writes the LFS filter config system-wide, so cloning an LFS repo just works.
       git-lfs.settings = { };  #@ git-lfs.settings
     # go.enable = true;  #@ go  # mise use --global go@latest downloads a toolchain outside Nix. This is nixpkgs' go, rebuilt with the system.
-    java.enable = true;  #@ java
-    nodejs.enable = true;  #@ nodejs  # mise' prebuilt Node is dynamically linked against paths NixOS does not have, so it often will not execute at all. This one does.
+    # java.enable = true;  #@ java
+    # nodejs.enable = true;  #@ nodejs  # mise' prebuilt Node is dynamically linked against paths NixOS does not have, so it often will not execute at all. This one does.
     # ocaml.enable = true;  #@ ocaml
-    php.enable = true;  #@ php
+    # php.enable = true;  #@ php
     python.enable = true;  #@ python  # Already on the system as a runtime dependency of Omarchy's own scripts, so this row shows dim on a stock install. Select it to say so in your configuration rather than relying on that. 
-    rust.enable = true;  #@ rust  # rustup manages its own toolchains under ~/.rustup, the same as upstream. Use pkgs.cargo and pkgs.rustc instead if you would rather Nix pinned the compiler.
+    # rust.enable = true;  #@ rust  # rustup manages its own toolchains under ~/.rustup, the same as upstream. Use pkgs.cargo and pkgs.rustc instead if you would rather Nix pinned the compiler.
     # scala.enable = true;  #@ scala
     # symfony.enable = true;  #@ symfony  # unfree
     # uv.enable = true;  #@ uv  # Astral's Python package and project manager. `nixarchy dev init python` gives each project its own; this one is for everywhere else.
@@ -105,9 +105,6 @@
     onlyoffice-desktopeditors  #@pkg onlyoffice-desktopeditors
     nextcloud-client  #@pkg nextcloud-client
     jellyfin-tui  #@pkg jellyfin-tui
-    kotlin  #@pkg kotlin
-    kotlin-language-server  #@pkg kotlin-language-server
-    kotlin-interactive-shell  #@pkg kotlin-interactive-shell
     platformio  #@pkg platformio
     cargo-pio  #@pkg cargo-pio
     platformio-core  #@pkg platformio-core
@@ -135,7 +132,6 @@
     gram  #@pkg gram
     blender  #@pkg blender
     insomnia  #@pkg insomnia
-    probe-rs-tools  #@pkg probe-rs-tools
     unityhub  #@pkg unityhub
     calibre  #@pkg calibre
     typstPackages.calendaring  #@pkg typstPackages.calendaring
@@ -157,7 +153,6 @@
     dbeaver-bin  #@pkg dbeaver-bin
     adminer  #@pkg adminer
     gh  #@pkg gh
-    gradle  #@pkg gradle
     matcha  #@pkg matcha
     saber  #@pkg saber
     affine  #@pkg affine
