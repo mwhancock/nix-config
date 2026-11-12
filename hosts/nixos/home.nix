@@ -3,7 +3,7 @@
 # Nixarchy's own home-manager module is imported by the flake as a sharedModule.
 # This file only adds what nixarchy does not provide:
 #
-#   - the dotfiles, as store symlinks into the vendored ./dotfiles tree
+#   - the dotfiles, as symlinks into the live ~/dotfiles checkout
 #   - fish as the login shell
 #   - neovim pointing at the LazyVim checkout, rather than at the old repo's
 #     half-finished nvf port
@@ -14,20 +14,12 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
-  dotfiles = ../../dotfiles;
-
-  # Where this configuration must live on disk for the out-of-store symlinks
-  # below to resolve.
-  #
-  # It is an absolute path rather than something derived, because Home Manager
-  # builds the link at evaluation time and needs the FINAL location, not the
-  # checkout being evaluated. While this branch is being built from
-  # /home/mark/nix-config the symlinks are dangling -- harmless, since nothing
-  # is activated until the repository is in place.
-  #
-  # This must agree with programs.nixarchy.flake in hosts/nixos/default.nix,
-  # which is where nixos-rebuild and nh os switch will look for this flake.
-  repoDir = "/etc/nixos";
+  # The live dotfiles checkout: the single source of truth for every config
+  # below. Absolute rather than relative, because the out-of-store symlinks
+  # need the FINAL location on disk, not the path this flake happens to be
+  # evaluated from. It lives outside /etc/nixos so that builds from a clone
+  # still resolve it.
+  dotfiles = /home/mark/dotfiles;
 
   # The on-screen keyboard supervisor, addressed by store path so the user
   # service below does not depend on PATH. See
@@ -44,7 +36,7 @@ in
   #
   # homeManagerModules/default.nix exists and reads like it is wired, but
   # nothing imports it: not this file, not flake.nix, not hosts/nixos/default.nix.
-  # home.nix reaches ../../dotfiles directly instead. So the whole of
+  # home.nix reaches ~/dotfiles directly instead. So the whole of
   # homeManagerModules/ is currently inert -- its home.packages (OnlyOffice,
   # Zen Browser, Blender, ...), its fish and neovim wiring, the fontconfig
   # monospace alias in core/xdg-overrides.nix. All of it is dead code.
@@ -179,7 +171,7 @@ in
   # about later.
   programs.nixarchy.neovim = "adopt";
 
-  # The LazyVim checkout, vendored at dotfiles/neovim/.config/nvim.
+  # The LazyVim checkout, in ~/dotfiles/neovim/.config/nvim.
   #
   # This is an OUT-OF-STORE symlink, and it has to be. A plain home.file
   # source is copied into the store and linked read-only, which breaks Neovim:
@@ -204,14 +196,10 @@ in
   # dotfiles/neovim/.config/nvim/lazy-lock.json in the checkout, so the repo
   # shows a modified file that gets committed like any other dotfile change.
   #
-  # The target is /etc/nixos, not the path this branch is being built from,
-  # because that is where the flake lives once nixos-rebuild runs --
-  # programs.nixarchy.flake is already set to it in hosts/nixos/default.nix.
-  # Building and testing from a clone still works; only activation needs the
-  # repo in place, which is the same requirement as every other out-of-store
-  # dotfile.
+  # The target is the live ~/dotfiles checkout, which is where edits belong and
+  # where those edits take effect immediately, without a rebuild.
   home.file.".config/nvim" = {
-    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/neovim/.config/nvim");
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/neovim/.config/nvim");
     recursive = true;
   };
 
@@ -243,15 +231,15 @@ in
   # Manager owns config.fish, the dotfiles own dotfiles.fish, and your content
   # runs last -- after HM has set the PATH, which is the order you want.
   home.file.".config/fish/conf.d" = {
-    source = dotfiles + "/fish/.config/fish/conf.d";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fish/.config/fish/conf.d");
     recursive = true;
   };
   home.file.".config/fish/functions" = {
-    source = dotfiles + "/fish/.config/fish/functions";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fish/.config/fish/functions");
     recursive = true;
   };
   home.file.".config/fish/completions" = {
-    source = dotfiles + "/fish/.config/fish/completions";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fish/.config/fish/completions");
     recursive = true;
   };
   # ~/.config/fish/fish_variables is deliberately NOT managed.
@@ -266,13 +254,16 @@ in
   # fish_add_path calls / PATH lines at the end of config.fish. It is
   # self-healing, so seeding it by hand buys nothing.
   home.file.".config/fish/dotfiles.fish" = {
-    source = dotfiles + "/fish/.config/fish/config.fish";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fish/.config/fish/config.fish");
   };
 
   # Terminal.
   #
-  # The vendored Ghostty config is NOT used as-is. Two of its lines are wrong on
-  # NixOS:
+  # The config lives in ~/dotfiles/ghostty/.config/ghostty/config and is linked
+  # out-of-store, so edits are live and the checkout stays the single source of
+  # truth.
+  #
+  # Two lines from the vendored original are deliberately absent there:
   #
   #   command = /usr/bin/fish
   #     /usr/bin/fish does not exist. The shell is at
@@ -284,20 +275,23 @@ in
   #     nixarchy's themes. You asked to keep the omarchy theme, so the theme
   #     line is dropped and Ghostty inherits the system one.
   #
-  # Everything else from that file is kept verbatim.
+  # The colour side is nixarchy's job. Its activation dereferences this symlink,
+  # appends `config-file = ~/.config/omarchy/runtime/ghostty.conf`, and installs
+  # the result as a real file, so the theme follows every rebuild.
   home.file.".config/ghostty/config" = {
-    text = ''
-      window-decoration = false
-      gtk-titlebar = false
-      background-opacity = 0.95
-      background-blur = true
-      font-family = JetBrainsMono Nerd Font Mono
-      font-size = 12
-      window-padding-x = 12
-      window-padding-y = 12
-      confirm-close-surface = false
-      mouse-scroll-multiplier = precision:0.5,discrete:1
-    '';
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/ghostty/.config/ghostty/config");
+  };
+
+  # Starship.
+  #
+  # ~/dotfiles/starship/.config/starship.toml is the palette-less base prompt.
+  # nixarchy snapshots it to ~/.config/omarchy/runtime/starship.base.toml, and
+  # hyprchroma renders the active palette into
+  # ~/.config/omarchy/runtime/starship.toml -- the file STARSHIP_CONFIG points
+  # at. Keeping the palette out of the base means the theme engine owns the
+  # colours and the checkout owns the layout.
+  home.file.".config/starship.toml" = {
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/starship/.config/starship.toml");
   };
 
   # On-screen keyboard, for the tablet on its own.
@@ -763,29 +757,29 @@ in
   '';
 
   # ---------------------------------------------------------------------------
-  # Vendored as-is. No conflicts found with nixarchy.
+  # Vendored as-is, live from ~/dotfiles. No conflicts found with nixarchy.
   home.file.".config/yazi" = {
-    source = dotfiles + "/yazi/.config/yazi";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/yazi/.config/yazi");
     recursive = true;
   };
   home.file.".config/lazygit" = {
-    source = dotfiles + "/lazygit/.config/lazygit";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/lazygit/.config/lazygit");
     recursive = true;
   };
   home.file.".config/bat" = {
-    source = dotfiles + "/bat/.config/bat";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/bat/.config/bat");
     recursive = true;
   };
   home.file.".config/btop" = {
-    source = dotfiles + "/btop/.config/btop";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/btop/.config/btop");
     recursive = true;
   };
   home.file.".config/fastfetch" = {
-    source = dotfiles + "/fastfetch/.config/fastfetch";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fastfetch/.config/fastfetch");
     recursive = true;
   };
   home.file.".config/fzf" = {
-    source = dotfiles + "/fzf/.config/fzf";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/fzf/.config/fzf");
     recursive = true;
   };
 
@@ -796,12 +790,11 @@ in
   # opencode.json next door is deliberately NOT managed: it holds provider and
   # API settings that are machine-specific.
   #
-  # A plain store symlink, not out-of-store: OpenCode only reads this file, it
-  # never writes it back, so read-only is correct and the deployed policy is
-  # exactly what is committed. Edit the copy in dotfiles/ and rebuild to change
-  # the agreement.
+  # An out-of-store symlink into ~/dotfiles, like every other dotfile here.
+  # OpenCode only reads this file, but keeping it out of the store means edits
+  # are live and the checkout is the single source of truth.
   home.file.".config/opencode/AGENTS.md" = {
-    source = dotfiles + "/opencode/.config/opencode/AGENTS.md";
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/opencode/.config/opencode/AGENTS.md");
   };
 
   # ---------------------------------------------------------------------------
@@ -830,7 +823,7 @@ in
   #     settings untouched. That is why the file is edited in the checkout and
   #     not generated: both halves have to survive in one file.
   home.file.".config/zathura" = {
-    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/zathura/.config/zathura");
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/zathura/.config/zathura");
     recursive = true;
   };
 
@@ -864,11 +857,11 @@ in
   # commented out, verbatim, so pointing programs.niri.package at that fork and
   # uncommenting is the whole of restoring it.
   home.file.".config/niri" = {
-    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/niri/.config/niri");
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/niri/.config/niri");
     recursive = true;
   };
   home.file.".config/noctalia" = {
-    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/noctalia/.config/noctalia");
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/noctalia/.config/noctalia");
     recursive = true;
   };
 
@@ -1184,13 +1177,13 @@ in
   # so the file is a baseline, not a live mirror. To move changes back into the
   # repo by hand:
   #   cp ~/.local/state/noctalia/settings.toml \
-  #     /etc/nixos/dotfiles/noctalia/.local/state/noctalia/settings.toml
+  #     ~/dotfiles/noctalia/.local/state/noctalia/settings.toml
   #   rm ~/.local/state/noctalia/settings.toml && nixos-rebuild switch
   #
   # Edit brightness.toml for brightness; edit this for everything else.
   # ---------------------------------------------------------------------------
   home.file.".local/state/noctalia/settings.toml" = {
-    source = config.lib.file.mkOutOfStoreSymlink (repoDir + "/dotfiles/noctalia/.local/state/noctalia/settings.toml");
+    source = config.lib.file.mkOutOfStoreSymlink (dotfiles + "/noctalia/.local/state/noctalia/settings.toml");
   };
 
   # ---------------------------------------------------------------------------
@@ -1266,8 +1259,10 @@ in
   #     than to help. They are the obvious next step once you confirm each one
   #     still launches.
   #
-  #   ghostty/.config/ghostty/config
-  #     Replaced by the inline config above, for the two broken lines.
+  #   ghostty/ and starship/
+  #     Both are managed out-of-store, above. The Ghostty copy is the vendored
+  #     file minus the two NixOS-incompatible lines; the Starship copy is the
+  #     palette-less base prompt, not the Noctalia-generated output.
 
   # ---------------------------------------------------------------------------
   # niri-solo-width: full width when a workspace holds one window.
