@@ -116,14 +116,18 @@
 
         # evince is not a leaf package, and this is the cost of shadowing it.
         # sushi -- the handler behind Space-to-preview in Nautilus, which is
-        # installed and wanted -- links libevince, and nixpkgs' pkgs set is a
-        # fixed point, so shadowing `evince` silently changed sushi's own
+        # installed and wanted -- used to link libevince, and nixpkgs' pkgs set
+        # is a fixed point, so shadowing `evince` silently changed sushi's own
         # `evince` argument and its build died on "Dependency evince-document-3.0
-        # not found". Rebuilt here against the real library, so the application
-        # stays uninstalled while its libraries remain available to the one
-        # consumer that genuinely needs them. Verified to be the only such
-        # consumer: nothing but sushi references the real evince in the closure.
-        sushi = prev.sushi.override { evince = prev.evince; };
+        # not found". The repair was an override against the real library.
+        #
+        # Not needed since nixpkgs 20261111: sushi 51.0 links `papers` (the
+        # GTK4 successor to evince) and takes no `evince` argument at all, so
+        # the override became "unexpected argument 'evince'" and stopped the
+        # whole system from evaluating. Left removed rather than migrated: this
+        # overlay shadows `evince`, not `papers`, so sushi simply gets the real
+        # papers from nixpkgs. If sushi ever starts linking evince again, the
+        # repair belongs here, not a fourth name in the list above.
 
         # mermaid-cli builds its wrapper with `lib.getExe chromium`, so it gets
         # the shim above, and the appended -p points every mmdc invocation at
