@@ -122,6 +122,30 @@
           disabledTests = (old.disabledTests or [ ]) ++ [ "test_is_valid" ];
         });
 
+        # dwarfs does not build against libarchive 3.8.10, which the pin
+        # picked up. Since libarchive/libarchive#3354, archive_write_close()
+        # returns ARCHIVE_FATAL for a writer that has already failed.
+        # dwarfsextract's close() then threw before joining its I/O thread,
+        # and destroying a joinable std::thread calls std::terminate(). The
+        # pwb, raw and xar format tests abort with:
+        #
+        #   terminate called without an active exception
+        #
+        # Apply the upstream fix, mhx/dwarfs#391, which joins the thread
+        # first and rethrows afterwards. NixOS/nixpkgs#585413, fixed by
+        # NixOS/nixpkgs#586760 (still open at the time of writing). Match on
+        # the patch name so a pin that already has it is left alone.
+        dwarfs = prev.dwarfs.overrideAttrs (old:
+          lib.optionalAttrs (!(builtins.any (p: (p.name or "") == "dwarfs-libarchive-3.8.10-fix.patch") (old.patches or [ ]))) {
+            patches = (old.patches or [ ]) ++ [
+              (prev.fetchpatch {
+                name = "dwarfs-libarchive-3.8.10-fix.patch";
+                url = "https://github.com/mhx/dwarfs/commit/0f5a7720f03dbb2e2fb12300272826fb458aac5f.patch?full_index=1";
+                hash = "sha256-laGlfPZgfG5Xn8Se/7XTK3wYg0hhsOMQhzWTlwBZQR8=";
+              })
+            ];
+          });
+
         # pyopenjtalk-plus fails one test under Cython 3.3: the generated type
         # check raises "Expected str, got int" before the package's own
         # "must be str" check, so the test's regex no longer matches.
