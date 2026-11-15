@@ -59,12 +59,23 @@
 #
 # Net effect: no nixpkgs Chromium is built or installed, the browser comes from
 # Flathub, and an update never compiles Chromium again.
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   nixpkgs.overlays = [
     (
-      final: prev: {
+      final: prev:
+      let
+        # `electron_NN` -> `electron_NN-bin`, for every NN nixpkgs offers.
+        # Derived from `prev` rather than written out by hand, so the next
+        # nixpkgs release that adds electron_46 is covered without an edit.
+        electronPrebuilt = lib.mapAttrs'
+          (name: value: lib.nameValuePair (lib.removeSuffix "-bin" name) value)
+          (lib.filterAttrs
+            (name: _: lib.hasPrefix "electron_" name && lib.hasSuffix "-bin" name)
+            prev);
+      in
+      {
         # Browser shim: the nixpkgs Chromium attribute now points at the
         # Flathub app, so nothing in the closure builds or carries Chromium
         # itself. Both names are provided because omarchy's scripts and
@@ -92,6 +103,28 @@
               description = "Chromium, run from its Flathub Flatpak";
             };
           };
+
+        # Electron.
+        #
+        # nixpkgs' default `electron*` attributes are SOURCE builds:
+        # pkgs/development/tools/electron/common.nix begins with
+        #   (chromium.override { inherit upstream-info; }).mkDerivation ...
+        # The Flatpak shim above is a runCommand result, not a package, so it
+        # has no `override` attribute, and forcing any source-built electron
+        # fails the whole evaluation with
+        #   error: attribute 'override' missing
+        #
+        # That is what nixpkgs 26.11.20261111 did: it added `opencode-desktop`
+        # (pkgs/by-name/op), which takes `electron_44` and is installed from
+        # hosts/nixos/nixarchy/apps.nix, so the system stopped evaluating.
+        # `chromium.override` is the only such call in all of nixpkgs, so
+        # electron is the whole of the exposure.
+        #
+        # The `-bin` attributes are the prebuilt upstream Electron binaries and
+        # never need Chromium, so the unversioned `electron` is pointed at
+        # `electron-bin`, and every versioned `electron_NN` is remapped onto
+        # its `-bin` twin by `electronPrebuilt` below.
+        electron = prev.electron-bin;
 
         # Electron app still installed from nixpkgs. The default `electron`
         # attribute builds from chromium source and calls `chromium.override`,
@@ -154,6 +187,7 @@
             '';
           });
       }
+      // electronPrebuilt
     )
   ];
 }
