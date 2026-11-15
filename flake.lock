@@ -1603,26 +1603,6 @@
         "type": "github"
       }
     },
-    "open-bamboo-networking": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783547778,
-        "narHash": "sha256-FfRX1zxgFeflmKYTBkB4yUgFR6dHyTq6PXCMz3AVU/A=",
-        "ref": "refs/heads/master",
-        "rev": "ec31c5ccdca65669d889261510d739d5302d48db",
-        "revCount": 4,
-        "type": "git",
-        "url": "https://git.tjkeller.xyz/open-bamboo-network-plugin-flake"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.tjkeller.xyz/open-bamboo-network-plugin-flake"
-      }
-    },
     "opencode": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -1678,7 +1658,6 @@
         "nixarchy": "nixarchy",
         "nixpkgs": "nixpkgs_3",
         "nvf": "nvf",
-        "open-bamboo-networking": "open-bamboo-networking",
         "opencode": "opencode",
         "winapps": "winapps",
         "zen-browser": "zen-browser_2"

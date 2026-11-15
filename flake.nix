@@ -41,11 +41,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    open-bamboo-networking = {
-      url = "git+https://git.tjkeller.xyz/open-bamboo-network-plugin-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     niri-tablet = {
       url = "github:GGEZUS/niri-tablet";
       flake = false;

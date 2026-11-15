@@ -61,13 +61,12 @@
       "org.chromium.Chromium"
     ];
 
-    # The open-bamboo-networking plugin is deployed by home-manager as a symlink
-    # into /nix/store, which a Flatpak sandbox cannot see by default, so
-    # OrcaSlicer would fail to load it. Exposing the store read-only lets that
-    # symlink resolve. Nothing else is pulled in from the store: the plugin's
-    # NEEDED libraries (openssl, curl, zlib, libstdc++, libc) are all already
-    # loaded by the app from its runtime, so the dynamic loader reuses those.
-    services.flatpak.overrides.settings."com.orcaslicer.OrcaSlicer".Context.filesystems = [ "/nix/store:ro" ];
+    # No /nix/store override for OrcaSlicer: it used to need one, because
+    # home-manager deployed the Bambu networking plugin as a symlink into the
+    # store. That plugin has been removed -- the Flathub build ships its own
+    # consistent proprietary stack and loads it from the app's per-app data dir
+    # -- so the sandbox no longer has to be widened to the whole store to serve
+    # one file. See the note in hosts/nixos/home.nix.
 
     # Same reason: mermaid-cli loads its own index.html from /nix/store, and the
     # Flatpak sandbox cannot see that path without this. Puppeteer's side of the

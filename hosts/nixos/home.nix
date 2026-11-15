@@ -59,63 +59,39 @@ in
   # it. Nothing else in homeManagerModules/ is needed for that.
   imports = [
     ../../homeManagerModules/core/fonts.nix
-    inputs.open-bamboo-networking.hmModules.open-bamboo-networking
   ];
 
   # ---------------------------------------------------- Bambu network plugin
   #
-  # OrcaSlicer's Bambu networking plugin is a proprietary blob it downloads at
-  # runtime. That blob aborts the app on startup on this machine (SIGABRT /
-  # "free(): invalid size" inside std::locale::~_Impl -- a C++ ABI mismatch
-  # against the Nix-built OrcaSlicer; upstream bambulab/BambuStudio#3652).
+  # Nothing is configured here on purpose: the Bambu networking plugin is the
+  # app's own business again.
   #
-  # open-bamboo-networking is an open-source drop-in replacement with the same
-  # dlsym ABI and filename. The flake module above builds it and links it into
-  # the slicer's plugins/ dir. OrcaSlicer.conf also has to name the plugin
-  # version it expects; that file is mutable app state, so it is patched by the
-  # activation script below rather than managed as a store symlink.
+  # It used to be replaced by open-bamboo-networking, an open-source drop-in
+  # with the same dlsym ABI and filename, deployed into the slicer's plugins/
+  # dir as a /nix/store symlink. That was a workaround for the NIX-built
+  # OrcaSlicer: the proprietary blob it downloads at runtime aborted the app on
+  # startup here (SIGABRT / "free(): invalid size" inside std::locale::~_Impl
+  # -- a C++ ABI mismatch; upstream bambulab/BambuStudio#3652).
   #
-  # OrcaSlicer is now the Flathub build, whose ~/.config is redirected to its
-  # per-app data dir, so configDir points there rather than at ~/.config/
-  # OrcaSlicer (which belonged to the Nix build). The module deploys the plugin
-  # as a store symlink, so the sandbox has to be able to read /nix/store -- see
-  # the override in nixarchy/services.nix.
-  programs.openBambooNetworking = {
-    enable = true;
-    orcaSlicer = {
-      enable = true;
-      obnVersion = "02.03.00.62";
-      configDir = "${config.home.homeDirectory}/.var/app/com.orcaslicer.OrcaSlicer/config/OrcaSlicer";
-    };
-  };
-
-  # Point OrcaSlicer at the open plugin. Runs every activation but only rewrites
-  # the conf when it actually disagrees, backing the old one up to .bak. The
-  # version is read from the same option the module built the .so from, so the
-  # two cannot drift.
-  home.activation.openBambuNetworkingOrcaConf = let
-    cfg = config.programs.openBambooNetworking.orcaSlicer;
-  in
-    lib.hm.dag.entryAfter ["writeBoundary"] ''
-      CONF=${lib.escapeShellArg "${cfg.configDir}/OrcaSlicer.conf"}
-      if [ ! -e "$CONF" ]; then
-        echo "open-bamboo-networking: $CONF does not exist yet; launch OrcaSlicer once, then re-run the rebuild"
-      else
-        NEEDS_PATCH=$(${pkgs.jq}/bin/jq -r --arg ver ${lib.escapeShellArg cfg.obnVersion} \
-          '(.app.installed_networking != "true") or (.app.network_plugin_version != $ver)' "$CONF")
-        if [ "$NEEDS_PATCH" = "true" ]; then
-          $DRY_RUN_CMD cp -f "$CONF" "$CONF.bak"
-          TMP=$(mktemp)
-          ${pkgs.jq}/bin/jq --arg ver ${lib.escapeShellArg cfg.obnVersion} \
-            '.app.installed_networking = "true"
-             | .app.network_plugin_version = $ver
-             | .app.network_plugin_remind_later = "true"' "$CONF" > "$TMP"
-          cat "$TMP" > "$CONF"
-          rm -f "$TMP"
-          echo "open-bamboo-networking: patched $CONF (backup: $CONF.bak)"
-        fi
-      fi
-    '';
+  # OrcaSlicer is the Flathub build now, which ships its own consistent
+  # proprietary stack (libbambu_networking_02.08.04.so plus libBambuSource.so,
+  # downloaded into the app's per-app data dir). It loads cleanly -- the app
+  # logs "BBLNetworkPlugin::initialize: abi=02.08.04 ... send_message=loaded,
+  # start_print=loaded, start_local_print=loaded, get_my_token=loaded" -- so
+  # the replacement was no longer needed and was only causing harm:
+  #
+  #   * The activation script rewrote OrcaSlicer.conf on every rebuild,
+  #     pinning app.network_plugin_version to the open plugin's 02.03.00.62
+  #     and setting app.network_plugin_remind_later = "true" ("remind me
+  #     later"). The app loaded a different version, saw the mismatch, and
+  #     re-showed the "network plugin update available" prompt on EVERY launch.
+  #   * The plugin was a symlink into /nix/store, so the Flatpak sandbox needed
+  #     /nix/store exposed read-only (nixarchy/services.nix) -- widening the
+  #     sandbox to the whole store to serve one file.
+  #
+  # The app owns its plugins and its conf now. Nothing in Home Manager writes
+  # to them, so the version the app records stays true and the prompt does not
+  # come back.
 
   # ---------------------------------------------------------------- Identity
   #
