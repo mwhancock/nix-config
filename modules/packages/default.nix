@@ -66,6 +66,166 @@ in
     gccNGPackages.libstdcxx
   ];
 
+  # ---------------------------------------------------------------------------
+  # envfs: the FHS fallback path.
+  #
+  # /bin and /usr/bin on this system are envfs mounts, not directories. envfs
+  # resolves a path like /usr/bin/curl from the PATH of the *calling* process,
+  # and falls back to a fixed "fallback path" directory when the caller's PATH
+  # has no match.
+  #
+  # Homebrew resets PATH to /usr/bin:/bin:/usr/sbin:/sbin for every process it
+  # spawns -- the "filter the user environment" block in Homebrew's bin/brew --
+  # and then re-execs itself with `env -i`. Under that PATH almost nothing
+  # resolves: the names in the system closure conflict (four different
+  # coreutils builds each ship bin/ls), and envfs drops conflicted names from
+  # its union. Only "env" and "sh" survive, because those are the two things
+  # the fallback path happens to contain. Homebrew could not even re-exec
+  # itself:
+  #
+  #     env: '/bin/bash': No such file or directory
+  #
+  # The fallback path is consulted exactly when the PATH lookup fails, so
+  # populating it restores the standard FHS utilities for any caller whose
+  # PATH does not cover them. That is what this option exists for.
+  #
+  # The list is what Homebrew shells out to by bare name: coreutils for the
+  # file and text plumbing, the archivers for unpacking bottles, and a
+  # compiler plus make for the formulae that have no bottle and are built from
+  # source.
+  #
+  # A few are less obvious and are here because Homebrew failed without them:
+  #
+  #   flock    Homebrew takes a lock file before it will update or install
+  #            anything, and it takes it with flock(2), or ruby, or python.
+  #            Without one of those it refuses to run at all.
+  #   ldd      Homebrew's vendor-install.sh reads the system glibc version
+  #            from `ldd --version` before it will unpack portable ruby.
+  #   ssh      This machine's global git config rewrites every
+  #            https://github.com/ URL to git@github.com: (url.insteadOf), so
+  #            Homebrew's `brew update` fetches over SSH and needs an ssh
+  #            binary. It also needs the agent, which the session provides.
+  #   openssl, shasum
+  #            Checksums for the vendored tarballs.
+  #
+  # curl and git are deliberately NOT here, even though they are the two tools
+  # Homebrew cares about most. See the brew.env block below for why, and for
+  # how Homebrew is pointed at them instead.
+  #
+  # make and gcc are here, and only here. No language toolchain is installed
+  # system-wide (see the environment.systemPackages comment below); each
+  # project brings its own. Homebrew, though, needs a compiler at a fixed
+  # path to build from source, and its build steps run with PATH set to the
+  # FHS default.
+  services.envfs.extraFallbackPathCommands = ''
+    for f in ${pkgs.coreutils}/bin/*; do
+      ln -sf "$f" $out/
+    done
+    ln -sf ${pkgs.bash}/bin/bash $out/bash
+    ln -sf ${pkgs.gnused}/bin/sed $out/sed
+    ln -sf ${pkgs.gawk}/bin/awk $out/awk
+    ln -sf ${pkgs.gnugrep}/bin/grep $out/grep
+    ln -sf ${pkgs.gnugrep}/bin/egrep $out/egrep
+    ln -sf ${pkgs.gnugrep}/bin/fgrep $out/fgrep
+    ln -sf ${pkgs.findutils}/bin/find $out/find
+    ln -sf ${pkgs.findutils}/bin/xargs $out/xargs
+    ln -sf ${pkgs.gnutar}/bin/tar $out/tar
+    ln -sf ${pkgs.gzip}/bin/gzip $out/gzip
+    ln -sf ${pkgs.bzip2}/bin/bzip2 $out/bzip2
+    ln -sf ${pkgs.xz}/bin/xz $out/xz
+    ln -sf ${pkgs.zstd}/bin/zstd $out/zstd
+    ln -sf ${pkgs.unzip}/bin/unzip $out/unzip
+    ln -sf ${pkgs.gnupatch}/bin/patch $out/patch
+    ln -sf ${pkgs.diffutils}/bin/diff $out/diff
+    ln -sf ${pkgs.which}/bin/which $out/which
+    ln -sf ${pkgs.file}/bin/file $out/file
+    ln -sf ${pkgs.python3}/bin/python3 $out/python3
+    ln -sf ${pkgs.perl}/bin/perl $out/perl
+    ln -sf ${pkgs.perl}/bin/shasum $out/shasum
+    ln -sf ${pkgs.openssl}/bin/openssl $out/openssl
+    ln -sf ${pkgs.util-linux}/bin/flock $out/flock
+    ln -sf ${pkgs.openssh}/bin/ssh $out/ssh
+    ln -sf ${pkgs.openssh}/bin/scp $out/scp
+    ln -sf ${pkgs.openssh}/bin/sftp $out/sftp
+    ln -sf ${pkgs.glibc.bin}/bin/ldd $out/ldd
+    ln -sf ${pkgs.glibc.bin}/bin/getconf $out/getconf
+    ln -sf ${pkgs.glibc.bin}/bin/iconv $out/iconv
+    ln -sf ${pkgs.glibc.bin}/bin/locale $out/locale
+    ln -sf ${pkgs.gnumake}/bin/make $out/make
+    ln -sf ${pkgs.gnumake}/bin/gmake $out/gmake
+    ln -sf ${pkgs.gcc}/bin/gcc $out/gcc
+    ln -sf ${pkgs.gcc}/bin/cc $out/cc
+    ln -sf ${pkgs.binutils}/bin/ld $out/ld
+    ln -sf ${pkgs.binutils}/bin/as $out/as
+    ln -sf ${pkgs.binutils}/bin/ar $out/ar
+    ln -sf ${pkgs.binutils}/bin/nm $out/nm
+    ln -sf ${pkgs.binutils}/bin/ranlib $out/ranlib
+    ln -sf ${pkgs.binutils}/bin/strip $out/strip
+    ln -sf ${pkgs.binutils}/bin/objcopy $out/objcopy
+    ln -sf ${pkgs.pkg-config}/bin/pkg-config $out/pkg-config
+  '';
+
+  # ---------------------------------------------------------------------------
+  # Homebrew's curl and git.
+  #
+  # Homebrew does not run curl and git from PATH. It resolves each one once,
+  # at startup, and every later use goes through the absolute path it picked.
+  # The candidates it considers, in order, are the brewed copy, then
+  # /usr/bin/curl, then whatever HOMEBREW_CURL_PATH points at -- but the
+  # /usr/bin candidate is only skipped if it fails the check, so a working
+  # /usr/bin/curl wins over the suggestion.
+  #
+  # On this system /usr/bin/curl cannot be that candidate. envfs resolves
+  # /usr/bin/<name> by searching the calling process's PATH, and Homebrew
+  # puts its own shim directory first in PATH:
+  #
+  #   /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/shims/shared
+  #
+  # So from inside Homebrew, /usr/bin/curl resolves to Homebrew's curl shim.
+  # The shim checks whether it is about to exec itself, by reading the link
+  # target of the binary it was given -- and envfs answers that readlink with
+  # the same PATH-resolved answer, the shim. The shim therefore decides it
+  # would be exec'ing itself, refuses, and every download fails with
+  #
+  #   Error: Failed to get curl path
+  #
+  # The fix is to have Homebrew use a curl and git that live outside /usr/bin,
+  # where envfs does not rewrite them.
+  #
+  # Two things have to happen together for that. HOMEBREW_CURL_PATH is only a
+  # suggestion, and it is consulted only when the /usr/bin candidate fails --
+  # so curl and git are deliberately left out of the envfs fallback path
+  # above, which is what makes /usr/bin/curl fail that check. And the
+  # suggestion itself has to be a path envfs leaves alone, which a store path
+  # is; the system profile would do too, but naming the packages here keeps
+  # the two in step with the nixpkgs pin.
+  #
+  # /etc/homebrew/brew.env is Homebrew's own system-wide environment file. It
+  # is read by Homebrew's bin/brew on every run, and because these are
+  # HOMEBREW_-prefixed they survive the `env -i` that Homebrew re-execs
+  # itself with.
+  environment.etc."homebrew/brew.env".text = ''
+    HOMEBREW_CURL_PATH=${pkgs.curl}/bin/curl
+    HOMEBREW_GIT_PATH=${pkgs.git}/bin/git
+  '';
+
+  # The envfs mount has to be remounted for a changed fallback path to take
+  # effect. The mount unit is generated from fileSystems, so a changed
+  # fallback path shows up as a changed usr-bin.mount; nixos-rebuild reloads
+  # that unit during the switch, but systemd does not remount on a reload, and
+  # the running FUSE daemon keeps the fallback path it was started with.
+  # Without this the config and the running system disagree, silently, until
+  # the next reboot.
+  #
+  # The daemon-reload comes first on purpose. This snippet runs before
+  # systemd re-reads the units it is about to change, so without it the
+  # restart would pick up the unit as it was and put the old fallback path
+  # back.
+  system.activationScripts.envfs = ''
+    ${pkgs.systemd}/bin/systemctl daemon-reload
+    ${pkgs.systemd}/bin/systemctl restart usr-bin.mount
+  '';
+
   # Unity Hub runs both itself and the Editor it launches inside a
   # buildFHSEnv sandbox. That sandbox carries libstdc++ but not libtinfo, so
   # the Editor's UnityShaderCompiler helper dies at startup with
