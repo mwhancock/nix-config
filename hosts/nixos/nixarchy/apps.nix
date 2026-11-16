@@ -31,7 +31,7 @@
   # ── AI ──────────────────────────────────────────────────────────
     antigravity.enable = true;  #@ antigravity  # unfree
     # chatgpt.enable = true;  #@ chatgpt  # unfree
-    # claude-code.enable = true;  #@ claude-code  # unfree
+    claude-code.enable = true;  #@ claude-code  # unfree
     # codex.enable = true;  #@ codex
     # dictation.enable = true;  #@ dictation  # Hold F9 to dictate, or toggle with Super+Ctrl+X. Downloads a ~150 MB whisper model on first activation, into your own data directory rather than the store. `~/.config/voxtype/config.toml` is seeded once and is then yours to edit. 
     #   dictation.settings = { };  #@ dictation.settings
@@ -162,6 +162,7 @@
     saber  #@pkg saber
     affine  #@pkg affine
     mpremote  #@pkg mpremote
+    opencode-desktop  #@pkg opencode-desktop
   ];  #@pkgs-end
 }
 
