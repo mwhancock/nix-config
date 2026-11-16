@@ -130,6 +130,38 @@ in
     '';
   };
 
+  # Homebrew's binaries, on PATH for every session.
+  #
+  # The dotfiles' config.fish already runs `brew shellenv`, which is where the
+  # HOMEBREW_* variables and MANPATH come from. But that hook only runs in an
+  # interactive shell, so `brew` was invisible to anything that does not go
+  # through one -- a script run from a cron job or an editor, say, and a
+  # shell started by something other than your terminal.
+  #
+  # This is the same thing the Homebrew installer asks you to add to your
+  # shell profile, done declaratively instead: the two directories are
+  # prepended to PATH for every session.
+  #
+  # Two things this does NOT do, so they are not mistaken for covered:
+  #
+  #   It does not reach the systemd user manager. Home Manager writes its
+  #   session variables to ~/.config/environment.d as well, but that format
+  #   has no expansion, so PATH is deliberately left out of it -- a literal
+  #   PATH there would replace the user manager's own PATH wholesale. Anything
+  #   launched from the desktop session still has to name brew by absolute
+  #   path.
+  #
+  #   It does not reach a shell that is already running. A terminal opened
+  #   before Homebrew was installed keeps its old PATH, and no rebuild can
+  #   change that; the shell has to be restarted, or the shellenv run in it.
+  #
+  # Both directories go in one entry on purpose. home.sessionPath renders
+  # each entry as "$dir${PATH:+:$PATH}", so two entries would put PATH in the
+  # result twice.
+  home.sessionPath = [
+    "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
+  ];
+
   # nix-direnv's functions (`use flake`, and a `use nix` that caches) are not
   # built into direnv; they have to be sourced from its direnvrc. Wired here
   # rather than by enabling programs.direnv, which would also add its own
